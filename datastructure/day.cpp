@@ -7,7 +7,13 @@ Day::Day(QMap<QDateTime, float> *powerCurve, QDateTime *sunrise, QDateTime *suns
     this->momentOfMaximumPower = momentOfMaximumPower;
     this->maximumPower = maximumPower;
     this->energy = energy;
-   // qDebug() << sunrise->toString("dd.MM.yyyy") << " " << sunset << " " << momentOfMaximumPower << " " << maximumPower << " " << energy;
+    this->duration = sunrise->secsTo(*sunset)/3600; // save some cpu time
+    // qDebug() << sunrise->toString("dd.MM.yyyy") << " " << sunset << " " << momentOfMaximumPower << " " << maximumPower << " " << energy;
+}
+
+Day::Day()
+{
+
 }
 
 Day::~Day()
@@ -15,67 +21,37 @@ Day::~Day()
 
 }
 
-QMap<QDateTime, float>* Day::getPowerCurve()
+QMap<QDateTime, float>* Day::getPowerCurve() const
 {
     return this->powerCurve;
 }
 
-QDate Day::getDate()
+QDate Day::getDate() const
 {
     return this->sunrise->date();
 }
 
-QDateTime *Day::getSunrise() {
+QDateTime *Day::getSunrise() const {
     return this->sunrise;
 }
 
-QDateTime *Day::getSunset() {
+QDateTime *Day::getSunset() const {
     return this->sunset;
 }
 
-QDateTime *Day::getMomentOfMaximumPower() {
+QDateTime *Day::getMomentOfMaximumPower() const {
     return this->momentOfMaximumPower;
 }
 
-float Day::getMaximumPower() {
+float Day::getMaximumPower() const {
     return this->maximumPower;
 }
 
-float Day::getEnergy() {
+float Day::getEnergy() const {
     return this->energy;
 }
 
-float Day::getDuration() {
-    return sunrise->secsTo(*sunset)/3600;
+float Day::getDuration()  const{
+    return this->duration;
 }
-
-void Day::processData() {
-//    QMap<QDateTime, float>::iterator i;
-//    boolean beginFound = false;
-//    this->maximumPower = 0f;
-//    for (i = this->powerCurve->begin(); i != this->powerCurve->end(); ++i) {
-//        if (!beginFound) {
-//            if (i.value() != 0) {
-//                beginFound = true;
-//                this->sunrise = i.key();
-//            }
-//        }
-
-//        if (this->maximumPower < i.value()) {
-//            this->maximumPower = i.value();
-//            this->momentOfMaximumPower = i.key();
-//        }
-
-//    }
-
-
-
-//    for (i = dd->end()-1; i != dd->begin(); --i) {
-//        if (i.value() != 0) {
-//            this->sunset = i.key();
-//            break;
-//        }
-//    }
-}
-
 

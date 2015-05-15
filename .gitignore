@@ -27,6 +27,9 @@
 *.out
 *.app
 
+#QtCreator files
+*.autosave
+
 # =========================
 # Operating System Files
 # =========================

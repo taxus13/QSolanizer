@@ -11,20 +11,19 @@ class Day
 {
 public:
     Day(QMap<QDateTime, float>*, QDateTime*, QDateTime*, QDateTime*, float, float);
+    Day(); //just for testing!!!
     ~Day();
-    QMap<QDateTime, float> *getPowerCurve();
-    QDate getDate();
-    QDateTime *getSunrise();
-    QDateTime *getSunset();
-    QDateTime *getMomentOfMaximumPower();
+    QMap<QDateTime, float> *getPowerCurve() const;
+    QDate getDate() const;
+    QDateTime *getSunrise() const;
+    QDateTime *getSunset() const ;
+    QDateTime *getMomentOfMaximumPower() const;
 
-    float getMaximumPower();
-    float getEnergy();
-    float getDuration();
+    float getMaximumPower() const;
+    float getEnergy() const;
+    float getDuration() const;
 
 private:
-    void processData();
-
     QMap<QDateTime, float>* powerCurve;
     QDateTime *sunrise;
     QDateTime *sunset;
@@ -32,6 +31,7 @@ private:
 
     float maximumPower;
     float energy;
+    float duration;
 };
 
 #endif // DAY_H

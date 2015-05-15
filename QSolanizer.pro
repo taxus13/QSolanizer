@@ -31,6 +31,8 @@ HEADERS  += qsolanizer.h \
 
 FORMS    += qsolanizer.ui
 
+
+win32::RC_ICONS += qsolanizer.ico
 #CONFIG += qwt
 
 #win32 {
