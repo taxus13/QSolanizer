@@ -73,3 +73,13 @@ Day *SolarPart::getDay(QDate *date)
 {
     return this->yearData.value(date->year())->getDay(date);
 }
+
+QList<int> SolarPart::getYearList()
+{
+    QList<int> yearList = QList<int>();
+    for (int i=this->start.year(); i<=this->end.year(); ++i) {
+        yearList.append(i);
+    }
+    return yearList;
+}
+

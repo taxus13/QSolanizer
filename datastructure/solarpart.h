@@ -4,6 +4,9 @@
 #include <QDateTime>
 #include <QSet>
 #include <QMap>
+#include <QList>
+#include <QVector>
+#include <QPair>
 
 #include "datastructure/day.h"
 #include "datastructure/year.h"
@@ -24,6 +27,8 @@ public:
     Year* getYear(int year);
     Month* getMonth(QDate *date);
     Day* getDay(QDate *date);
+    QList<int> getYearList();
+
 
 private:
     QDate start;

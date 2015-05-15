@@ -48,3 +48,12 @@ QDate Year::getFirst() {
 QDate Year::getLast() {
     return this->monthdata.last()->getLast();
 }
+
+QList<QDate> Year::getMonthList()
+{
+    QList<QDate> list = QList<QDate>();
+    foreach (int month, this->monthdata.keys()) {
+        list.append(QDate(this->getFirst().year(), month, 1));
+    }
+    return list;
+}

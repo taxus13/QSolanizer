@@ -14,15 +14,15 @@
    <string>QSolanizer</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout_3">
-    <item>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout" stretch="0">
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="widget">
            <attribute name="title">
@@ -36,23 +36,114 @@
                 <item>
                  <widget class="QGroupBox" name="groupBox">
                   <property name="title">
-                   <string>GroupBox</string>
+                   <string>Eckdaten</string>
                   </property>
+                  <layout class="QFormLayout" name="formLayout">
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_3">
+                     <property name="text">
+                      <string>Sonnenaufgang</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QLabel" name="lSunrise">
+                     <property name="text">
+                      <string>TextLabel</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="label_4">
+                     <property name="text">
+                      <string>Sonnenuntergang</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QLabel" name="lSunset">
+                     <property name="text">
+                      <string>TextLabel</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QLabel" name="label_5">
+                     <property name="text">
+                      <string>Spitzenleistung</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QLabel" name="lPeakpower">
+                     <property name="text">
+                      <string>TextLabel</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QLabel" name="label_6">
+                     <property name="text">
+                      <string>Tagesertrag</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QLabel" name="lDayEnergy">
+                     <property name="text">
+                      <string>TextLabel</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0">
+                    <widget class="QLabel" name="label_11">
+                     <property name="text">
+                      <string>Dauer</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="1">
+                    <widget class="QLabel" name="lDayDuration">
+                     <property name="text">
+                      <string>TextLabel</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QGroupBox" name="groupBox_2">
-                  <property name="title">
-                   <string>GroupBox</string>
+                 <spacer name="verticalSpacer_2">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
                   </property>
-                 </widget>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                </layout>
               </item>
               <item>
-               <widget class="QCustomPlot" name="wPowerCurve" native="true">
-                <zorder>calendarWidget</zorder>
-               </widget>
+               <widget class="QCustomPlot" name="wPowerCurve" native="true"/>
               </item>
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -99,19 +190,55 @@
                   <property name="title">
                    <string>GroupBox</string>
                   </property>
+                  <layout class="QGridLayout" name="gridLayout_2">
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_7">
+                     <property name="text">
+                      <string>Sonnenstunden</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="label_8">
+                     <property name="text">
+                      <string>Monatsertrag</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QLabel" name="lMonthSunhours">
+                     <property name="text">
+                      <string>TextLabel</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QLabel" name="lMonthEnergy">
+                     <property name="text">
+                      <string>TextLabel</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QGroupBox" name="groupBox_4">
-                  <property name="title">
-                   <string>GroupBox</string>
+                 <spacer name="verticalSpacer_3">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
                   </property>
-                 </widget>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                </layout>
               </item>
               <item>
-               <widget class="QCustomPlot" name="widget" native="true"/>
+               <widget class="QCustomPlot" name="wMonthPlot" native="true"/>
               </item>
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -195,7 +322,7 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QDateEdit" name="dateEdit_2"/>
+                    <widget class="QDateEdit" name="dateEditStart"/>
                    </item>
                    <item>
                     <widget class="QLabel" name="label_2">
@@ -205,13 +332,39 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QDateEdit" name="dateEdit_3"/>
+                    <widget class="QDateEdit" name="dateEditEnd"/>
                    </item>
                   </layout>
                   <zorder>label</zorder>
-                  <zorder>dateEdit_2</zorder>
-                  <zorder>dateEdit_3</zorder>
+                  <zorder>dateEditStart</zorder>
+                  <zorder>dateEditEnd</zorder>
                   <zorder>label_2</zorder>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QGroupBox" name="groupBox_2">
+                  <property name="title">
+                   <string>Was soll dargestellt werden?</string>
+                  </property>
+                  <layout class="QVBoxLayout" name="verticalLayout_3">
+                   <item>
+                    <widget class="QRadioButton" name="radioButton">
+                     <property name="text">
+                      <string>Energie</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QRadioButton" name="radioButton_2">
+                     <property name="text">
+                      <string>Zeitdauer</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </widget>
                 </item>
                </layout>
@@ -234,19 +387,55 @@
                   <property name="title">
                    <string>GroupBox</string>
                   </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QGroupBox" name="groupBox_6">
-                  <property name="title">
-                   <string>GroupBox</string>
-                  </property>
+                  <layout class="QGridLayout" name="gridLayout_3">
+                   <item row="3" column="0">
+                    <widget class="QLabel" name="label_13">
+                     <property name="text">
+                      <string>Jahresertrag</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_9">
+                     <property name="text">
+                      <string>Sonnenstunden</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0">
+                    <spacer name="verticalSpacer_4">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QLabel" name="lYearDuration">
+                     <property name="text">
+                      <string>TextLabel</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QLabel" name="lYearEnergy">
+                     <property name="text">
+                      <string>TextLabel</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </widget>
                 </item>
                </layout>
               </item>
               <item>
-               <widget class="QCustomPlot" name="widget_2" native="true"/>
+               <widget class="QCustomPlot" name="wYearPlot" native="true"/>
               </item>
               <item>
                <widget class="QListWidget" name="listWidget">
@@ -293,19 +482,55 @@
                   <property name="title">
                    <string>GroupBox</string>
                   </property>
+                  <layout class="QGridLayout" name="gridLayout_4">
+                   <item row="3" column="0">
+                    <widget class="QLabel" name="label_12">
+                     <property name="text">
+                      <string>Gesamtertrag</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1" colspan="2">
+                    <widget class="QLabel" name="lTotalEnergy">
+                     <property name="text">
+                      <string>TextLabel</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QLabel" name="label_14">
+                     <property name="text">
+                      <string>Sonnenstunden</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QLabel" name="lTotalDuration">
+                     <property name="text">
+                      <string>TextLabel</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QGroupBox" name="groupBox_8">
-                  <property name="title">
-                   <string>GroupBox</string>
+                 <spacer name="verticalSpacer_5">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
                   </property>
-                 </widget>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                </layout>
               </item>
               <item>
-               <widget class="QCustomPlot" name="widget_3" native="true"/>
+               <widget class="QCustomPlot" name="wTotalPlot" native="true"/>
               </item>
               <item>
                <widget class="QGroupBox" name="groupBox_9">
@@ -325,7 +550,7 @@
       <item>
        <widget class="QPushButton" name="bTest">
         <property name="text">
-         <string>PushButton</string>
+         <string>Lese Daten</string>
         </property>
        </widget>
       </item>

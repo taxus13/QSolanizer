@@ -2,6 +2,7 @@
 #define YEAR_H
 
 #include <QMap>
+#include <QList>
 
 #include "datastructure/day.h"
 #include "datastructure/month.h"
@@ -19,6 +20,7 @@ public:
     Day* getDay(QDate *date);
     QDate getFirst();
     QDate getLast();
+    QList<QDate> getMonthList();
 
 private:
     QMap<int, Month*> monthdata;

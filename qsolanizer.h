@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QtConcurrent>
+#include <QTreeWidgetItem>
 //#include <qwt_plot_curve.h>
 //#include <qwt_plot.h>
 //#include <qwt_point_data.h>
@@ -24,11 +25,15 @@ public:
 
 private:
     Ui::QSolanizer *ui;
+
+    void fillDataWidgets();
+    void readData();
+    void plotMonthData(QDate date);
     SolarPart sp;
 private slots:
-    void test();
     void on_calendarWidget_selectionChanged();
     void on_bTest_clicked();
+    void on_tMonthSelection_itemSelectionChanged();
 };
 
 #endif // QSOLANIZER_H

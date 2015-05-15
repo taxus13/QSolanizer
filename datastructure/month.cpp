@@ -40,3 +40,19 @@ QDate Month::getFirst() {
 QDate Month::getLast() {
     return this->dayData.last()->getDate();
 }
+
+QList<Day *> Month::getAllDays()
+{
+    return this->dayData.values();
+}
+
+QPair<QVector<QDate>, QVector<float> > Month::getEnergyValues()
+{
+    QVector<QDate> dates;
+    QVector<float> energy;
+    foreach (Day *day, this->getAllDays()) {
+        dates << day->getDate();
+        energy << day->getEnergy();
+    }
+    return QPair<QVector<QDate>, QVector<float> >(dates, energy);
+}
