@@ -83,3 +83,22 @@ QList<int> SolarPart::getYearList()
     return yearList;
 }
 
+QPair<QVector<int>, QVector<float> > SolarPart::getEnergyValues()
+{
+    QVector<int> dates;
+    QVector<float> energy;
+    foreach (int year, this->yearData.keys()) {
+        dates << year;
+
+    }
+    foreach (Year* year, this->yearData.values()) {
+        energy << year->getEnergy();
+    }
+
+    return QPair<QVector<int>, QVector<float> >(dates, energy);
+}
+
+int SolarPart::getDayCount()
+{
+    return datesAdded.size();
+}

@@ -28,6 +28,10 @@ public:
     Month* getMonth(QDate *date);
     Day* getDay(QDate *date);
     QList<int> getYearList();
+    QPair<QVector<int>, QVector<float> > getEnergyValues();
+
+    //meta
+    int getDayCount();
 
 
 private:

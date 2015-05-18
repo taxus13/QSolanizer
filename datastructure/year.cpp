@@ -27,6 +27,10 @@ Month *Year::getMonth(QDate *date)
     return this->monthdata.value(date->month());
 }
 
+Month *Year::getMonth(int month) {
+    return this->monthdata.value(month);
+}
+
 Day *Year::getDay(QDate *date)
 {
     return this->monthdata.value(date->month())->getDay(date);
@@ -39,6 +43,11 @@ float Year::getEnergy()
 
 float Year::getDuration() {
     return this->duration;
+}
+
+bool Year::hasDataOfMonth(int month)
+{
+    return this->monthdata.contains(month);
 }
 
 QDate Year::getFirst() {
@@ -56,4 +65,15 @@ QList<QDate> Year::getMonthList()
         list.append(QDate(this->getFirst().year(), month, 1));
     }
     return list;
+}
+
+QPair<QVector<QDate>, QVector<float> > Year::getEnergyValues()
+{
+    QVector<QDate> dates;
+    QVector<float> energy;
+    foreach (Month *month, this->monthdata.values()) {
+        dates << month->getFirst();
+        energy << month->getEnergy();
+    }
+    return QPair<QVector<QDate>, QVector<float> >(dates, energy);
 }

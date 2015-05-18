@@ -28,12 +28,25 @@ private:
 
     void fillDataWidgets();
     void readData();
+
+    // plotting and label filling functions
+    void plotDayData(QDate date);
     void plotMonthData(QDate date);
+    void plotYearData(int year);
+    void plotAllYearData();
+    void plotTotalData();
+
+
     SolarPart sp;
+    QList<QColor> someColors;
+
 private slots:
     void on_calendarWidget_selectionChanged();
     void on_bTest_clicked();
     void on_tMonthSelection_itemSelectionChanged();
+    void on_listWidget_itemSelectionChanged();
+    void on_checkBox_stateChanged(int checkState);
+    void on_dateEdit_dateChanged(const QDate &date);
 };
 
 #endif // QSOLANIZER_H

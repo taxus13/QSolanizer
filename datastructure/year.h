@@ -13,19 +13,23 @@ public:
     Year();
     ~Year();
     void addDay(Day *day);
-    float energy;
-    float duration;
+
 
     Month* getMonth(QDate *date);
+    Month* getMonth(int month);
     Day* getDay(QDate *date);
     QDate getFirst();
     QDate getLast();
     QList<QDate> getMonthList();
-
-private:
-    QMap<int, Month*> monthdata;
+    QPair<QVector<QDate>, QVector<float> > getEnergyValues();
     float getEnergy();
     float getDuration();
+    bool hasDataOfMonth(int month);
+private:
+    QMap<int, Month*> monthdata;
+    float energy;
+    float duration;
+
 
 };
 
