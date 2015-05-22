@@ -1,6 +1,9 @@
 # QSolanizer
-A tool to visualize and analyze SMA power converter data
+A tool to visualize and analyze SMA power converter data. 
+Currently it only parses CSV data from the (German?) [Sunny Explorer](http://www.sma.de/produkte/monitoring-control/sunny-explorer.html)
 
-A few years ago, I developed a Python/PySide version of this tool: http://lostbit.de/?page_id=206 [German]
+Please provide some exported files from your power converter, so other power converters are supported.
 
-I decided to rewrite the tool with C++/Qt
+## Used Libraries
+* [Qt5](http://www.qt.io/download/)
+* [QCustomPlot](http://qcustomplot.com/) library to plot the graphs
