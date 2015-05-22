@@ -27,8 +27,11 @@ public:
     Year* getYear(int year);
     Month* getMonth(QDate *date);
     Day* getDay(QDate *date);
+    QList<Day*> getDaysInRange(QDate *startDate, QDate *endDate);
     QList<int> getYearList();
     QPair<QVector<int>, QVector<float> > getEnergyValues();
+
+    QPair<QVector<QDate>, QVector<float> > getEnergyValuesOfDays(QDate *startDate, QDate *endDate);
 
     //meta
     int getDayCount();

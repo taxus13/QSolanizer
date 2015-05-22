@@ -74,6 +74,21 @@ Day *SolarPart::getDay(QDate *date)
     return this->yearData.value(date->year())->getDay(date);
 }
 
+QList<Day *> SolarPart::getDaysInRange(QDate *startDate, QDate *endDate)
+{
+    QList<Day *> days;
+    if (*startDate <= *endDate) { // check if the parameters make sense
+        QDate *date = startDate;
+        while (*date <= *endDate) {
+            Day *day = this->getDay(date);
+            days.append(day);
+            QDate date2 = date->addDays(1);
+            date = &date2;
+        }
+    }
+    return days;
+}
+
 QList<int> SolarPart::getYearList()
 {
     QList<int> yearList = QList<int>();
@@ -97,6 +112,20 @@ QPair<QVector<int>, QVector<float> > SolarPart::getEnergyValues()
 
     return QPair<QVector<int>, QVector<float> >(dates, energy);
 }
+
+QPair<QVector<QDate>, QVector<float> > SolarPart::getEnergyValuesOfDays(QDate *startDate, QDate *endDate)
+{
+    QVector<QDate> dates;
+    QVector<float> energy;
+    QList<Day *> days = this->getDaysInRange(startDate, endDate);
+    foreach (Day* day, days) {
+        dates << day->getDate();
+        energy << day->getEnergy();
+    }
+
+    return QPair<QVector<QDate>, QVector<float> >(dates, energy);
+}
+
 
 int SolarPart::getDayCount()
 {

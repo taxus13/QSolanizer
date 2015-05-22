@@ -4,9 +4,8 @@
 #include <QMainWindow>
 #include <QtConcurrent>
 #include <QTreeWidgetItem>
-//#include <qwt_plot_curve.h>
-//#include <qwt_plot.h>
-//#include <qwt_point_data.h>
+#include <QProgressDialog>
+
 #include <csvreader.h>
 
 
@@ -31,7 +30,9 @@ private:
 
     // plotting and label filling functions
     void plotDayData(QDate date);
-    void plotMonthData(QDate date);
+    void showMonthData(QDate date);
+    void showCustomRange(QDate start, QDate end);
+    void plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > *data);
     void plotYearData(int year);
     void plotAllYearData();
     void plotTotalData();
@@ -47,6 +48,8 @@ private slots:
     void on_listWidget_itemSelectionChanged();
     void on_checkBox_stateChanged(int checkState);
     void on_dateEdit_dateChanged(const QDate &date);
+    void on_dateEditStart_dateChanged(const QDate &date);
+    void on_dateEditEnd_dateChanged(const QDate &date);
 };
 
 #endif // QSOLANIZER_H

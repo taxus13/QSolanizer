@@ -22,7 +22,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>3</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="widget">
            <attribute name="title">
@@ -674,13 +674,6 @@
        <widget class="QPushButton" name="bTest">
         <property name="text">
          <string>Lese Daten</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QProgressBar" name="progressBar">
-        <property name="value">
-         <number>24</number>
         </property>
        </widget>
       </item>
