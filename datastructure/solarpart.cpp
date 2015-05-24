@@ -2,26 +2,40 @@
 
 SolarPart::SolarPart()
 {
-    this->datesAdded = QSet<QDate>();
-    this->yearData = QMap<int, Year*>();
+    this->datesAdded =  new QSet<QDate>();
+    this->yearData = new QMap<int, Year*>();
+    this->start = new QDate();
+    this->end = new QDate();
     this->energy = 0;
     this->duration = 0;
 }
 
+SolarPart::SolarPart(QDate *start, QDate *end, QSet<QDate> *datesAdded, QMap<int, Year *> *yearData, float energy, float duration) {
+    this->start = start;
+    this->end = end;
+    this->datesAdded = datesAdded;
+    this->yearData = yearData;
+    this->energy = energy;
+    this->duration = duration;
+}
+
 SolarPart::~SolarPart()
 {
-
+    delete this->start;
+    delete this->end;
+    delete this->datesAdded;
+    delete this->yearData;
 }
 
 void SolarPart::addDay(Day *day) {
-    if (!this->datesAdded.contains(day->getDate())) {
-        if (!yearData.contains(day->getDate().year())) {
-            yearData[day->getDate().year()] = new Year();
+    if (!this->datesAdded->contains(day->getDate())) {
+        if (!yearData->contains(day->getDate().year())) {
+            yearData->insert(day->getDate().year(), new Year());
         }
-        yearData[day->getDate().year()]->addDay(day);
+        yearData->value(day->getDate().year())->addDay(day);
         this->energy += day->getEnergy();
         this->duration += day->getDuration();
-        this->datesAdded.insert(day->getDate());
+        this->datesAdded->insert(day->getDate());
     }
 
 
@@ -29,26 +43,26 @@ void SolarPart::addDay(Day *day) {
 
 void SolarPart::doFinalStatistics()
 {
-    this->start = this->yearData.first()->getFirst();
-    this->end = this->yearData.last()->getLast();
+    this->start = new QDate(this->yearData->first()->getFirst());
+    this->end = new QDate(this->yearData->last()->getLast());
 }
 
-float SolarPart::getEnergy()
+float SolarPart::getEnergy() const
 {
     return this->energy;
 }
 
 
-float SolarPart::getDuration() {
+float SolarPart::getDuration() const {
     return this->duration;
 }
 
-QDate SolarPart::getBeginningDate()
+QDate* SolarPart::getBeginningDate() const
 {
     return this->start;
 }
 
-QDate SolarPart::getEndingDate()
+QDate* SolarPart::getEndingDate() const
 {
     return this->end;
 }
@@ -56,22 +70,22 @@ QDate SolarPart::getEndingDate()
 Year *SolarPart::getYear(QDate *date)
 {
     // TODO check if year is available
-    return this->yearData.value(date->year());
+    return this->yearData->value(date->year());
 }
 
 Year *SolarPart::getYear(int year)
 {
-     return this->yearData.value(year);
+     return this->yearData->value(year);
 }
 
 Month *SolarPart::getMonth(QDate *date)
 {
-   return this->yearData.value(date->year())->getMonth(date);
+   return this->yearData->value(date->year())->getMonth(date);
 }
 
 Day *SolarPart::getDay(QDate *date)
 {
-    return this->yearData.value(date->year())->getDay(date);
+    return this->yearData->value(date->year())->getDay(date);
 }
 
 QList<Day *> SolarPart::getDaysInRange(QDate *startDate, QDate *endDate)
@@ -92,7 +106,7 @@ QList<Day *> SolarPart::getDaysInRange(QDate *startDate, QDate *endDate)
 QList<int> SolarPart::getYearList()
 {
     QList<int> yearList = QList<int>();
-    for (int i=this->start.year(); i<=this->end.year(); ++i) {
+    for (int i=this->start->year(); i<=this->end->year(); ++i) {
         yearList.append(i);
     }
     return yearList;
@@ -102,11 +116,11 @@ QPair<QVector<int>, QVector<float> > SolarPart::getEnergyValues()
 {
     QVector<int> dates;
     QVector<float> energy;
-    foreach (int year, this->yearData.keys()) {
+    foreach (int year, this->yearData->keys()) {
         dates << year;
 
     }
-    foreach (Year* year, this->yearData.values()) {
+    foreach (Year* year, this->yearData->values()) {
         energy << year->getEnergy();
     }
 
@@ -129,5 +143,52 @@ QPair<QVector<QDate>, QVector<float> > SolarPart::getEnergyValuesOfDays(QDate *s
 
 int SolarPart::getDayCount()
 {
-    return datesAdded.size();
+    return datesAdded->size();
+}
+
+QSet<QDate> *SolarPart::getDatesAdded() const {
+    return this->datesAdded;
+}
+
+QMap<int, Year*> *SolarPart::getYearData() const {
+    return this->yearData;
+}
+
+QDataStream &operator <<(QDataStream &out, const SolarPart &sp)
+{
+    out << sp.getYearData()->size();
+    QMapIterator<int, Year*> iterator(*sp.getYearData());
+    while (iterator.hasNext()) {
+        iterator.next();
+        out << iterator.key();
+        out << iterator.value();
+    }
+    out <<  sp.getBeginningDate() << sp.getEndingDate() << *sp.getDatesAdded()
+         << sp.getEnergy() << sp.getDuration();
+    return out;
+}
+
+
+QDataStream &operator >>(QDataStream &in, SolarPart &sp)
+{
+    qDebug() << "Deserialize SolarPart";
+    int size;
+    QDate start;
+    QDate end;
+    QSet<QDate> datesAdded;
+    QMap<int, Year*> *yearData = new QMap<int, Year*>();
+    float energy;
+    float duration;
+    in >> size;
+    for (int i=0; i<size; i++) {
+        int key;
+        Year year;
+        in >> key;
+        in >> year;
+        yearData->insert(key, &year);
+    }
+    in >> start >> end >> datesAdded >> energy >> duration;
+
+    sp = SolarPart(&start, &end, &datesAdded, yearData, energy, duration);
+    return in;
 }

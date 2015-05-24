@@ -89,7 +89,6 @@ Day CSVReader::parseFile(const QString& path) {
             j.previous();
             if (j.value() != 0) {
                 sunset = new QDateTime(j.key());
-
                 break;
             }
         }
@@ -116,26 +115,6 @@ Day CSVReader::parseFile(const QString& path) {
 
 }
 
-//QList<Day*> *CSVReader::parseFiles(const QString &path) {
-//    QDir dir = QDir(path);
-//    QStringList filters;
-//    filters << "*.csv";
-//    dir.setNameFilters(filters);
-//    dir.setSorting(QDir::Name);
-//    QStringList files = dir.entryList();
-//    QStringList absolutePathFiles = QStringList();
-
-//    QStringListIterator i(files);
-//    while (i.hasNext()) {
-//        QString file = i.next();
-//        absolutePathFiles.append(dir.absoluteFilePath(file));
-//        //qDebug() << dir.absoluteFilePath(file);
-//    }
-//    QList<Day*> future = QtConcurrent::blockingMapped(absolutePathFiles, &CSVReader::parseFile);
-//    qDebug() << "no of threads: " << QString::number( QThreadPool::globalInstance()->maxThreadCount());
-//    return &future;
-//}
-
 QStringList CSVReader::getFileList(const QString &path)
 {
     QDir dir = QDir(path);
@@ -150,7 +129,6 @@ QStringList CSVReader::getFileList(const QString &path)
     while (i.hasNext()) {
         QString file = i.next();
         absolutePathFiles.append(dir.absoluteFilePath(file));
-        //qDebug() << dir.absoluteFilePath(file);
     }
     return absolutePathFiles;
 }
@@ -162,6 +140,5 @@ void CSVReader::addData(SolarPart &solarPart, const Day &day)
         solarPart = SolarPart();
         created = true;
     }
-    solarPart.addDay(new Day(day.getPowerCurve(), day.getSunrise(), day.getSunset(), day.getMomentOfMaximumPower(), day.getMaximumPower(), day.getEnergy()));
-
+    solarPart.addDay(new Day(day));
 }

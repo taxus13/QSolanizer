@@ -7,6 +7,7 @@
 #include <QList>
 #include <QVector>
 #include <QPair>
+#include <QDataStream>
 
 #include "datastructure/day.h"
 #include "datastructure/year.h"
@@ -15,14 +16,15 @@ class SolarPart
 {
 public:
     SolarPart();
+    SolarPart(QDate *start, QDate *end, QSet<QDate> *datesAdded, QMap<int, Year*> *yearData, float energy, float duration);
     ~SolarPart();
     void addDay(Day*);
     void doFinalStatistics();
 
-    float getEnergy();
-    float getDuration();
-    QDate getBeginningDate();
-    QDate getEndingDate();
+    float getEnergy() const;
+    float getDuration() const;
+    QDate* getBeginningDate() const;
+    QDate* getEndingDate() const;
     Year* getYear(QDate *date);
     Year* getYear(int year);
     Month* getMonth(QDate *date);
@@ -36,17 +38,23 @@ public:
     //meta
     int getDayCount();
 
+    // for storing
+    QSet<QDate> *getDatesAdded() const;
+    QMap<int, Year*> *getYearData() const;
 
 private:
-    QDate start;
-    QDate end;
+    QDate *start;
+    QDate *end;
 
-    QSet<QDate> datesAdded;
-    QMap<int, Year*> yearData;
+    QSet<QDate> *datesAdded;
+    QMap<int, Year*> *yearData;
 
     float energy;
     float duration;
 
 };
+
+QDataStream &operator <<(QDataStream &out, const SolarPart &sp);
+QDataStream &operator >>(QDataStream &in, SolarPart &sp);
 
 #endif // SOLARPART_H

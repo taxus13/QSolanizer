@@ -22,7 +22,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>1</number>
+           <number>3</number>
           </property>
           <widget class="QWidget" name="widget">
            <attribute name="title">
@@ -314,7 +314,7 @@
                    <string>Benutzerdefinierter Plot</string>
                   </property>
                   <property name="checkable">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                   <property name="checked">
                    <bool>false</bool>
@@ -671,11 +671,29 @@
        </layout>
       </item>
       <item>
-       <widget class="QPushButton" name="bTest">
-        <property name="text">
-         <string>Lese Daten</string>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_10">
+        <item>
+         <widget class="QPushButton" name="bTest">
+          <property name="text">
+           <string>Lese Daten</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="bReadSerialized">
+          <property name="text">
+           <string>Lese Serialized Data</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="bWriteSerialized">
+          <property name="text">
+           <string>Schreibe Serialized Data</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>

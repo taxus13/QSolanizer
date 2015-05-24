@@ -48,8 +48,10 @@ private slots:
     void on_listWidget_itemSelectionChanged();
     void on_checkBox_stateChanged(int checkState);
     void on_dateEdit_dateChanged(const QDate &date);
-    void on_dateEditStart_dateChanged(const QDate &date);
-    void on_dateEditEnd_dateChanged(const QDate &date);
+    void on_dateEditStart_editingFinished();
+    void on_dateEditEnd_editingFinished();
+    void on_bReadSerialized_clicked();
+    void on_bWriteSerialized_clicked();
 };
 
 #endif // QSOLANIZER_H

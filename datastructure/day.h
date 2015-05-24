@@ -4,14 +4,16 @@
 #include <QMap>
 #include <QDateTime>
 #include <QString>
+#include <QDataStream>
 
 #include <QDebug>
 
 class Day
 {
 public:
-    Day(QMap<QDateTime, float>*, QDateTime*, QDateTime*, QDateTime*, float, float);
-    Day(); //just for testing!!!
+    Day(QMap<QDateTime, float>* powerCurve, QDateTime* sunrise, QDateTime* sunset, QDateTime* momentOfMaximumPower, float maximumPower, float energy);
+    Day(); //QtConcurrent needs this
+    Day(const Day &day);
     ~Day();
     QMap<QDateTime, float> *getPowerCurve() const;
     QDate getDate() const;
@@ -33,5 +35,8 @@ private:
     float energy;
     float duration;
 };
+
+QDataStream &operator <<(QDataStream &out, const Day& day);
+QDataStream &operator >>(QDataStream &in, Day& day);
 
 #endif // DAY_H

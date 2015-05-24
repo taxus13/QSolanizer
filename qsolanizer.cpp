@@ -73,14 +73,14 @@ void QSolanizer::readData() {
 
 void QSolanizer::fillDataWidgets() {
     // set range of date inputs
-    this->ui->calendarWidget->setMinimumDate(sp.getBeginningDate());
-    this->ui->calendarWidget->setMaximumDate(sp.getEndingDate());
-    this->ui->dateEdit->setMinimumDate(sp.getBeginningDate());
-    this->ui->dateEdit->setMaximumDate(sp.getEndingDate());
-    this->ui->dateEditStart->setMinimumDate(sp.getBeginningDate());
-    this->ui->dateEditStart->setMaximumDate(sp.getEndingDate());
-    this->ui->dateEditEnd->setMinimumDate(sp.getBeginningDate());
-    this->ui->dateEditEnd->setMaximumDate(sp.getEndingDate());
+    this->ui->calendarWidget->setMinimumDate(*sp.getBeginningDate());
+    this->ui->calendarWidget->setMaximumDate(*sp.getEndingDate());
+    this->ui->dateEdit->setMinimumDate(*sp.getBeginningDate());
+    this->ui->dateEdit->setMaximumDate(*sp.getEndingDate());
+    this->ui->dateEditStart->setMinimumDate(*sp.getBeginningDate());
+    this->ui->dateEditStart->setMaximumDate(*sp.getEndingDate());
+    this->ui->dateEditEnd->setMinimumDate(*sp.getBeginningDate());
+    this->ui->dateEditEnd->setMaximumDate(*sp.getEndingDate());
     // clear month selection and year selection
     this->ui->tMonthSelection->clear();
     this->ui->listWidget->clear();
@@ -100,9 +100,9 @@ void QSolanizer::fillDataWidgets() {
         this->ui->listWidget->addItem(QString::number(yearNumber));
     }
     // show some data, so the plots are not empty
-    this->plotDayData(sp.getEndingDate());
-    this->showMonthData(sp.getEndingDate());
-    this->plotYearData(sp.getEndingDate().year());
+    this->plotDayData(*sp.getEndingDate());
+    this->showMonthData(*sp.getEndingDate());
+    this->plotYearData(sp.getEndingDate()->year());
     this->plotTotalData();
 
     this->ui->tMonthSelection->expandAll();
@@ -298,7 +298,7 @@ void QSolanizer::plotAllYearData()
         months << i;
         labels << QDate::fromString(QString::number(i), "M").toString("MMMM");
     }
-    for (int i=sp.getBeginningDate().year(); i<=sp.getEndingDate().year(); ++i) {
+    for (int i=sp.getBeginningDate()->year(); i<=sp.getEndingDate()->year(); ++i) {
         Year* year = sp.getYear(i);
         QVector<double> yearEnergy;
         foreach (double month, months) {
@@ -324,9 +324,9 @@ void QSolanizer::plotAllYearData()
         c.setAlpha(50);
         bars->setBrush(c);
         bars->addToLegend();
-        bars->setWidth(2/(3*(1+(float)sp.getEndingDate().year()-sp.getBeginningDate().year())));
+        bars->setWidth(2/(3*(1+(float)sp.getEndingDate()->year()-sp.getBeginningDate()->year())));
         bars->setBarsGroup(group);
-        bars->setName(QString::number(sp.getBeginningDate().year()+i));
+        bars->setName(QString::number(sp.getBeginningDate()->year()+i));
         j++;
         if(j == someColors.size()) {
             j=0;
@@ -378,14 +378,14 @@ void QSolanizer::plotTotalData()
     colors.append(QColor(133, 70, 7)); // november
     colors.append(QColor(45, 45, 45)); // december
 
-    for (int i=sp.getBeginningDate().year(); i<=sp.getEndingDate().year(); i++) {
+    for (int i=sp.getBeginningDate()->year(); i<=sp.getEndingDate()->year(); i++) {
         years << i;
         labels << QString::number(i);
     }
 
     for (int i=1; i<=12; i++) {
         QVector<double> monthData;
-        for (int j=sp.getBeginningDate().year(); j<=sp.getEndingDate().year(); j++) {
+        for (int j=sp.getBeginningDate()->year(); j<=sp.getEndingDate()->year(); j++) {
             Year* year = sp.getYear(j);
             if (year->hasDataOfMonth(i)) {
                 monthData << year->getMonth(i)->getEnergy();
@@ -446,8 +446,8 @@ void QSolanizer::plotTotalData()
     this->ui->wTotalPlot->replot();
 
      // set group box data
-    this->ui->lTotalBegin->setText(sp.getBeginningDate().toString("dd.MM.yyyy"));
-    this->ui->lTotalEnd->setText(sp.getEndingDate().toString("dd.MM.yyyy"));
+    this->ui->lTotalBegin->setText(sp.getBeginningDate()->toString("dd.MM.yyyy"));
+    this->ui->lTotalEnd->setText(sp.getEndingDate()->toString("dd.MM.yyyy"));
     this->ui->lTotalDuration->setText(QString("%1 h").arg(sp.getDuration(),0,'f',0));
     this->ui->lTotalEnergy->setText(QString("%1 kWh").arg(sp.getEnergy(),0,'f',0));
     this->ui->lTotalData->setText(QString::number(sp.getDayCount()));
@@ -463,16 +463,16 @@ void QSolanizer::on_tMonthSelection_itemSelectionChanged()
             month.setDate(year, month.month(), 1);
             QDate nextMonth = month.addMonths(1);
             QDate lastDayOfMonth = nextMonth.addDays(-1);
-            if (month >= sp.getBeginningDate()) {
+            if (month >= *sp.getBeginningDate()) {
                 this->ui->dateEditStart->setDate(month);
             } else {
-                this->ui->dateEditStart->setDate(sp.getBeginningDate());
+                this->ui->dateEditStart->setDate(*sp.getBeginningDate());
             }
 
-            if (lastDayOfMonth <= sp.getEndingDate()) {
+            if (lastDayOfMonth <= *sp.getEndingDate()) {
                 this->ui->dateEditEnd->setDate(lastDayOfMonth);
             } else {
-                this->ui->dateEditEnd->setDate(sp.getEndingDate());
+                this->ui->dateEditEnd->setDate(*sp.getEndingDate());
             }
             this->showMonthData(month);
         }
@@ -504,14 +504,40 @@ void QSolanizer::on_dateEdit_dateChanged(const QDate &date)
     this->plotDayData(date);
 }
 
-void QSolanizer::on_dateEditStart_dateChanged(const QDate &date)
+void QSolanizer::on_dateEditStart_editingFinished()
 {
-    this->ui->dateEditEnd->setMinimumDate(date);
+    this->ui->dateEditEnd->setMinimumDate(this->ui->dateEditStart->date());
     this->showCustomRange(this->ui->dateEditStart->date(), this->ui->dateEditEnd->date());
 }
 
-void QSolanizer::on_dateEditEnd_dateChanged(const QDate &date)
+void QSolanizer::on_dateEditEnd_editingFinished()
 {
-    this->ui->dateEditStart->setMaximumDate(date);
+    this->ui->dateEditStart->setMaximumDate(this->ui->dateEditEnd->date());
     this->showCustomRange(this->ui->dateEditStart->date(), this->ui->dateEditEnd->date());
+}
+
+
+void QSolanizer::on_bReadSerialized_clicked()
+{
+    QString path = QString("D:\\temp\\qsolanizer.dat");
+    QFile file(path);
+    if (file.open(QIODevice::ReadOnly)) {
+        QDataStream in(&file);
+        in >> this->sp;
+        qDebug() << "finished reading";
+        qDebug() << "read " << sp.getDayCount() << " days";
+        this->fillDataWidgets();
+    }
+    file.close();
+}
+
+void QSolanizer::on_bWriteSerialized_clicked()
+{
+    QString path = QString("D:\\temp\\qsolanizer.dat");
+    QFile file(path);
+    if (file.open(QIODevice::WriteOnly)) {
+        QDataStream out(&file);
+        out << this->sp;
+    }
+    file.close();
 }
