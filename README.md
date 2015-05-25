@@ -7,3 +7,16 @@ Please provide some exported files from your power converter, so other power con
 ## Used Libraries
 * [Qt5](http://www.qt.io/download/)
 * [QCustomPlot](http://qcustomplot.com/) library to plot the graphs
+
+## TODO
+
+### First release
+* save settings
+* (de-)serialize data in background
+* add option to autosize diagrams
+* compare different days
+* show "energy distribution" of day
+
+### Later
+* additional user input to calculate kWp/kWh
+* show theoretical power curve
