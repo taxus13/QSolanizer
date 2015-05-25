@@ -25,6 +25,12 @@ public:
     float getEnergy() const;
     float getDuration() const;
 
+    // io
+    friend QDataStream &operator <<(QDataStream &out, const Day& day);
+    friend QDataStream &operator >>(QDataStream &in, Day& day);
+
+
+
 private:
     QMap<QDateTime, float> powerCurve;
     QDateTime sunrise;
@@ -34,9 +40,9 @@ private:
     float maximumPower;
     float energy;
     float duration;
+
+    void calculateDuration();
 };
 
-QDataStream &operator <<(QDataStream &out, const Day& day);
-QDataStream &operator >>(QDataStream &in, Day& day);
 
 #endif // DAY_H

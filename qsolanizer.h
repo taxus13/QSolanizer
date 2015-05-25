@@ -40,6 +40,7 @@ private:
 
     SolarPart sp;
     QList<QColor> someColors;
+    int count;
 
 private slots:
     void on_calendarWidget_selectionChanged();
@@ -52,6 +53,8 @@ private slots:
     void on_dateEditEnd_editingFinished();
     void on_bReadSerialized_clicked();
     void on_bWriteSerialized_clicked();
+    void on_dateEditStart_userDateChanged(const QDate &date);
+    void on_dateEditEnd_userDateChanged(const QDate &date);
 };
 
 #endif // QSOLANIZER_H

@@ -22,7 +22,7 @@ public:
     void doFinalStatistics();
 
 
-    QList<Day> getDaysInRange(QDate &startDate, QDate &endDate);
+    inline QList<Day> getDaysInRange(QDate &startDate, QDate &endDate);
     QList<int> getYearList();
     QPair<QVector<int>, QVector<float> > getEnergyValues();
 

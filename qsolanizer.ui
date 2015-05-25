@@ -22,7 +22,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>3</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="widget">
            <attribute name="title">
@@ -314,10 +314,10 @@
                    <string>Benutzerdefinierter Plot</string>
                   </property>
                   <property name="checkable">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="checked">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_10">
                    <item>

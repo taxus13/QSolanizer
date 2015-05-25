@@ -18,7 +18,7 @@ QSolanizer::QSolanizer(QWidget *parent) :
     this->someColors.append(QColor(104, 176, 176));
     this->someColors.append(QColor(252, 75, 5));
     this->someColors.append(QColor(133, 70, 7));
-
+    count = 0;
 }
 
 QSolanizer::~QSolanizer()
@@ -169,6 +169,8 @@ void QSolanizer::showMonthData(QDate date) {
 
 void QSolanizer::showCustomRange(QDate start, QDate end)
 {
+    count++;
+    qDebug() << count << "called";
     QPair<QVector<QDate>, QVector<float> > data = sp.getEnergyValuesOfDays(start, end);
     this->plotDailyEnergyValues(data);
 }
@@ -508,14 +510,14 @@ void QSolanizer::on_dateEdit_dateChanged(const QDate &date)
 
 void QSolanizer::on_dateEditStart_editingFinished()
 {
-    this->ui->dateEditEnd->setMinimumDate(this->ui->dateEditStart->date());
-    this->showCustomRange(this->ui->dateEditStart->date(), this->ui->dateEditEnd->date());
+//    this->ui->dateEditEnd->setMinimumDate(this->ui->dateEditStart->date());
+//    this->showCustomRange(this->ui->dateEditStart->date(), this->ui->dateEditEnd->date());
 }
 
 void QSolanizer::on_dateEditEnd_editingFinished()
 {
-    this->ui->dateEditStart->setMaximumDate(this->ui->dateEditEnd->date());
-    this->showCustomRange(this->ui->dateEditStart->date(), this->ui->dateEditEnd->date());
+//    this->ui->dateEditStart->setMaximumDate(this->ui->dateEditEnd->date());
+//    this->showCustomRange(this->ui->dateEditStart->date(), this->ui->dateEditEnd->date());
 }
 
 
@@ -542,4 +544,16 @@ void QSolanizer::on_bWriteSerialized_clicked()
         out << this->sp;
     }
     file.close();
+}
+
+void QSolanizer::on_dateEditStart_userDateChanged(const QDate &date)
+{
+    this->ui->dateEditEnd->setMinimumDate(date);
+    this->showCustomRange(date, this->ui->dateEditEnd->date());
+}
+
+void QSolanizer::on_dateEditEnd_userDateChanged(const QDate &date)
+{
+    this->ui->dateEditStart->setMaximumDate(date);
+    this->showCustomRange(this->ui->dateEditStart->date(), date);
 }

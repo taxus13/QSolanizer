@@ -8,8 +8,8 @@ Day::Day(QMap<QDateTime, float> powerCurve, QDateTime sunrise, QDateTime sunset,
     this->maximumPower = maximumPower;
     this->energy = energy;
     this->duration = sunrise.secsTo(sunset)/3600; // save some cpu time
-     qDebug() << sunrise.toString("dd.MM.yyyy") << " " << sunset << " " << momentOfMaximumPower << " " << maximumPower << " " << energy;
-     qDebug() << "full day init";
+//     qDebug() << sunrise.toString("dd.MM.yyyy") << " " << sunset << " " << momentOfMaximumPower << " " << maximumPower << " " << energy;
+//     qDebug() << "full day init";
 }
 
 Day::Day()
@@ -18,15 +18,15 @@ Day::Day()
 }
 
 Day::Day(const Day &day) {
-    this->powerCurve = day.getPowerCurve();
-    this->sunrise = day.getSunrise();
-    this->sunset = day.getSunset();
-    this->momentOfMaximumPower = day.getMomentOfMaximumPower();
-    this->maximumPower = day.getMaximumPower();
-    this->energy = day.getEnergy();
+    this->powerCurve = day.powerCurve;
+    this->sunrise = day.sunrise;
+    this->sunset = day.sunset;
+    this->momentOfMaximumPower = day.momentOfMaximumPower;
+    this->maximumPower = day.maximumPower;
+    this->energy = day.energy;
     this->duration = this->sunrise.secsTo(this->sunset)/3600;
-    qDebug() << sunrise.toString("dd.MM.yyyy") << " " << sunset << " " << momentOfMaximumPower << " " << maximumPower << " " << energy;
-    qDebug() << "copy day constructor";
+//    qDebug() << sunrise.toString("dd.MM.yyyy") << " " << sunset << " " << momentOfMaximumPower << " " << maximumPower << " " << energy;
+//    qDebug() << "copy day constructor";
 }
 
 Day::~Day()
@@ -78,12 +78,17 @@ float Day::getDuration()  const{
     return this->duration;
 }
 
+void Day::calculateDuration()
+{
+    this->duration = this->sunrise.secsTo(this->sunset)/3600;
+}
+
 
 
 QDataStream &operator <<(QDataStream &out, const Day &day)
 {
-   out << day.getPowerCurve() << day.getSunrise() << day.getSunset()
-       << day.getMomentOfMaximumPower() << day.getMaximumPower() << day.getEnergy();
+   out << day.powerCurve << day.sunrise << day.sunset
+       << day.momentOfMaximumPower << day.maximumPower << day.energy;
    return out;
 }
 
@@ -91,7 +96,7 @@ QDataStream &operator <<(QDataStream &out, const Day &day)
 QDataStream &operator >>(QDataStream &in, Day &day)
 {
     // Attention!
-    qDebug() << "Deserialize Day";
+//    qDebug() << "Deserialize Day";
     QMap<QDateTime, float> powerCurve;
     QDateTime sunrise;
     QDateTime sunset;
@@ -100,7 +105,12 @@ QDataStream &operator >>(QDataStream &in, Day &day)
     float maximumPower;
     float energy;
     in >> powerCurve >> sunrise >> sunset >> momentOfMaximumPower >> maximumPower >> energy;
-    day = Day(powerCurve, sunrise, sunset, momentOfMaximumPower, maximumPower, energy);
+//    day = Day(powerCurve, sunrise, sunset, momentOfMaximumPower, maximumPower, energy);
 
+    day.powerCurve = powerCurve;
+    day.sunrise = sunrise;
+    day.sunset = sunset;
+    day.momentOfMaximumPower = momentOfMaximumPower;
+    day.calculateDuration();
     return in;
 }
