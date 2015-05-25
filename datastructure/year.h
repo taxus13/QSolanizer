@@ -12,31 +12,36 @@ class Year
 {
 public:
     Year();
-    Year(QMap<int, Month *> *monthdata, float energy, float duration);
+    Year(QMap<int, Month> monthdata, float energy, float duration);
     ~Year();
-    void addDay(Day *day);
+    void addDay(Day day);
 
-
-    Month* getMonth(QDate *date);
-    Month* getMonth(int month);
-    Day* getDay(QDate *date);
     QDate getFirst();
     QDate getLast();
     QList<QDate> getMonthList();
     QPair<QVector<QDate>, QVector<float> > getEnergyValues();
 
-    float getEnergy() const;
-    float getDuration() const;
-    QMap<int, Month*> *getMonthData() const;
-
     bool hasDataOfMonth(int month);
+    // get methods
+    float getEnergy();
+    float getDuration();
+    QMap<int, Month> &getMonthData();
+
+    // some return funcs
+    Month &getMonth(QDate &date);
+    Month &getMonth(int month);
+    Day &getDay(QDate &date);
+
+    // for io
+    friend QDataStream &operator <<(QDataStream &out, const Year &year);
+    friend QDataStream &operator >>(QDataStream &in, Year &year);
+
 private:
-    QMap<int, Month*> *monthdata;
+    QMap<int, Month> monthdata;
     float energy;
     float duration;
 };
 
-QDataStream &operator <<(QDataStream &out, const Year &year);
-QDataStream &operator >>(QDataStream &in, Year &year);
+
 
 #endif // YEAR_H

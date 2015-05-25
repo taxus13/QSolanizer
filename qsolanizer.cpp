@@ -61,6 +61,7 @@ void QSolanizer::readData() {
     watcher.waitForFinished();
     if (!watcher.isCanceled()) {
         sp = reduced.result();
+        qDebug() << " got results";
         sp.doFinalStatistics();
         qDebug() << sp.getDayCount() << " days read";
         this->fillDataWidgets();
@@ -73,14 +74,14 @@ void QSolanizer::readData() {
 
 void QSolanizer::fillDataWidgets() {
     // set range of date inputs
-    this->ui->calendarWidget->setMinimumDate(*sp.getBeginningDate());
-    this->ui->calendarWidget->setMaximumDate(*sp.getEndingDate());
-    this->ui->dateEdit->setMinimumDate(*sp.getBeginningDate());
-    this->ui->dateEdit->setMaximumDate(*sp.getEndingDate());
-    this->ui->dateEditStart->setMinimumDate(*sp.getBeginningDate());
-    this->ui->dateEditStart->setMaximumDate(*sp.getEndingDate());
-    this->ui->dateEditEnd->setMinimumDate(*sp.getBeginningDate());
-    this->ui->dateEditEnd->setMaximumDate(*sp.getEndingDate());
+    this->ui->calendarWidget->setMinimumDate(sp.getBeginningDate());
+    this->ui->calendarWidget->setMaximumDate(sp.getEndingDate());
+    this->ui->dateEdit->setMinimumDate(sp.getBeginningDate());
+    this->ui->dateEdit->setMaximumDate(sp.getEndingDate());
+    this->ui->dateEditStart->setMinimumDate(sp.getBeginningDate());
+    this->ui->dateEditStart->setMaximumDate(sp.getEndingDate());
+    this->ui->dateEditEnd->setMinimumDate(sp.getBeginningDate());
+    this->ui->dateEditEnd->setMaximumDate(sp.getEndingDate());
     // clear month selection and year selection
     this->ui->tMonthSelection->clear();
     this->ui->listWidget->clear();
@@ -89,8 +90,8 @@ void QSolanizer::fillDataWidgets() {
     foreach (int yearNumber, sp.getYearList()) {
         QTreeWidgetItem *treeItem = new QTreeWidgetItem(this->ui->tMonthSelection);
         treeItem->setText(0, QString::number(yearNumber));
-        Year *year = sp.getYear(yearNumber);
-        foreach (QDate month, year->getMonthList()) {
+        Year year = sp.getYear(yearNumber);
+        foreach (QDate month, year.getMonthList()) {
             QTreeWidgetItem *monthItem = new QTreeWidgetItem();
             monthItem->setText(0, month.toString("MMMM"));
             treeItem->addChild(monthItem);
@@ -100,9 +101,9 @@ void QSolanizer::fillDataWidgets() {
         this->ui->listWidget->addItem(QString::number(yearNumber));
     }
     // show some data, so the plots are not empty
-    this->plotDayData(*sp.getEndingDate());
-    this->showMonthData(*sp.getEndingDate());
-    this->plotYearData(sp.getEndingDate()->year());
+    this->plotDayData(sp.getEndingDate());
+    this->showMonthData(sp.getEndingDate());
+    this->plotYearData(sp.getEndingDate().year());
     this->plotTotalData();
 
     this->ui->tMonthSelection->expandAll();
@@ -112,23 +113,24 @@ void QSolanizer::fillDataWidgets() {
 void QSolanizer::plotDayData(QDate date)
 {
     // maybe move this into day-class
-    Day *dd = sp.getDay(&date);
+    Day dd = sp.getDay(date);
 
     float midnight = QDateTime(date).toTime_t();
 
 
-    QVector<double> *timeline = new QVector<double>();
-    QVector<double> *power = new QVector<double>();
+    QVector<double> timeline;
+    QVector<double> power;
+    QMap<QDateTime, float> powerCurve = dd.getPowerCurve();
     QMap<QDateTime, float>::iterator i;
-    for (i = dd->getPowerCurve()->begin(); i != dd->getPowerCurve()->end(); ++i) {
-        timeline->append(i.key().toTime_t());
+    for (i = powerCurve.begin(); i != powerCurve.end(); ++i) {
+        timeline.append(i.key().toTime_t());
 //        qDebug() << i.value();
-        power->append(i.value());
+        power.append(i.value());
     }
 
 
     ui->wPowerCurve->addGraph();
-    ui->wPowerCurve->graph(0)->setData(*timeline, *power);
+    ui->wPowerCurve->graph(0)->setData(timeline, power);
     ui->wPowerCurve->graph(0)->setPen(QPen(Qt::blue));
     ui->wPowerCurve->graph(0)->setBrush(QBrush(QColor(0, 0, 255, 20)));
     ui->wPowerCurve->xAxis->setTickLabelType(QCPAxis::ltDateTime);
@@ -146,35 +148,35 @@ void QSolanizer::plotDayData(QDate date)
     ui->wPowerCurve->replot();
 
     // fill groupbox
-    ui->lDayDuration->setText(QString("%1 h").arg(dd->getEnergy(),0, 'f', 2));
-    ui->lDayEnergy->setText(QString("%1 kWh").arg(dd->getEnergy(),0,'f',2));
-    ui->lPeakpower->setText(QString("%1 kW").arg(dd->getMaximumPower(), 0, 'f', 2));
-    ui->lSunrise->setText(dd->getSunrise()->toString("HH:mm"));
-    ui->lSunset->setText(dd->getSunset()->toString("HH:mm"));
+    ui->lDayDuration->setText(QString("%1 h").arg(dd.getEnergy(),0, 'f', 2));
+    ui->lDayEnergy->setText(QString("%1 kWh").arg(dd.getEnergy(),0,'f',2));
+    ui->lPeakpower->setText(QString("%1 kW").arg(dd.getMaximumPower(), 0, 'f', 2));
+    ui->lSunrise->setText(dd.getSunrise().toString("HH:mm"));
+    ui->lSunset->setText(dd.getSunset().toString("HH:mm"));
 }
 
 
 void QSolanizer::showMonthData(QDate date) {
-    Month *month = sp.getMonth(&date);
-    QPair<QVector<QDate>, QVector<float> > data = month->getEnergyValues();
-    this->plotDailyEnergyValues(&data);
+    Month month = sp.getMonth(date);
+    QPair<QVector<QDate>, QVector<float> > data = month.getEnergyValues();
+    this->plotDailyEnergyValues(data);
 
     // fill group box data
-    this->ui->lMonthEnergy->setText(QString("%1 kWh").arg(month->getEnergy(),0,'f',2));
-    this->ui->lMonthSunhours->setText(QString("%1 h").arg(month->getDuration(),0,'f',2));
+    this->ui->lMonthEnergy->setText(QString("%1 kWh").arg(month.getEnergy(),0,'f',2));
+    this->ui->lMonthSunhours->setText(QString("%1 h").arg(month.getDuration(),0,'f',2));
 
 }
 
 void QSolanizer::showCustomRange(QDate start, QDate end)
 {
-    QPair<QVector<QDate>, QVector<float> > data = sp.getEnergyValuesOfDays(&start, &end);
-    this->plotDailyEnergyValues(&data);
+    QPair<QVector<QDate>, QVector<float> > data = sp.getEnergyValuesOfDays(start, end);
+    this->plotDailyEnergyValues(data);
 }
 
-void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> >* data)
+void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > data)
 {
     QCPBars *bars = new QCPBars(this->ui->wMonthPlot->xAxis, this->ui->wMonthPlot->yAxis);
-    QDate startingDate = data->first.at(0);
+    QDate startingDate = data.first.at(0);
     this->ui->wMonthPlot->clearPlottables();
     this->ui->wMonthPlot->addPlottable(bars);
     QPen pen;
@@ -186,12 +188,12 @@ void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> >* d
     QVector<double> ticks;
     QVector<QString> labels;
     QVector<double> values;
-    for (int i=0; i<data->first.size(); ++i) {
+    for (int i=0; i<data.first.size(); ++i) {
         ticks << i+1;
-        labels << data->first.at(i).toString("dd.MM.");
-        values << data->second.at(i);
+        labels << data.first.at(i).toString("dd.MM.");
+        values << data.second.at(i);
     }
-    if (data->first.size() <= 31) {
+    if (data.first.size() <= 31) {
         this->ui->wMonthPlot->xAxis->setAutoTicks(false);
         this->ui->wMonthPlot->xAxis->setAutoTickLabels(false);
         this->ui->wMonthPlot->xAxis->setTickVector(ticks);
@@ -235,8 +237,8 @@ void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> >* d
 
 void QSolanizer::plotYearData(int yearNumber)
 {
-    Year *year = sp.getYear(yearNumber);
-    QPair<QVector<QDate>, QVector<float> > data = year->getEnergyValues();
+    Year year = sp.getYear(yearNumber);
+    QPair<QVector<QDate>, QVector<float> > data = year.getEnergyValues();
     QCPBars *bars = new QCPBars(this->ui->wYearPlot->xAxis, this->ui->wYearPlot->yAxis);
     this->ui->wYearPlot->clearPlottables();
     this->ui->wYearPlot->addPlottable(bars);
@@ -280,8 +282,8 @@ void QSolanizer::plotYearData(int yearNumber)
     this->ui->wYearPlot->replot();
 
     // set group box data
-    this->ui->lYearDuration->setText(QString("%1 h").arg(year->getDuration(),0,'f',0));
-    this->ui->lYearEnergy->setText(QString("%1 kWh").arg(year->getEnergy(),0,'f',0));
+    this->ui->lYearDuration->setText(QString("%1 h").arg(year.getDuration(),0,'f',0));
+    this->ui->lYearEnergy->setText(QString("%1 kWh").arg(year.getEnergy(),0,'f',0));
 
 }
 
@@ -298,12 +300,12 @@ void QSolanizer::plotAllYearData()
         months << i;
         labels << QDate::fromString(QString::number(i), "M").toString("MMMM");
     }
-    for (int i=sp.getBeginningDate()->year(); i<=sp.getEndingDate()->year(); ++i) {
-        Year* year = sp.getYear(i);
+    for (int i=sp.getBeginningDate().year(); i<=sp.getEndingDate().year(); ++i) {
+        Year year = sp.getYear(i);
         QVector<double> yearEnergy;
         foreach (double month, months) {
-            if (year->hasDataOfMonth((int)month)) {
-                yearEnergy << year->getMonth((int)month)->getEnergy();
+            if (year.hasDataOfMonth((int)month)) {
+                yearEnergy << year.getMonth((int)month).getEnergy();
             } else {
                 yearEnergy << 0;
             }
@@ -324,9 +326,9 @@ void QSolanizer::plotAllYearData()
         c.setAlpha(50);
         bars->setBrush(c);
         bars->addToLegend();
-        bars->setWidth(2/(3*(1+(float)sp.getEndingDate()->year()-sp.getBeginningDate()->year())));
+        bars->setWidth(2/(3*(1+(float)sp.getEndingDate().year()-sp.getBeginningDate().year())));
         bars->setBarsGroup(group);
-        bars->setName(QString::number(sp.getBeginningDate()->year()+i));
+        bars->setName(QString::number(sp.getBeginningDate().year()+i));
         j++;
         if(j == someColors.size()) {
             j=0;
@@ -378,17 +380,17 @@ void QSolanizer::plotTotalData()
     colors.append(QColor(133, 70, 7)); // november
     colors.append(QColor(45, 45, 45)); // december
 
-    for (int i=sp.getBeginningDate()->year(); i<=sp.getEndingDate()->year(); i++) {
+    for (int i=sp.getBeginningDate().year(); i<=sp.getEndingDate().year(); i++) {
         years << i;
         labels << QString::number(i);
     }
 
     for (int i=1; i<=12; i++) {
         QVector<double> monthData;
-        for (int j=sp.getBeginningDate()->year(); j<=sp.getEndingDate()->year(); j++) {
-            Year* year = sp.getYear(j);
-            if (year->hasDataOfMonth(i)) {
-                monthData << year->getMonth(i)->getEnergy();
+        for (int j=sp.getBeginningDate().year(); j<=sp.getEndingDate().year(); j++) {
+            Year year = sp.getYear(j);
+            if (year.hasDataOfMonth(i)) {
+                monthData << year.getMonth(i).getEnergy();
             } else {
                 monthData << 0;
             }
@@ -446,8 +448,8 @@ void QSolanizer::plotTotalData()
     this->ui->wTotalPlot->replot();
 
      // set group box data
-    this->ui->lTotalBegin->setText(sp.getBeginningDate()->toString("dd.MM.yyyy"));
-    this->ui->lTotalEnd->setText(sp.getEndingDate()->toString("dd.MM.yyyy"));
+    this->ui->lTotalBegin->setText(sp.getBeginningDate().toString("dd.MM.yyyy"));
+    this->ui->lTotalEnd->setText(sp.getEndingDate().toString("dd.MM.yyyy"));
     this->ui->lTotalDuration->setText(QString("%1 h").arg(sp.getDuration(),0,'f',0));
     this->ui->lTotalEnergy->setText(QString("%1 kWh").arg(sp.getEnergy(),0,'f',0));
     this->ui->lTotalData->setText(QString::number(sp.getDayCount()));
@@ -463,16 +465,16 @@ void QSolanizer::on_tMonthSelection_itemSelectionChanged()
             month.setDate(year, month.month(), 1);
             QDate nextMonth = month.addMonths(1);
             QDate lastDayOfMonth = nextMonth.addDays(-1);
-            if (month >= *sp.getBeginningDate()) {
+            if (month >= sp.getBeginningDate()) {
                 this->ui->dateEditStart->setDate(month);
             } else {
-                this->ui->dateEditStart->setDate(*sp.getBeginningDate());
+                this->ui->dateEditStart->setDate(sp.getBeginningDate());
             }
 
-            if (lastDayOfMonth <= *sp.getEndingDate()) {
+            if (lastDayOfMonth <= sp.getEndingDate()) {
                 this->ui->dateEditEnd->setDate(lastDayOfMonth);
             } else {
-                this->ui->dateEditEnd->setDate(*sp.getEndingDate());
+                this->ui->dateEditEnd->setDate(sp.getEndingDate());
             }
             this->showMonthData(month);
         }

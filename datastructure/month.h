@@ -10,29 +10,35 @@ class Month
 {
 public:
     Month();
-    Month(QMap<int, Day *> *daydata, float energy, float duration);
+    Month(QMap<int, Day> daydata, float energy, float duration);
     ~Month();
-    void addDay(Day* day);
+    void addDay(Day day);
 
-    float getEnergy() const;
-    float getDuration() const;
-    QMap<int, Day*> *getDayData() const;
+
 
     QDate getFirst();
     QDate getLast();
-    QList<Day*> getAllDays();
+    QList<Day> getAllDays();
     QPair<QVector<QDate>, QVector<float> > getEnergyValues();
 
-    Day* getDay(QDate *date);
+    Day& getDay(QDate &date);
+
+    // get methods
+    float getEnergy();
+    float getDuration();
+    QMap<int, Day> &getDayData() ;
+
+    // for io
+    friend QDataStream &operator <<(QDataStream &out, const Month& month);
+    friend QDataStream &operator >>(QDataStream &in, Month& month);
+
 
 private:
-    QMap<int, Day*>* dayData;
+    QMap<int, Day> dayData;
     float energy;
     float duration;
 
 };
 
-QDataStream &operator <<(QDataStream &out, const Month& month);
-QDataStream &operator >>(QDataStream &in, Month& month);
 
 #endif // MONTH_H

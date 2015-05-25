@@ -28,6 +28,7 @@ public:
 //    static QList<Day*>* parseFiles(const QString &);
     static QStringList getFileList(const QString &);
     static void addData(SolarPart &solarPart, const Day &day);
+
 };
 
 #endif // CSVREADER_H

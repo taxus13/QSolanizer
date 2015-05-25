@@ -16,45 +16,50 @@ class SolarPart
 {
 public:
     SolarPart();
-    SolarPart(QDate *start, QDate *end, QSet<QDate> *datesAdded, QMap<int, Year*> *yearData, float energy, float duration);
+    SolarPart(QDate start, QDate end, QSet<QDate> datesAdded, QMap<int, Year> yearData, float energy, float duration);
     ~SolarPart();
-    void addDay(Day*);
+    void addDay(Day day);
     void doFinalStatistics();
 
-    float getEnergy() const;
-    float getDuration() const;
-    QDate* getBeginningDate() const;
-    QDate* getEndingDate() const;
-    Year* getYear(QDate *date);
-    Year* getYear(int year);
-    Month* getMonth(QDate *date);
-    Day* getDay(QDate *date);
-    QList<Day*> getDaysInRange(QDate *startDate, QDate *endDate);
+
+    QList<Day> getDaysInRange(QDate &startDate, QDate &endDate);
     QList<int> getYearList();
     QPair<QVector<int>, QVector<float> > getEnergyValues();
 
-    QPair<QVector<QDate>, QVector<float> > getEnergyValuesOfDays(QDate *startDate, QDate *endDate);
+    QPair<QVector<QDate>, QVector<float> > getEnergyValuesOfDays(QDate &startDate, QDate &endDate);
 
     //meta
     int getDayCount();
 
-    // for storing
-    QSet<QDate> *getDatesAdded() const;
-    QMap<int, Year*> *getYearData() const;
+    // simple get methods
+    QSet<QDate> &getDatesAdded();
+    QMap<int, Year> &getYearData();
+    float getEnergy() const;
+    float getDuration() const;
+    QDate &getBeginningDate();
+    QDate &getEndingDate();
+
+    // just some return statements
+    Year &getYear(QDate &date);
+    Year &getYear(int year);
+    Month &getMonth(QDate &date);
+    Day &getDay(QDate &date);
+    // for IO
+    friend QDataStream &operator <<(QDataStream &out, const SolarPart &sp);
+    friend QDataStream &operator >>(QDataStream &in, SolarPart &sp);
 
 private:
-    QDate *start;
-    QDate *end;
+    QDate start;
+    QDate end;
 
-    QSet<QDate> *datesAdded;
-    QMap<int, Year*> *yearData;
+    QSet<QDate> datesAdded;
+    QMap<int, Year> yearData;
 
     float energy;
     float duration;
 
 };
 
-QDataStream &operator <<(QDataStream &out, const SolarPart &sp);
-QDataStream &operator >>(QDataStream &in, SolarPart &sp);
+
 
 #endif // SOLARPART_H

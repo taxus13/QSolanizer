@@ -11,25 +11,25 @@
 class Day
 {
 public:
-    Day(QMap<QDateTime, float>* powerCurve, QDateTime* sunrise, QDateTime* sunset, QDateTime* momentOfMaximumPower, float maximumPower, float energy);
+    Day(QMap<QDateTime, float> powerCurve, QDateTime sunrise, QDateTime sunset, QDateTime momentOfMaximumPower, float maximumPower, float energy);
     Day(); //QtConcurrent needs this
     Day(const Day &day);
     ~Day();
-    QMap<QDateTime, float> *getPowerCurve() const;
+    QMap<QDateTime, float> getPowerCurve() const;
     QDate getDate() const;
-    QDateTime *getSunrise() const;
-    QDateTime *getSunset() const ;
-    QDateTime *getMomentOfMaximumPower() const;
+    QDateTime getSunrise() const;
+    QDateTime getSunset() const ;
+    QDateTime getMomentOfMaximumPower() const;
 
     float getMaximumPower() const;
     float getEnergy() const;
     float getDuration() const;
 
 private:
-    QMap<QDateTime, float>* powerCurve;
-    QDateTime *sunrise;
-    QDateTime *sunset;
-    QDateTime *momentOfMaximumPower;
+    QMap<QDateTime, float> powerCurve;
+    QDateTime sunrise;
+    QDateTime sunset;
+    QDateTime momentOfMaximumPower;
 
     float maximumPower;
     float energy;

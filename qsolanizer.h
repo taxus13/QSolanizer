@@ -32,7 +32,7 @@ private:
     void plotDayData(QDate date);
     void showMonthData(QDate date);
     void showCustomRange(QDate start, QDate end);
-    void plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > *data);
+    void plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > data);
     void plotYearData(int year);
     void plotAllYearData();
     void plotTotalData();
