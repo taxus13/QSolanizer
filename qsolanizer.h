@@ -41,6 +41,7 @@ private:
     SolarPart sp;
     QList<QColor> someColors;
     int count;
+    bool locked;
 
 private slots:
     void on_calendarWidget_selectionChanged();

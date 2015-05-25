@@ -105,7 +105,7 @@ QDataStream &operator <<(QDataStream &out, const Year &year)
 
 QDataStream &operator >>(QDataStream &in, Year &year)
 {
-    qDebug() << "Deserialize Year";
+//    qDebug() << "Deserialize Year";
 //    QMap<int, Month*> *monthdata = new QMap<int, Month*>();
 //    int size;
 //    float energy;

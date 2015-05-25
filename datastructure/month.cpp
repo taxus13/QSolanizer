@@ -86,7 +86,7 @@ QDataStream &operator <<(QDataStream &out, const Month &month)
 
 QDataStream &operator >>(QDataStream &in, Month &month)
 {
-    qDebug() << "Deserialize Month";
+//    qDebug() << "Deserialize Month";
     QMap<int, Day> dayData ;
     float energy;
     float duration;

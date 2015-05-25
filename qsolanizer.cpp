@@ -19,6 +19,7 @@ QSolanizer::QSolanizer(QWidget *parent) :
     this->someColors.append(QColor(252, 75, 5));
     this->someColors.append(QColor(133, 70, 7));
     count = 0;
+    locked = false;
 }
 
 QSolanizer::~QSolanizer()
@@ -148,7 +149,7 @@ void QSolanizer::plotDayData(QDate date)
     ui->wPowerCurve->replot();
 
     // fill groupbox
-    ui->lDayDuration->setText(QString("%1 h").arg(dd.getEnergy(),0, 'f', 2));
+    ui->lDayDuration->setText(QString("%1 h").arg(dd.getDuration(),0, 'f', 2));
     ui->lDayEnergy->setText(QString("%1 kWh").arg(dd.getEnergy(),0,'f',2));
     ui->lPeakpower->setText(QString("%1 kW").arg(dd.getMaximumPower(), 0, 'f', 2));
     ui->lSunrise->setText(dd.getSunrise().toString("HH:mm"));
@@ -176,7 +177,7 @@ void QSolanizer::showCustomRange(QDate start, QDate end)
 }
 
 void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > data)
-{
+{   locked = true;
     QCPBars *bars = new QCPBars(this->ui->wMonthPlot->xAxis, this->ui->wMonthPlot->yAxis);
     QDate startingDate = data.first.at(0);
     this->ui->wMonthPlot->clearPlottables();
@@ -235,6 +236,7 @@ void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > da
     this->ui->wMonthPlot->yAxis->grid()->setSubGridPen(gridPen);
     bars->setData(ticks, values);
     this->ui->wMonthPlot->replot();
+    locked = false;
 }
 
 void QSolanizer::plotYearData(int yearNumber)
@@ -548,12 +550,15 @@ void QSolanizer::on_bWriteSerialized_clicked()
 
 void QSolanizer::on_dateEditStart_userDateChanged(const QDate &date)
 {
+    qDebug() << (this->ui->dateEditStart->currentSection() == QDateTimeEdit::NoSection);
     this->ui->dateEditEnd->setMinimumDate(date);
-    this->showCustomRange(date, this->ui->dateEditEnd->date());
+    if (!locked)
+        this->showCustomRange(date, this->ui->dateEditEnd->date());
 }
 
 void QSolanizer::on_dateEditEnd_userDateChanged(const QDate &date)
 {
     this->ui->dateEditStart->setMaximumDate(date);
-    this->showCustomRange(this->ui->dateEditStart->date(), date);
+    if(!locked)
+        this->showCustomRange(this->ui->dateEditStart->date(), date);
 }
