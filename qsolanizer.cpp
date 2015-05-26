@@ -172,12 +172,18 @@ void QSolanizer::showCustomRange(QDate start, QDate end)
 {
     count++;
     qDebug() << count << "called";
-    QPair<QVector<QDate>, QVector<float> > data = sp.getEnergyValuesOfDays(start, end);
-    this->plotDailyEnergyValues(data);
+    if (this->ui->rEnergy->isChecked()) {
+        QPair<QVector<QDate>, QVector<float> > data = sp.getEnergyValuesOfDays(start, end);
+        this->plotDailyEnergyValues(data);
+    } else {
+        QVector<QList<QDateTime> > data = sp.getSignificantTimes(start, end);
+        this->plotDailyDistribution(data);
+    }
+
 }
 
-void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > data)
-{   locked = true;
+void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &data)
+{
     QCPBars *bars = new QCPBars(this->ui->wMonthPlot->xAxis, this->ui->wMonthPlot->yAxis);
     QDate startingDate = data.first.at(0);
     this->ui->wMonthPlot->clearPlottables();
@@ -236,7 +242,62 @@ void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > da
     this->ui->wMonthPlot->yAxis->grid()->setSubGridPen(gridPen);
     bars->setData(ticks, values);
     this->ui->wMonthPlot->replot();
-    locked = false;
+}
+
+void QSolanizer::plotDailyDistribution(QVector<QList<QDateTime> > &data)
+{
+    this->ui->wMonthPlot->clearPlottables();
+
+    //QVector<QCPStatisticalBox *> boxes;
+    QVector<QString> xLabel;
+    QVector<double> xTicks;
+    QVector<double> yTicks;
+    QVector<QString> yLabel;
+    qDebug() << "highest energy" << this->sp.getHighestDayEnergy();
+
+    for (int i=0; i<=24; i++) {
+        yTicks << i * 1000 * 3600;
+        yLabel << QString::number(i, 'f', 0) + ":00";
+    }
+
+    for (int i=0; i<data.size(); i++) {
+        xTicks << i;
+        xLabel << data.at(i).at(0).toString("dd.MM.yyyy");
+        QCPStatisticalBox *box = new QCPStatisticalBox(this->ui->wMonthPlot->xAxis, this->ui->wMonthPlot->yAxis);
+        this->ui->wMonthPlot->addPlottable(box);
+
+        QDate date =data.at(i).at(1).date();
+
+        float percent = this->sp.getDay(date).getEnergy() / this->sp.getHighestDayEnergy();
+
+        QBrush boxBrush(QColor(255 * percent, 255 * (1-percent), 0, 150));
+        box->setBrush(boxBrush);
+        box->setKey(i);
+        box->setMinimum(data.at(i).at(0).time().msecsSinceStartOfDay());
+        box->setLowerQuartile(data.at(i).at(1).time().msecsSinceStartOfDay());
+        box->setMedian(data.at(i).at(2).time().msecsSinceStartOfDay());
+        box->setUpperQuartile(data.at(i).at(3).time().msecsSinceStartOfDay());
+        box->setMaximum(data.at(i).at(4).time().msecsSinceStartOfDay());
+        box->setWidth(.9);
+
+    }
+    this->ui->wMonthPlot->rescaleAxes();
+
+    this->ui->wMonthPlot->xAxis->setSubTickCount(0);
+    this->ui->wMonthPlot->xAxis->setAutoTickLabels(false);
+    this->ui->wMonthPlot->xAxis->setAutoTicks(false);
+    this->ui->wMonthPlot->xAxis->setTickVector(xTicks);
+    this->ui->wMonthPlot->xAxis->setTickVectorLabels(xLabel);
+
+
+    this->ui->wMonthPlot->yAxis->setAutoTickLabels(false);
+    this->ui->wMonthPlot->yAxis->setAutoTicks(false);
+    this->ui->wMonthPlot->yAxis->setTickVector(yTicks);
+    this->ui->wMonthPlot->yAxis->setTickVectorLabels(yLabel);
+    this->ui->wMonthPlot->yAxis->setSubTickCount(4);
+    this->ui->wMonthPlot->yAxis->setRange(0, 24* 1000 * 3600);
+    this->ui->wMonthPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+    this->ui->wMonthPlot->replot();
 }
 
 void QSolanizer::plotYearData(int yearNumber)
@@ -469,18 +530,19 @@ void QSolanizer::on_tMonthSelection_itemSelectionChanged()
             month.setDate(year, month.month(), 1);
             QDate nextMonth = month.addMonths(1);
             QDate lastDayOfMonth = nextMonth.addDays(-1);
-            if (month >= sp.getBeginningDate()) {
-                this->ui->dateEditStart->setDate(month);
-            } else {
-                this->ui->dateEditStart->setDate(sp.getBeginningDate());
-            }
 
-            if (lastDayOfMonth <= sp.getEndingDate()) {
-                this->ui->dateEditEnd->setDate(lastDayOfMonth);
-            } else {
-                this->ui->dateEditEnd->setDate(sp.getEndingDate());
-            }
-            this->showMonthData(month);
+
+            QDate max;
+            QDate min;
+
+            month >= sp.getBeginningDate() ? min = month : min = sp.getBeginningDate();
+            lastDayOfMonth <= sp.getEndingDate() ? max = lastDayOfMonth : min = sp.getEndingDate();
+
+            this->ui->dateEditStart->setDate(min);
+            this->ui->dateEditEnd->setDate(max);
+            this->ui->dateEditStart->setMaximumDate(max);
+            this->ui->dateEditEnd->setMinimumDate(min);
+            this->showCustomRange(min, max);
         }
     }
 }
@@ -550,15 +612,21 @@ void QSolanizer::on_bWriteSerialized_clicked()
 
 void QSolanizer::on_dateEditStart_userDateChanged(const QDate &date)
 {
-    qDebug() << (this->ui->dateEditStart->currentSection() == QDateTimeEdit::NoSection);
-    this->ui->dateEditEnd->setMinimumDate(date);
-    if (!locked)
+    if (!this->ui->tMonthSelection->hasFocus()) {
+        this->ui->dateEditEnd->setMinimumDate(date);
         this->showCustomRange(date, this->ui->dateEditEnd->date());
+    }
 }
 
 void QSolanizer::on_dateEditEnd_userDateChanged(const QDate &date)
 {
-    this->ui->dateEditStart->setMaximumDate(date);
-    if(!locked)
+    if (!this->ui->tMonthSelection->hasFocus()) {
+        this->ui->dateEditStart->setMaximumDate(date);
         this->showCustomRange(this->ui->dateEditStart->date(), date);
+    }
+}
+
+void QSolanizer::on_radioButton_toggled(bool checked)
+{
+    this->showCustomRange(this->ui->dateEditStart->date(), this->ui->dateEditEnd->date());
 }

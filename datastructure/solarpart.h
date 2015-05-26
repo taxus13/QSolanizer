@@ -16,7 +16,7 @@ class SolarPart
 {
 public:
     SolarPart();
-    SolarPart(QDate start, QDate end, QSet<QDate> datesAdded, QMap<int, Year> yearData, float energy, float duration);
+//    SolarPart(QDate start, QDate end, QSet<QDate> datesAdded, QMap<int, Year> yearData, float energy, float duration);
     ~SolarPart();
     void addDay(Day day);
     void doFinalStatistics();
@@ -27,6 +27,7 @@ public:
     QPair<QVector<int>, QVector<float> > getEnergyValues();
 
     QPair<QVector<QDate>, QVector<float> > getEnergyValuesOfDays(QDate &startDate, QDate &endDate);
+    QVector<QList<QDateTime> > getSignificantTimes(QDate &startDate, QDate &endDate);
 
     //meta
     int getDayCount();
@@ -36,6 +37,7 @@ public:
     QMap<int, Year> &getYearData();
     float getEnergy() const;
     float getDuration() const;
+    float getHighestDayEnergy();
     QDate &getBeginningDate();
     QDate &getEndingDate();
 
@@ -57,6 +59,8 @@ private:
 
     float energy;
     float duration;
+
+    float highestDayEnergy;
 
 };
 

@@ -1,93 +1,85 @@
 #include "day.h"
 
-Day::Day(QMap<QDateTime, float> powerCurve, QDateTime sunrise, QDateTime sunset, QDateTime momentOfMaximumPower, float maximumPower, float energy) {
+Day::Day(QMap<QDateTime, float> powerCurve, QList<QDateTime> importantDates, QDateTime momentOfMaximumPower, float maximumPower, float energy) {
     this->powerCurve = powerCurve;
-    this->sunrise = sunrise;
-    this->sunset = sunset;
+    this->importantDates = importantDates;
     this->momentOfMaximumPower = momentOfMaximumPower;
     this->maximumPower = maximumPower;
     this->energy = energy;
-    this->duration = sunrise.secsTo(sunset)/3600; // save some cpu time
+    this->calculateDuration();
 //     qDebug() << sunrise.toString("dd.MM.yyyy") << " " << sunset << " " << momentOfMaximumPower << " " << maximumPower << " " << energy;
 //     qDebug() << "full day init";
 }
 
 Day::Day()
 {
-//    qDebug() << "empty day constructor";
 }
 
 Day::Day(const Day &day) {
     this->powerCurve = day.powerCurve;
-    this->sunrise = day.sunrise;
-    this->sunset = day.sunset;
+    this->importantDates = day.importantDates;
     this->momentOfMaximumPower = day.momentOfMaximumPower;
     this->maximumPower = day.maximumPower;
     this->energy = day.energy;
-    this->duration = this->sunrise.secsTo(this->sunset)/3600;
+    this->calculateDuration();
 //    qDebug() << sunrise.toString("dd.MM.yyyy") << " " << sunset << " " << momentOfMaximumPower << " " << maximumPower << " " << energy;
 //    qDebug() << "copy day constructor";
 }
 
 Day::~Day()
 {
-//    if (this->powerCurve != 0)
-//        delete this->powerCurve;
-//    if (this->sunrise != 0)
-//        qDebug() << this->sunrise;
-//        delete this->sunrise;
-//    if (this->sunset != 0)
-//        delete this->sunset;
-//    if (this->momentOfMaximumPower != 0)
-//        delete this->momentOfMaximumPower;
-
 
 }
 
-QMap<QDateTime, float> Day::getPowerCurve() const
+QList<QDateTime> &Day::getImportantDates()
+{
+    return this->importantDates;
+}
+
+QMap<QDateTime, float> &Day::getPowerCurve()
 {
     return this->powerCurve;
 }
 
 QDate Day::getDate() const
 {
-    return this->sunrise.date();
+    return this->importantDates.at(0).date();
 }
 
-QDateTime Day::getSunrise() const {
-    return this->sunrise;
+QDateTime Day::getSunrise() {
+    return this->importantDates.at(0);
 }
 
-QDateTime Day::getSunset() const {
-    return this->sunset;
+QDateTime Day::getSunset() {
+    return this->importantDates.at(4);
 }
 
-QDateTime Day::getMomentOfMaximumPower() const {
+QDateTime Day::getMomentOfMaximumPower() {
     return this->momentOfMaximumPower;
 }
 
-float Day::getMaximumPower() const {
+float Day::getMaximumPower() {
     return this->maximumPower;
 }
 
-float Day::getEnergy() const {
+float Day::getEnergy() {
     return this->energy;
 }
 
-float Day::getDuration()  const{
+float Day::getDuration() {
     return this->duration;
 }
 
 void Day::calculateDuration()
 {
-    this->duration = this->sunrise.secsTo(this->sunset)/3600;
+    this->duration = this->importantDates.at(0).secsTo(this->importantDates.at(4))/3600;
 }
 
 
 
 QDataStream &operator <<(QDataStream &out, const Day &day)
 {
-   out << day.powerCurve << day.sunrise << day.sunset
+   out << day.powerCurve << day.importantDates
        << day.momentOfMaximumPower << day.maximumPower << day.energy;
    return out;
 }
@@ -95,21 +87,16 @@ QDataStream &operator <<(QDataStream &out, const Day &day)
 
 QDataStream &operator >>(QDataStream &in, Day &day)
 {
-    // Attention!
-//    qDebug() << "Deserialize Day";
     QMap<QDateTime, float> powerCurve;
-    QDateTime sunrise;
-    QDateTime sunset;
+    QList<QDateTime> importantDates;
     QDateTime momentOfMaximumPower;
 
     float maximumPower;
     float energy;
-    in >> powerCurve >> sunrise >> sunset >> momentOfMaximumPower >> maximumPower >> energy;
-//    day = Day(powerCurve, sunrise, sunset, momentOfMaximumPower, maximumPower, energy);
+    in >> powerCurve >> importantDates >> momentOfMaximumPower >> maximumPower >> energy;
 
     day.powerCurve = powerCurve;
-    day.sunrise = sunrise;
-    day.sunset = sunset;
+    day.importantDates = importantDates;
     day.momentOfMaximumPower = momentOfMaximumPower;
     day.maximumPower = maximumPower;
     day.energy = energy;

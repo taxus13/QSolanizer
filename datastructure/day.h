@@ -5,25 +5,27 @@
 #include <QDateTime>
 #include <QString>
 #include <QDataStream>
+#include <QList>
 
 #include <QDebug>
 
 class Day
 {
 public:
-    Day(QMap<QDateTime, float> powerCurve, QDateTime sunrise, QDateTime sunset, QDateTime momentOfMaximumPower, float maximumPower, float energy);
+    Day(QMap<QDateTime, float> powerCurve, QList<QDateTime> importantDates, QDateTime momentOfMaximumPower, float maximumPower, float energy);
     Day(); //QtConcurrent needs this
     Day(const Day &day);
     ~Day();
-    QMap<QDateTime, float> getPowerCurve() const;
+    QMap<QDateTime, float> &getPowerCurve();
+    QList<QDateTime> &getImportantDates();
     QDate getDate() const;
-    QDateTime getSunrise() const;
-    QDateTime getSunset() const ;
-    QDateTime getMomentOfMaximumPower() const;
+    QDateTime getSunrise();
+    QDateTime getSunset();
+    QDateTime getMomentOfMaximumPower();
 
-    float getMaximumPower() const;
-    float getEnergy() const;
-    float getDuration() const;
+    float getMaximumPower();
+    float getEnergy();
+    float getDuration();
 
     // io
     friend QDataStream &operator <<(QDataStream &out, const Day& day);
@@ -33,8 +35,7 @@ public:
 
 private:
     QMap<QDateTime, float> powerCurve;
-    QDateTime sunrise;
-    QDateTime sunset;
+    QList<QDateTime> importantDates;
     QDateTime momentOfMaximumPower;
 
     float maximumPower;

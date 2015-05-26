@@ -354,7 +354,7 @@
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_3">
                    <item>
-                    <widget class="QRadioButton" name="radioButton">
+                    <widget class="QRadioButton" name="rEnergy">
                      <property name="text">
                       <string>Energie</string>
                      </property>
@@ -364,9 +364,9 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QRadioButton" name="radioButton_2">
+                    <widget class="QRadioButton" name="rDistribution">
                      <property name="text">
-                      <string>Zeitdauer</string>
+                      <string>Energieverteilung</string>
                      </property>
                     </widget>
                    </item>

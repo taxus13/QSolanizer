@@ -32,7 +32,8 @@ private:
     void plotDayData(QDate date);
     void showMonthData(QDate date);
     void showCustomRange(QDate start, QDate end);
-    void plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > data);
+    void plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &data);
+    void plotDailyDistribution(QVector<QList<QDateTime> > &data);
     void plotYearData(int year);
     void plotAllYearData();
     void plotTotalData();
@@ -56,6 +57,7 @@ private slots:
     void on_bWriteSerialized_clicked();
     void on_dateEditStart_userDateChanged(const QDate &date);
     void on_dateEditEnd_userDateChanged(const QDate &date);
+    void on_radioButton_toggled(bool checked);
 };
 
 #endif // QSOLANIZER_H

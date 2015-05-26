@@ -15,8 +15,9 @@ Please provide some exported files from your power converter, so other power con
 * (de-)serialize data in background
 * add option to autosize diagrams
 * compare different days
-* show "energy distribution" of day
+* ~~show "energy distribution" of day~~ done
 
 ### Later
 * additional user input to calculate kWp/kWh
 * show theoretical power curve
+* do not reread everything when additional data is added

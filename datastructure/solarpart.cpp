@@ -4,16 +4,17 @@ SolarPart::SolarPart()
 {
     this->energy = 0;
     this->duration = 0;
+    this->highestDayEnergy = 0;
 }
 
-SolarPart::SolarPart(QDate start, QDate end, QSet<QDate> datesAdded, QMap<int, Year> yearData, float energy, float duration) {
-    this->start = start;
-    this->end = end;
-    this->datesAdded = datesAdded;
-    this->yearData = yearData;
-    this->energy = energy;
-    this->duration = duration;
-}
+//SolarPart::SolarPart(QDate start, QDate end, QSet<QDate> datesAdded, QMap<int, Year> yearData, float energy, float duration) {
+//    this->start = start;
+//    this->end = end;
+//    this->datesAdded = datesAdded;
+//    this->yearData = yearData;
+//    this->energy = energy;
+//    this->duration = duration;
+//}
 
 SolarPart::~SolarPart()
 {
@@ -28,6 +29,9 @@ void SolarPart::addDay(Day day) {
         this->energy += day.getEnergy();
         this->duration += day.getDuration();
         this->datesAdded.insert(day.getDate());
+        if (this->highestDayEnergy < day.getEnergy()) {
+            this->highestDayEnergy = day.getEnergy();
+        }
     }
 }
 
@@ -45,6 +49,11 @@ float SolarPart::getEnergy() const
 
 float SolarPart::getDuration() const {
     return this->duration;
+}
+
+float SolarPart::getHighestDayEnergy()
+{
+    return this->highestDayEnergy;
 }
 
 QDate &SolarPart::getBeginningDate()
@@ -130,6 +139,16 @@ QPair<QVector<QDate>, QVector<float> > SolarPart::getEnergyValuesOfDays(QDate &s
     return QPair<QVector<QDate>, QVector<float> >(dates, energy);
 }
 
+QVector<QList<QDateTime> > SolarPart::getSignificantTimes(QDate &startDate, QDate &endDate)
+{
+    QVector<QList<QDateTime> > significantTimes;
+    QList<Day> days = this->getDaysInRange(startDate, endDate);
+    foreach (Day day, days) {
+        significantTimes.append(day.getImportantDates());
+    }
+    return significantTimes;
+}
+
 
 int SolarPart::getDayCount()
 {
@@ -157,7 +176,7 @@ QDataStream &operator <<(QDataStream &out, const SolarPart &sp)
 //         << sp.getEnergy() << sp.getDuration();
 //    return out;
         out << sp.yearData << sp.start << sp.end << sp.datesAdded
-             << sp.energy << sp.duration;
+             << sp.energy << sp.duration << sp.highestDayEnergy;
     return out;
 }
 
@@ -189,8 +208,9 @@ QDataStream &operator >>(QDataStream &in, SolarPart &sp)
     QSet<QDate> datesAdded;
     float energy;
     float duration;
+    float highestDayEnergy;
 
-    in >> map >> start >> end >> datesAdded >> energy >> duration;
+    in >> map >> start >> end >> datesAdded >> energy >> duration >> highestDayEnergy;
 
     sp.yearData = map;
     sp.start = start;
@@ -198,6 +218,7 @@ QDataStream &operator >>(QDataStream &in, SolarPart &sp)
     sp.energy = energy;
     sp.duration = duration;
     sp.datesAdded = datesAdded;
+    sp.highestDayEnergy = highestDayEnergy;
 
     //sp = SolarPart(start, end, datesAdded, map, energy, duration);
 

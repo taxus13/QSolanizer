@@ -25,7 +25,6 @@ public:
     CSVReader();
     ~CSVReader();
     static Day parseFile(const QString &);
-//    static QList<Day*>* parseFiles(const QString &);
     static QStringList getFileList(const QString &);
     static void addData(SolarPart &solarPart, const Day &day);
 
