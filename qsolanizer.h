@@ -25,11 +25,14 @@ public:
 private:
     Ui::QSolanizer *ui;
 
+    void initializeVariables();
     void fillDataWidgets();
     void readData();
 
     // plotting and label filling functions
-    void plotDayData(QDate date);
+    void plotDayData(QDate date, bool keepOldGraphs);
+    void resetDayPlot();
+
     void showMonthData(QDate date);
     void showCustomRange(QDate start, QDate end);
     void plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &data);
@@ -41,8 +44,8 @@ private:
 
     SolarPart sp;
     QList<QColor> someColors;
+    QList<QColor> dayColors;
     int count;
-    bool locked;
 
 private slots:
     void on_calendarWidget_selectionChanged();
@@ -51,13 +54,13 @@ private slots:
     void on_listWidget_itemSelectionChanged();
     void on_checkBox_stateChanged(int checkState);
     void on_dateEdit_dateChanged(const QDate &date);
-    void on_dateEditStart_editingFinished();
-    void on_dateEditEnd_editingFinished();
     void on_bReadSerialized_clicked();
     void on_bWriteSerialized_clicked();
     void on_dateEditStart_userDateChanged(const QDate &date);
     void on_dateEditEnd_userDateChanged(const QDate &date);
-    void on_radioButton_toggled(bool checked);
+    void on_rEnergy_toggled(bool checked);
+    void on_cMultpleChoice_toggled(bool checked);
+    void on_bReset_clicked();
 };
 
 #endif // QSOLANIZER_H

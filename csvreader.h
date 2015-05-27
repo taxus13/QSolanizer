@@ -24,9 +24,10 @@ class CSVReader
 public:
     CSVReader();
     ~CSVReader();
-    static Day parseFile(const QString &);
-    static QStringList getFileList(const QString &);
+    static Day parseFile(const QString &path);
+    static QStringList getFileList(const QString &path);
     static void addData(SolarPart &solarPart, const Day &day);
+
 
 };
 

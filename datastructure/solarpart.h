@@ -21,13 +21,15 @@ public:
     void addDay(Day day);
     void doFinalStatistics();
 
-
     inline QList<Day> getDaysInRange(QDate &startDate, QDate &endDate);
+
     QList<int> getYearList();
     QPair<QVector<int>, QVector<float> > getEnergyValues();
 
     QPair<QVector<QDate>, QVector<float> > getEnergyValuesOfDays(QDate &startDate, QDate &endDate);
     QVector<QList<QDateTime> > getSignificantTimes(QDate &startDate, QDate &endDate);
+    float getSunhoursInRange(QDate &startDate, QDate &endDate);
+    float getEnergyInRange(QDate &startDate, QDate &endDate);
 
     //meta
     int getDayCount();

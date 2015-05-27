@@ -29,7 +29,7 @@
 
 #QtCreator files
 *.autosave
-
+*.user
 # =========================
 # Operating System Files
 # =========================

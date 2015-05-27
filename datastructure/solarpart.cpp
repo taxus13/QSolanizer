@@ -149,6 +149,24 @@ QVector<QList<QDateTime> > SolarPart::getSignificantTimes(QDate &startDate, QDat
     return significantTimes;
 }
 
+float SolarPart::getSunhoursInRange(QDate &startDate, QDate &endDate)
+{
+    float sunhours = 0;
+    foreach (Day day, this->getDaysInRange(startDate, endDate)) {
+        sunhours += day.getDuration();
+    }
+    return sunhours;
+}
+
+float SolarPart::getEnergyInRange(QDate &startDate, QDate &endDate)
+{
+    float energy = 0;
+    foreach (Day day, this->getDaysInRange(startDate, endDate)) {
+        energy += day.getEnergy();
+    }
+    return energy;
+}
+
 
 int SolarPart::getDayCount()
 {
