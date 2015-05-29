@@ -12,10 +12,11 @@ Please provide some exported files from your power converter, so other power con
 
 ### First release
 * save settings
-* (de-)serialize data in background
+* ~~(de-)serialize data in background~~ not neccessary
 * add option to autosize diagrams
-* compare different days
+* ~~compare different days~~ done
 * ~~show "energy distribution" of day~~ done
+* clean up code
 
 ### Later
 * additional user input to calculate kWp/kWh
