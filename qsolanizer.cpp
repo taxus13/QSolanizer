@@ -62,6 +62,11 @@ void QSolanizer::readSettings()
         this->resize(settings.value("size", QSize(1000, 600)).toSize());
         this->move(settings.value("pos", QPoint(100, 100)).toPoint());
     }
+    int tabNo = settings.value("tab", 0).toInt();
+    if ((tabNo < 0) || (tabNo >= this->ui->tabWidget->count())) {
+        tabNo = 0;
+    }
+    this->ui->tabWidget->setCurrentIndex(tabNo);
     settings.endGroup();
     settings.beginGroup("Path");
     this->path = settings.value("path", "--").toString();
@@ -81,6 +86,7 @@ void QSolanizer::writeSettings()
     settings.setValue("maximized", this->isMaximized());
     settings.setValue("size", this->size());
     settings.setValue("pos", this->pos());
+    settings.setValue("tab", this->ui->tabWidget->currentIndex());
     settings.endGroup();
     settings.beginGroup("Path");
     settings.setValue("path", this->path);
