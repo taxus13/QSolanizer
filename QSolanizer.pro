@@ -31,16 +31,7 @@ HEADERS  += qsolanizer.h \
 
 FORMS    += qsolanizer.ui
 
+RESOURCES += \
+    icon.qrc
 
-win32::RC_ICONS += qsolanizer.ico
-#CONFIG += qwt
 
-#win32 {
-#  INCLUDEPATH += \
-#    C:\Qwt-6.1.2\include
-#
-#  LIBS += \
-#   -LC:\Qwt-6.1.2\lib \
-#   -lqwtd
-
-#}

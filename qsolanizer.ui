@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>QSolanizer</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="icon.qrc">
+    <normaloff>:/icon/qsolanizer.ico</normaloff>:/icon/qsolanizer.ico</iconset>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
@@ -22,9 +26,9 @@
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>0</number>
+           <number>3</number>
           </property>
-          <widget class="QWidget" name="widget">
+          <widget class="QWidget" name="tabDay">
            <attribute name="title">
             <string>Tag</string>
            </attribute>
@@ -194,7 +198,7 @@
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="widget">
+          <widget class="QWidget" name="tabMonth">
            <attribute name="title">
             <string>Monat</string>
            </attribute>
@@ -332,10 +336,10 @@
                    <string>Benutzerdefinierter Plot</string>
                   </property>
                   <property name="checkable">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                   <property name="checked">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_10">
                    <item>
@@ -397,7 +401,7 @@
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="tab">
+          <widget class="QWidget" name="tabYear">
            <attribute name="title">
             <string>Jahr</string>
            </attribute>
@@ -515,7 +519,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QCheckBox" name="checkBox">
+                 <widget class="QCheckBox" name="cCompareYears">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -533,7 +537,7 @@
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="tab_2">
+          <widget class="QWidget" name="tabTotal">
            <attribute name="title">
             <string>Gesamt</string>
            </attribute>
@@ -574,23 +578,6 @@
                    </item>
                    <item row="2" column="1">
                     <widget class="QLabel" name="lTotalDuration">
-                     <property name="text">
-                      <string>TextLabel</string>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="0">
-                    <widget class="QLabel" name="label_20">
-                     <property name="text">
-                      <string>Volllaststunden</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="1">
-                    <widget class="QLabel" name="label_21">
                      <property name="text">
                       <string>TextLabel</string>
                      </property>
@@ -688,31 +675,6 @@
         </item>
        </layout>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_10">
-        <item>
-         <widget class="QPushButton" name="bTest">
-          <property name="text">
-           <string>Lese Daten</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="bReadSerialized">
-          <property name="text">
-           <string>Lese Serialized Data</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="bWriteSerialized">
-          <property name="text">
-           <string>Schreibe Serialized Data</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
      </layout>
     </item>
    </layout>
@@ -730,52 +692,36 @@
     <property name="title">
      <string>Datei</string>
     </property>
-    <addaction name="actionNeu_Laden"/>
-    <addaction name="actionAndere_Anlage_ffnen"/>
+    <addaction name="actionOpenNew"/>
+    <addaction name="actionReload"/>
     <addaction name="separator"/>
-    <addaction name="actionEinstellungen"/>
-    <addaction name="separator"/>
-    <addaction name="actionBeenden"/>
+    <addaction name="actionClose"/>
    </widget>
    <widget class="QMenu" name="menuHilfe">
     <property name="title">
      <string>Hilfe</string>
     </property>
-    <addaction name="action_ber"/>
+    <addaction name="actionAbout"/>
    </widget>
    <addaction name="menuDatei"/>
    <addaction name="menuHilfe"/>
   </widget>
-  <widget class="QToolBar" name="mainToolBar">
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-  </widget>
-  <widget class="QStatusBar" name="statusBar"/>
-  <action name="actionNeu_Laden">
+  <action name="actionReload">
    <property name="text">
     <string>neu Laden</string>
    </property>
   </action>
-  <action name="actionAndere_Anlage_ffnen">
+  <action name="actionOpenNew">
    <property name="text">
-    <string>andere Anlage öffnen</string>
+    <string>neue Anlage öffnen</string>
    </property>
   </action>
-  <action name="actionEinstellungen">
-   <property name="text">
-    <string>Einstellungen</string>
-   </property>
-  </action>
-  <action name="actionBeenden">
+  <action name="actionClose">
    <property name="text">
     <string>Beenden</string>
    </property>
   </action>
-  <action name="action_ber">
+  <action name="actionAbout">
    <property name="text">
     <string>Über</string>
    </property>
@@ -790,6 +736,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="icon.qrc"/>
+ </resources>
  <connections/>
 </ui>

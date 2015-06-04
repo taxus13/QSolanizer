@@ -8,6 +8,13 @@ QSolanizer::QSolanizer(QWidget *parent) :
 {
     ui->setupUi(this);
     this->initializeVariables();
+    this->readSettings();
+    if (this->readSerializedData()) {
+        this->fillDataWidgets();
+    } else {
+        // present empty UI
+        this->disableAllInputWidgets();
+    }
 }
 
 QSolanizer::~QSolanizer()
@@ -17,6 +24,7 @@ QSolanizer::~QSolanizer()
 
 void QSolanizer::initializeVariables()
 {
+    this->filename = "qsolanizer.dat";
     // first color list for years
     this->someColors.append(QColor(230, 250, 7));
     this->someColors.append(QColor(250, 137, 7));
@@ -42,6 +50,43 @@ void QSolanizer::initializeVariables()
     count = 0;
 }
 
+void QSolanizer::readSettings()
+{
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, QString("lostbit"), QString("QSolanizer"));
+
+    settings.beginGroup("Window");
+    bool isMaximized = settings.value("maximized", false).toBool();
+    if (isMaximized) {
+        this->showMaximized();
+    } else {
+        this->resize(settings.value("size", QSize(1000, 600)).toSize());
+        this->move(settings.value("pos", QPoint(100, 100)).toPoint());
+    }
+    settings.endGroup();
+    settings.beginGroup("Path");
+    this->path = settings.value("path", "--").toString();
+    settings.endGroup();
+
+//    if (!QDir(this->path).exists()) {
+//        this->path = QFileDialog::getExistingDirectory(0, QString("Ordner mit den CSV-Dateien auswählen"), QDir::homePath());
+//        qDebug() << this->path;
+//    }
+}
+
+void QSolanizer::writeSettings()
+{
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, QString("lostbit"), QString("QSolanizer"));
+
+    settings.beginGroup("Window");
+    settings.setValue("maximized", this->isMaximized());
+    settings.setValue("size", this->size());
+    settings.setValue("pos", this->pos());
+    settings.endGroup();
+    settings.beginGroup("Path");
+    settings.setValue("path", this->path);
+    settings.endGroup();
+}
+
 
 void QSolanizer::on_calendarWidget_selectionChanged()
 {
@@ -50,40 +95,53 @@ void QSolanizer::on_calendarWidget_selectionChanged()
 
 }
 
-void QSolanizer::on_bTest_clicked()
+bool QSolanizer::getProperDir(bool changeDir)
 {
-   this->readData();
+    if (!QDir(this->path).exists() || changeDir) {
+            QString tempPath;
+        tempPath = QFileDialog::getExistingDirectory(0, QString("Ordner mit den CSV-Dateien auswählen"), QDir::homePath());
+        if (tempPath.isEmpty()) { // FileDialog abortet
+            return false;
+        } else {
+            this->path = tempPath;
 
+        }
+    }
+    return true;
 
 }
 
-void QSolanizer::readData() {
-    QStringList files = CSVReader::getFileList(QString("C:\\Users\\Carsten\\Documents\\SMA\\Sunny Explorer\\Tageswerte"));
-    QFuture<SolarPart> reduced = QtConcurrent::mappedReduced(files, &CSVReader::parseFile, &CSVReader::addData);
+bool QSolanizer::readData() {
+    if (QDir(this->path).exists()) {
+        QStringList files = CSVReader::getFileList(this->path);
+        QFuture<SolarPart> reduced = QtConcurrent::mappedReduced(files, &CSVReader::parseFile, &CSVReader::addData);
 
-    QProgressDialog progressDialog;
-    QFutureWatcher<SolarPart> watcher;
+        QProgressDialog progressDialog;
+        QFutureWatcher<SolarPart> watcher;
 
-    progressDialog.setLabelText("Lese Daten ein");
-    connect(&progressDialog, SIGNAL(canceled()), &watcher, SLOT(cancel()));
-    connect(&watcher, SIGNAL(finished()), &progressDialog, SLOT(reset()));
-    connect(&watcher, SIGNAL(progressRangeChanged(int,int)), &progressDialog, SLOT(setRange(int,int)));
-    connect(&watcher, SIGNAL(progressValueChanged(int)), &progressDialog, SLOT(setValue(int)));
-    watcher.setFuture(reduced);
+        progressDialog.setLabelText("Lese Daten ein");
+        connect(&progressDialog, SIGNAL(canceled()), &watcher, SLOT(cancel()));
+        connect(&watcher, SIGNAL(finished()), &progressDialog, SLOT(reset()));
+        connect(&watcher, SIGNAL(progressRangeChanged(int,int)), &progressDialog, SLOT(setRange(int,int)));
+        connect(&watcher, SIGNAL(progressValueChanged(int)), &progressDialog, SLOT(setValue(int)));
+        watcher.setFuture(reduced);
 
-    progressDialog.exec();
+        progressDialog.exec();
 
 
-    watcher.waitForFinished();
-    if (!watcher.isCanceled()) {
-        sp = reduced.result();
-        qDebug() << " got results";
-        sp.doFinalStatistics();
-        qDebug() << sp.getDayCount() << " days read";
-        this->fillDataWidgets();
-    } else {
-        QMessageBox::critical(this, "Abgebrochen", "Sie haben den Vorgang abgebrochen!");
+        watcher.waitForFinished();
+        if (!watcher.isCanceled()) {
+            sp = reduced.result();
+            qDebug() << " got results";
+            sp.doFinalStatistics();
+            qDebug() << sp.getDayCount() << " days read";
+            return true;
+        } else {
+            QMessageBox::critical(this, "Abgebrochen", "Sie haben den Vorgang abgebrochen!");
+            return false;
+        }
     }
+    return false;
 
 }
 
@@ -480,8 +538,13 @@ void QSolanizer::plotAllYearData()
 }
 
 void QSolanizer::plotTotalData()
-{
-    this->ui->wTotalPlot->clearPlottables();
+{  
+    // workarond, since clearPlottables didnt do anything
+    QCustomPlot *temp = new QCustomPlot();
+    this->ui->horizontalLayout_8->replaceWidget(this->ui->wTotalPlot, temp);
+    delete this->ui->wTotalPlot;
+    this->ui->wTotalPlot = temp;
+
     // get data
     QList<QVector<double> > allEnergyData;
     QVector<double> years;
@@ -576,6 +639,83 @@ void QSolanizer::plotTotalData()
     this->ui->lTotalData->setText(QString::number(sp.getDayCount()));
 }
 
+bool QSolanizer::readSerializedData()
+{
+    QString path = QDir(this->path).filePath(this->filename);
+    QFile file(path);
+    qDebug() << path;
+    if (file.exists() && file.open(QIODevice::ReadOnly)) {
+        QDataStream in(&file);
+        in >> this->sp;
+        qDebug() << "finished reading";
+        qDebug() << "read " << sp.getDayCount() << " days";
+        file.close();
+        return true;
+    } else {
+        file.close();
+        return false;
+    }
+
+}
+
+void QSolanizer::writeSerializedData()
+{
+    QString path = QDir(this->path).filePath(this->filename);
+    QFile file(path);
+    if (file.open(QIODevice::WriteOnly)) {
+        QDataStream out(&file);
+        out << this->sp;
+    }
+    file.close();
+}
+
+void QSolanizer::disableAllInputWidgets()
+{
+    // tab "day"
+    this->ui->calendarWidget->setEnabled(false);
+    this->ui->dateEdit->setEnabled(false);
+    this->ui->cMultpleChoice->setEnabled(false);
+    this->ui->bReset->setEnabled(false);
+
+    //tab "month"
+    this->ui->tMonthSelection->setEnabled(false);
+    this->ui->dateEditStart->setEnabled(false);
+    this->ui->dateEditEnd->setEnabled(false);
+    this->ui->rDistribution->setEnabled(false);
+    this->ui->rEnergy->setEnabled(false);
+
+    // tab "year"
+    this->ui->listWidget->setEnabled(false);
+    this->ui->cCompareYears->setEnabled(false);
+
+}
+
+void QSolanizer::enableAllInputWidgets()
+{
+    // tab "day"
+    this->ui->calendarWidget->setEnabled(true);
+    this->ui->dateEdit->setEnabled(true);
+    this->ui->cMultpleChoice->setEnabled(true);
+    this->ui->bReset->setEnabled(true);
+
+    //tab "month"
+    this->ui->tMonthSelection->setEnabled(true);
+    this->ui->dateEditStart->setEnabled(true);
+    this->ui->dateEditEnd->setEnabled(true);
+    this->ui->rDistribution->setEnabled(true);
+    this->ui->rEnergy->setEnabled(true);
+
+    // tab "year"
+    this->ui->listWidget->setEnabled(true);
+    this->ui->cCompareYears->setEnabled(true);
+}
+
+void QSolanizer::closeEvent(QCloseEvent *event)
+{
+    this->writeSettings();
+    event->accept();
+}
+
 void QSolanizer::on_tMonthSelection_itemSelectionChanged()
 {
     QList<QTreeWidgetItem *> selectedItems = this->ui->tMonthSelection->selectedItems();
@@ -613,53 +753,9 @@ void QSolanizer::on_listWidget_itemSelectionChanged()
     }
 }
 
-void QSolanizer::on_checkBox_stateChanged(int checkState)
-{
-    if (checkState == Qt::Checked) {
-        this->ui->listWidget->setEnabled(false);
-        this->plotAllYearData();
-
-    } else {
-        this->ui->listWidget->setEnabled(true);
-        this->on_listWidget_itemSelectionChanged();
-    }
-}
-
 void QSolanizer::on_dateEdit_dateChanged(const QDate &date)
 {
-    this->plotDayData(date, this->ui->checkBox->checkState() == Qt::Checked);
-}
-
-void QSolanizer::on_bReadSerialized_clicked()
-{
-    QTime timer;
-    timer.start();
-    QString path = QString("D:\\temp\\qsolanizer.dat");
-    QFile file(path);
-    if (file.open(QIODevice::ReadOnly)) {
-        QDataStream in(&file);
-        in >> this->sp;
-        qDebug() << "finished reading";
-        qDebug() << "read " << sp.getDayCount() << " days";
-        this->fillDataWidgets();
-    }
-    file.close();
-    qDebug() << timer.elapsed() << "msecs to read";
-}
-
-void QSolanizer::on_bWriteSerialized_clicked()
-{
-    QTime timer;
-    timer.start();
-    QString path = QString("D:\\temp\\qsolanizer.dat");
-//    QtConcurrent::map(this->sp, CSVReader::writeSerializedData);
-    QFile file(path);
-    if (file.open(QIODevice::WriteOnly)) {
-        QDataStream out(&file);
-        out << this->sp;
-    }
-    file.close();
-    qDebug() << timer.elapsed()  << "msecs to write";
+    this->plotDayData(date, this->ui->cCompareYears->checkState() == Qt::Checked);
 }
 
 void QSolanizer::on_dateEditStart_userDateChanged(const QDate &date)
@@ -693,4 +789,48 @@ void QSolanizer::on_cMultpleChoice_toggled(bool checked)
 void QSolanizer::on_bReset_clicked()
 {
     this->resetDayPlot();
+}
+
+void QSolanizer::on_actionReload_triggered()
+{
+    if (this->getProperDir(false)) {
+        if (this->readData()) {
+            this->fillDataWidgets();
+            this->writeSerializedData();
+            this->enableAllInputWidgets();
+        }
+    }
+}
+
+void QSolanizer::on_actionOpenNew_triggered()
+{
+    if (this->getProperDir(true)) {
+        if (this->readSerializedData() || this->readData()) {
+            this->fillDataWidgets();
+            this->writeSerializedData();
+            this->enableAllInputWidgets();
+        }
+    }
+}
+
+void QSolanizer::on_actionClose_triggered()
+{
+    this->close();
+}
+
+void QSolanizer::on_actionAbout_triggered()
+{
+    QMessageBox::about(this, "Über", "QSolanizer 0.9 (beta)");
+}
+
+void QSolanizer::on_cCompareYears_stateChanged(int checkState)
+{
+    if (checkState == Qt::Checked) {
+        this->ui->listWidget->setEnabled(false);
+        this->plotAllYearData();
+
+    } else {
+        this->ui->listWidget->setEnabled(true);
+        this->on_listWidget_itemSelectionChanged();
+    }
 }

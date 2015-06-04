@@ -11,14 +11,15 @@ Please provide some exported files from your power converter, so other power con
 ## TODO
 
 ### First release
-* save settings
+* ~~save settings~~ done
 * ~~(de-)serialize data in background~~ not neccessary
 * add option to autosize diagrams
 * ~~compare different days~~ done
 * ~~show "energy distribution" of day~~ done
-* clean up code
+* clean up code (primary qsolanizer.cpp)
 
 ### Later
 * additional user input to calculate kWp/kWh
+* save colors in settings file
 * show theoretical power curve
 * do not reread everything when additional data is added

@@ -26,8 +26,13 @@ private:
     Ui::QSolanizer *ui;
 
     void initializeVariables();
+    void readSettings();
+    void writeSettings();
+
     void fillDataWidgets();
-    void readData();
+
+    bool getProperDir(bool changeDir);
+    bool readData();
 
     // plotting and label filling functions
     void plotDayData(QDate date, bool keepOldGraphs);
@@ -41,26 +46,38 @@ private:
     void plotAllYearData();
     void plotTotalData();
 
+    bool readSerializedData();
+    void writeSerializedData();
+
+    void disableAllInputWidgets();
+    void enableAllInputWidgets();
+
+    void closeEvent(QCloseEvent *event);
 
     SolarPart sp;
     QList<QColor> someColors;
     QList<QColor> dayColors;
+
+    QString path;
+    QString filename;
+
     int count;
 
 private slots:
     void on_calendarWidget_selectionChanged();
-    void on_bTest_clicked();
     void on_tMonthSelection_itemSelectionChanged();
     void on_listWidget_itemSelectionChanged();
-    void on_checkBox_stateChanged(int checkState);
     void on_dateEdit_dateChanged(const QDate &date);
-    void on_bReadSerialized_clicked();
-    void on_bWriteSerialized_clicked();
     void on_dateEditStart_userDateChanged(const QDate &date);
     void on_dateEditEnd_userDateChanged(const QDate &date);
     void on_rEnergy_toggled(bool checked);
     void on_cMultpleChoice_toggled(bool checked);
     void on_bReset_clicked();
+    void on_actionReload_triggered();
+    void on_actionOpenNew_triggered();
+    void on_actionClose_triggered();
+    void on_actionAbout_triggered();
+    void on_cCompareYears_stateChanged(int arg1);
 };
 
 #endif // QSOLANIZER_H
