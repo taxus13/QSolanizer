@@ -13,25 +13,27 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        qsolanizer.cpp \
-    csvreader.cpp \
-    qcp/qcustomplot.cpp \
+    utils/qcustomplot.cpp \
     datastructure/solarpart.cpp \
     datastructure/day.cpp \
     datastructure/year.cpp \
-    datastructure/month.cpp
+    datastructure/month.cpp \
+    utils/csvreader.cpp \
+    ui/qsolanizer.cpp
 
-HEADERS  += qsolanizer.h \
-    csvreader.h \
-    qcp/qcustomplot.h \
+HEADERS  += \
+    utils/qcustomplot.h \
     datastructure/solarpart.h \
     datastructure/day.h \
     datastructure/year.h \
-    datastructure/month.h
+    datastructure/month.h \
+    utils/csvreader.h \
+    ui/qsolanizer.h
 
-FORMS    += qsolanizer.ui
+FORMS    += \
+    ui/qsolanizer.ui
 
 RESOURCES += \
-    icon.qrc
+    ../res/icon.qrc
 
 

@@ -6,7 +6,7 @@
 #include <QTreeWidgetItem>
 #include <QProgressDialog>
 
-#include <csvreader.h>
+#include <utils/csvreader.h>
 
 
 

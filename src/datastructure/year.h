@@ -5,8 +5,8 @@
 #include <QList>
 #include <QDataStream>
 
-#include "datastructure/day.h"
-#include "datastructure/month.h"
+#include "day.h"
+#include "month.h"
 
 class Year
 {

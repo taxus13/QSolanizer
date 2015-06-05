@@ -8,10 +8,10 @@
 #include <QDir>
 #include <QtConcurrent>
 
-#include "datastructure/solarpart.h"
-#include "datastructure/year.h"
-#include "datastructure/month.h"
-#include "datastructure/day.h"
+#include "../datastructure/solarpart.h"
+#include "../datastructure/year.h"
+#include "../datastructure/month.h"
+#include "../datastructure/day.h"
 
 #include <QDebug>
 

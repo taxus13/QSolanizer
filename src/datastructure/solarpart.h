@@ -9,8 +9,8 @@
 #include <QPair>
 #include <QDataStream>
 
-#include "datastructure/day.h"
-#include "datastructure/year.h"
+#include "day.h"
+#include "year.h"
 
 class SolarPart
 {

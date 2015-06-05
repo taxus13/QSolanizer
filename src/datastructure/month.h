@@ -4,7 +4,7 @@
 #include <QMap>
 #include <QDataStream>
 
-#include "datastructure/day.h"
+#include "day.h"
 
 class Month
 {

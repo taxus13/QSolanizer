@@ -1,4 +1,4 @@
-#include "qsolanizer.h"
+#include "ui/qsolanizer.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])
