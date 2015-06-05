@@ -10,6 +10,7 @@ QSolanizer::QSolanizer(QWidget *parent) :
     this->initializeVariables();
     this->readSettings();
     if (this->readSerializedData()) {
+        // if it is possible to load data, show it
         this->fillDataWidgets();
     } else {
         // present empty UI
@@ -46,8 +47,6 @@ void QSolanizer::initializeVariables()
     this->dayColors.append(Qt::black);
     this->dayColors.append(Qt::magenta);
     this->dayColors.append(Qt::darkCyan);
-
-    count = 0;
 }
 
 void QSolanizer::readSettings()
@@ -89,12 +88,86 @@ void QSolanizer::writeSettings()
     settings.endGroup();
 }
 
+void QSolanizer::fillDataWidgets() {
+    // set range of date inputs
+    this->ui->calendarWidget->setMinimumDate(sp.getBeginningDate());
+    this->ui->calendarWidget->setMaximumDate(sp.getEndingDate());
+    this->ui->dateEdit->setMinimumDate(sp.getBeginningDate());
+    this->ui->dateEdit->setMaximumDate(sp.getEndingDate());
+    this->ui->dateEditStart->setMinimumDate(sp.getBeginningDate());
+    this->ui->dateEditStart->setMaximumDate(sp.getEndingDate());
+    this->ui->dateEditEnd->setMinimumDate(sp.getBeginningDate());
+    this->ui->dateEditEnd->setMaximumDate(sp.getEndingDate());
+    // clear month selection and year selection
+    this->ui->tMonthSelection->clear();
+    this->ui->listWidget->clear();
 
-void QSolanizer::on_calendarWidget_selectionChanged()
+    // fill tree widget for month selection
+    foreach (int yearNumber, sp.getYearList()) {
+        QTreeWidgetItem *treeItem = new QTreeWidgetItem(this->ui->tMonthSelection);
+        treeItem->setText(0, QString::number(yearNumber));
+        Year year = sp.getYear(yearNumber);
+        foreach (QDate month, year.getMonthList()) {
+            QTreeWidgetItem *monthItem = new QTreeWidgetItem();
+            monthItem->setText(0, month.toString("MMMM"));
+            treeItem->addChild(monthItem);
+        }
+        this->ui->tMonthSelection->addTopLevelItem(treeItem);
+        //fill year list
+        this->ui->listWidget->addItem(QString::number(yearNumber));
+    }
+
+    this->ui->listWidget->setMinimumWidth(this->ui->listWidget->sizeHintForColumn(0));
+    // show some data, so the plots are not empty
+    this->plotDayData(sp.getEndingDate(), false);
+    this->showMonthData(sp.getEndingDate());
+
+    this->plotYearData(sp.getEndingDate().year());
+    this->plotTotalData();
+
+    this->ui->tMonthSelection->expandAll();
+
+}
+
+void QSolanizer::disableAllInputWidgets()
 {
-    QDate date = this->ui->calendarWidget->selectedDate();
-    this->plotDayData(date, this->ui->cMultpleChoice->checkState() == Qt::Checked);
+    // tab "day"
+    this->ui->calendarWidget->setEnabled(false);
+    this->ui->dateEdit->setEnabled(false);
+    this->ui->cMultpleChoice->setEnabled(false);
+    this->ui->bReset->setEnabled(false);
 
+    //tab "month"
+    this->ui->tMonthSelection->setEnabled(false);
+    this->ui->dateEditStart->setEnabled(false);
+    this->ui->dateEditEnd->setEnabled(false);
+    this->ui->rDistribution->setEnabled(false);
+    this->ui->rEnergy->setEnabled(false);
+
+    // tab "year"
+    this->ui->listWidget->setEnabled(false);
+    this->ui->cCompareYears->setEnabled(false);
+
+}
+
+void QSolanizer::enableAllInputWidgets()
+{
+    // tab "day"
+    this->ui->calendarWidget->setEnabled(true);
+    this->ui->dateEdit->setEnabled(true);
+    this->ui->cMultpleChoice->setEnabled(true);
+    this->ui->bReset->setEnabled(true);
+
+    //tab "month"
+    this->ui->tMonthSelection->setEnabled(true);
+    this->ui->dateEditStart->setEnabled(true);
+    this->ui->dateEditEnd->setEnabled(true);
+    this->ui->rDistribution->setEnabled(true);
+    this->ui->rEnergy->setEnabled(true);
+
+    // tab "year"
+    this->ui->listWidget->setEnabled(true);
+    this->ui->cCompareYears->setEnabled(true);
 }
 
 bool QSolanizer::getProperDir(bool changeDir)
@@ -106,11 +179,9 @@ bool QSolanizer::getProperDir(bool changeDir)
             return false;
         } else {
             this->path = tempPath;
-
         }
     }
     return true;
-
 }
 
 bool QSolanizer::readData() {
@@ -146,44 +217,34 @@ bool QSolanizer::readData() {
 
 }
 
-
-void QSolanizer::fillDataWidgets() {
-    // set range of date inputs
-    this->ui->calendarWidget->setMinimumDate(sp.getBeginningDate());
-    this->ui->calendarWidget->setMaximumDate(sp.getEndingDate());
-    this->ui->dateEdit->setMinimumDate(sp.getBeginningDate());
-    this->ui->dateEdit->setMaximumDate(sp.getEndingDate());
-    this->ui->dateEditStart->setMinimumDate(sp.getBeginningDate());
-    this->ui->dateEditStart->setMaximumDate(sp.getEndingDate());
-    this->ui->dateEditEnd->setMinimumDate(sp.getBeginningDate());
-    this->ui->dateEditEnd->setMaximumDate(sp.getEndingDate());
-    // clear month selection and year selection
-    this->ui->tMonthSelection->clear();
-    this->ui->listWidget->clear();
-
-    // fill tree widget for month selection
-    foreach (int yearNumber, sp.getYearList()) {
-        QTreeWidgetItem *treeItem = new QTreeWidgetItem(this->ui->tMonthSelection);
-        treeItem->setText(0, QString::number(yearNumber));
-        Year year = sp.getYear(yearNumber);
-        foreach (QDate month, year.getMonthList()) {
-            QTreeWidgetItem *monthItem = new QTreeWidgetItem();
-            monthItem->setText(0, month.toString("MMMM"));
-            treeItem->addChild(monthItem);
-        }
-        this->ui->tMonthSelection->addTopLevelItem(treeItem);
-        //fill year list
-        this->ui->listWidget->addItem(QString::number(yearNumber));
+bool QSolanizer::readSerializedData()
+{
+    QString path = QDir(this->path).filePath(this->filename);
+    QFile file(path);
+    qDebug() << path;
+    if (file.exists() && file.open(QIODevice::ReadOnly)) {
+        QDataStream in(&file);
+        in >> this->sp;
+        qDebug() << "finished reading";
+        qDebug() << "read " << sp.getDayCount() << " days";
+        file.close();
+        return true;
+    } else {
+        file.close();
+        return false;
     }
-    // show some data, so the plots are not empty
-    this->plotDayData(sp.getEndingDate(), false);
-    //this->showMonthData(sp.getEndingDate());
 
-    this->plotYearData(sp.getEndingDate().year());
-    this->plotTotalData();
+}
 
-    this->ui->tMonthSelection->expandAll();
-
+void QSolanizer::writeSerializedData()
+{
+    QString path = QDir(this->path).filePath(this->filename);
+    QFile file(path);
+    if (file.open(QIODevice::WriteOnly)) {
+        QDataStream out(&file);
+        out << this->sp;
+    }
+    file.close();
 }
 
 void QSolanizer::plotDayData(QDate date, bool keepOldGraphs)
@@ -239,7 +300,6 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs)
 
     ui->wPowerCurve->yAxis->setRange(0, 15);
 
-
     ui->wPowerCurve->legend->setVisible(true);
     ui->wPowerCurve->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop|Qt::AlignRight);
     ui->wPowerCurve->legend->setBrush(QColor(255, 255, 255, 200));
@@ -262,6 +322,7 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs)
     ui->lSunset->setText(dd.getSunset().toString("HH:mm"));
 }
 
+
 void QSolanizer::resetDayPlot()
 {
     this->ui->wPowerCurve->clearGraphs();
@@ -277,13 +338,10 @@ void QSolanizer::showMonthData(QDate date) {
     // fill group box data
     this->ui->lMonthEnergy->setText(QString("%1 kWh").arg(month.getEnergy(),0,'f',2));
     this->ui->lMonthSunhours->setText(QString("%1 h").arg(month.getDuration(),0,'f',2));
-
 }
 
 void QSolanizer::showCustomRange(QDate start, QDate end)
 {
-    count++;
-    qDebug() << count << "called";
     this->ui->lMonthEnergy->setText(QString("%1 kWh").arg(sp.getEnergyInRange(start, end),0,'f',2));
     this->ui->lMonthSunhours->setText(QString("%1 h").arg(sp.getSunhoursInRange(start, end),0,'f',2));
     if (this->ui->rEnergy->isChecked()) {
@@ -293,13 +351,11 @@ void QSolanizer::showCustomRange(QDate start, QDate end)
         QVector<QList<QDateTime> > data = sp.getSignificantTimes(start, end);
         this->plotDailyDistribution(data);
     }
-
 }
 
 void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &data)
 {
     QCPBars *bars = new QCPBars(this->ui->wMonthPlot->xAxis, this->ui->wMonthPlot->yAxis);
-    QDate startingDate = data.first.at(0);
     this->ui->wMonthPlot->clearPlottables();
     this->ui->wMonthPlot->addPlottable(bars);
     QPen pen;
@@ -631,81 +687,17 @@ void QSolanizer::plotTotalData()
     this->ui->lTotalData->setText(QString::number(sp.getDayCount()));
 }
 
-bool QSolanizer::readSerializedData()
-{
-    QString path = QDir(this->path).filePath(this->filename);
-    QFile file(path);
-    qDebug() << path;
-    if (file.exists() && file.open(QIODevice::ReadOnly)) {
-        QDataStream in(&file);
-        in >> this->sp;
-        qDebug() << "finished reading";
-        qDebug() << "read " << sp.getDayCount() << " days";
-        file.close();
-        return true;
-    } else {
-        file.close();
-        return false;
-    }
-
-}
-
-void QSolanizer::writeSerializedData()
-{
-    QString path = QDir(this->path).filePath(this->filename);
-    QFile file(path);
-    if (file.open(QIODevice::WriteOnly)) {
-        QDataStream out(&file);
-        out << this->sp;
-    }
-    file.close();
-}
-
-void QSolanizer::disableAllInputWidgets()
-{
-    // tab "day"
-    this->ui->calendarWidget->setEnabled(false);
-    this->ui->dateEdit->setEnabled(false);
-    this->ui->cMultpleChoice->setEnabled(false);
-    this->ui->bReset->setEnabled(false);
-
-    //tab "month"
-    this->ui->tMonthSelection->setEnabled(false);
-    this->ui->dateEditStart->setEnabled(false);
-    this->ui->dateEditEnd->setEnabled(false);
-    this->ui->rDistribution->setEnabled(false);
-    this->ui->rEnergy->setEnabled(false);
-
-    // tab "year"
-    this->ui->listWidget->setEnabled(false);
-    this->ui->cCompareYears->setEnabled(false);
-
-}
-
-void QSolanizer::enableAllInputWidgets()
-{
-    // tab "day"
-    this->ui->calendarWidget->setEnabled(true);
-    this->ui->dateEdit->setEnabled(true);
-    this->ui->cMultpleChoice->setEnabled(true);
-    this->ui->bReset->setEnabled(true);
-
-    //tab "month"
-    this->ui->tMonthSelection->setEnabled(true);
-    this->ui->dateEditStart->setEnabled(true);
-    this->ui->dateEditEnd->setEnabled(true);
-    this->ui->rDistribution->setEnabled(true);
-    this->ui->rEnergy->setEnabled(true);
-
-    // tab "year"
-    this->ui->listWidget->setEnabled(true);
-    this->ui->cCompareYears->setEnabled(true);
-}
-
 void QSolanizer::closeEvent(QCloseEvent *event)
 {
     this->writeSettings();
     event->accept();
+}
+
+void QSolanizer::on_calendarWidget_selectionChanged()
+{
+    QDate date = this->ui->calendarWidget->selectedDate();
+    this->plotDayData(date, this->ui->cMultpleChoice->checkState() == Qt::Checked);
+
 }
 
 void QSolanizer::on_tMonthSelection_itemSelectionChanged()

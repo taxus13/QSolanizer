@@ -24,20 +24,23 @@ public:
 
 private:
     Ui::QSolanizer *ui;
-
+    // initializing, settings
     void initializeVariables();
     void readSettings();
     void writeSettings();
-
+    // widget operations
     void fillDataWidgets();
-
+    void disableAllInputWidgets();
+    void enableAllInputWidgets();
+    // data io
     bool getProperDir(bool changeDir);
     bool readData();
+    bool readSerializedData();
+    void writeSerializedData();
 
     // plotting and label filling functions
     void plotDayData(QDate date, bool keepOldGraphs);
     void resetDayPlot();
-
     void showMonthData(QDate date);
     void showCustomRange(QDate start, QDate end);
     void plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &data);
@@ -46,14 +49,9 @@ private:
     void plotAllYearData();
     void plotTotalData();
 
-    bool readSerializedData();
-    void writeSerializedData();
-
-    void disableAllInputWidgets();
-    void enableAllInputWidgets();
-
     void closeEvent(QCloseEvent *event);
 
+    //variables
     SolarPart sp;
     QList<QColor> someColors;
     QList<QColor> dayColors;
@@ -61,7 +59,6 @@ private:
     QString path;
     QString filename;
 
-    int count;
 
 private slots:
     void on_calendarWidget_selectionChanged();

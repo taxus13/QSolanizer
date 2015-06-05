@@ -26,7 +26,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="tabDay">
            <attribute name="title">
@@ -157,7 +157,11 @@
                 <item>
                  <layout class="QVBoxLayout" name="verticalLayout_2">
                   <item>
-                   <widget class="QDateEdit" name="dateEdit"/>
+                   <widget class="QDateEdit" name="dateEdit">
+                    <property name="correctionMode">
+                     <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
+                    </property>
+                   </widget>
                   </item>
                   <item>
                    <layout class="QHBoxLayout" name="horizontalLayout_11">
@@ -407,7 +411,7 @@
            </attribute>
            <layout class="QHBoxLayout" name="horizontalLayout_7">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="0,10,0">
+             <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="1,10,0">
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_7">
                 <item>
@@ -472,14 +476,14 @@
                <widget class="QCustomPlot" name="wYearPlot" native="true"/>
               </item>
               <item>
-               <layout class="QVBoxLayout" name="verticalLayout_11">
+               <layout class="QVBoxLayout" name="verticalLayout_11" stretch="0,0,1">
                 <property name="sizeConstraint">
                  <enum>QLayout::SetMinimumSize</enum>
                 </property>
                 <item>
                  <widget class="QListWidget" name="listWidget">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -530,6 +534,19 @@
                    <string>Vergleiche Jahre</string>
                   </property>
                  </widget>
+                </item>
+                <item>
+                 <spacer name="verticalSpacer_6">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                </layout>
               </item>
@@ -732,7 +749,7 @@
   <customwidget>
    <class>QCustomPlot</class>
    <extends>QWidget</extends>
-   <header>qcp\qcustomplot.h</header>
+   <header>utils\qcustomplot.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
