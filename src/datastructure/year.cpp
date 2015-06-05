@@ -14,8 +14,6 @@ Year::Year(QMap<int, Month> monthdata, float energy, float duration) {
 
 Year::~Year()
 {
-//    qDeleteAll(*this->monthdata);
-//    delete this->monthdata;
 }
 
 void Year::addDay(Day day)
@@ -92,12 +90,6 @@ QMap<int, Month> &Year::getMonthData()
 
 QDataStream &operator <<(QDataStream &out, const Year &year)
 {
-//    out << year.getMonthData()->size();
-//    QMapIterator<int, Month*> iterator(*year.getMonthData());
-//    while (iterator.hasNext()) {
-//        iterator.next();
-//        out << iterator.key() << *(iterator.value());
-//    }
     out << year.monthdata << year.energy << year.duration;
     return out;
 }
@@ -105,26 +97,11 @@ QDataStream &operator <<(QDataStream &out, const Year &year)
 
 QDataStream &operator >>(QDataStream &in, Year &year)
 {
-//    qDebug() << "Deserialize Year";
-//    QMap<int, Month*> *monthdata = new QMap<int, Month*>();
-//    int size;
-//    float energy;
-//    float duration;
-//    in >> size;
-//    for(int i=0; i< size; i++) {
-//        int key;
-//        Month month;
-//        in >> key;
-//        in >> month;
-//        monthdata->insert(key, &month);
-//    }
-
-    QMap<int, Month> monthdata; // = new QMap<int, Month*>();
+    QMap<int, Month> monthdata;
     float energy;
     float duration;
 
     in >> monthdata >> energy >> duration;
-    //year = Year(monthdata, energy, duration);
     year.monthdata = monthdata;
     year.energy = energy;
     year.duration = duration;

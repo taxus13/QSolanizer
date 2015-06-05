@@ -72,10 +72,6 @@ void QSolanizer::readSettings()
     this->path = settings.value("path", "--").toString();
     settings.endGroup();
 
-//    if (!QDir(this->path).exists()) {
-//        this->path = QFileDialog::getExistingDirectory(0, QString("Ordner mit den CSV-Dateien auswählen"), QDir::homePath());
-//        qDebug() << this->path;
-//    }
 }
 
 void QSolanizer::writeSettings()
@@ -133,7 +129,6 @@ bool QSolanizer::readData() {
         watcher.setFuture(reduced);
 
         progressDialog.exec();
-
 
         watcher.waitForFinished();
         if (!watcher.isCanceled()) {
@@ -332,13 +327,6 @@ void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &d
         this->ui->wMonthPlot->xAxis->setAutoTickLabels(true);
         this->ui->wMonthPlot->xAxis->setTickLabelType(QCPAxis::ltDateTime);
         this->ui->wMonthPlot->xAxis->setDateTimeFormat("dd.MM.yy");
-//         qDebug() << this->ui->wMonthPlot->xAxis->tickVector();
-//         labels.clear();
-//         foreach (double d, this->ui->wMonthPlot->xAxis->tickVector()) {
-//             QDate date = startingDate.addDays(d);
-//             labels << date.toString("dd.MM.yy");
-//         }
-//         this->ui->wMonthPlot->xAxis->setTickVectorLabels(labels);
     }
 
     this->ui->wMonthPlot->xAxis->setSubTickCount(0);
@@ -350,8 +338,6 @@ void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &d
     this->ui->wTotalPlot->yAxis->setAutoTicks(true);
     this->ui->wTotalPlot->yAxis->setAutoTickLabels(true);
     this->ui->wMonthPlot->yAxis->grid()->setSubGridVisible(true);
-
-
 
     this->ui->wMonthPlot->yAxis->setLabel("Energie");
 

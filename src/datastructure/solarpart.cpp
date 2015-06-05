@@ -7,15 +7,6 @@ SolarPart::SolarPart()
     this->highestDayEnergy = 0;
 }
 
-//SolarPart::SolarPart(QDate start, QDate end, QSet<QDate> datesAdded, QMap<int, Year> yearData, float energy, float duration) {
-//    this->start = start;
-//    this->end = end;
-//    this->datesAdded = datesAdded;
-//    this->yearData = yearData;
-//    this->energy = energy;
-//    this->duration = duration;
-//}
-
 SolarPart::~SolarPart()
 {
 }
@@ -183,43 +174,14 @@ QMap<int, Year> &SolarPart::getYearData() {
 
 QDataStream &operator <<(QDataStream &out, const SolarPart &sp)
 {
-//    out << sp.getYearData()->size();
-//    QMapIterator<int, Year*> iterator(*sp.getYearData());
-//    while (iterator.hasNext()) {
-//        iterator.next();
-//        out << iterator.key();
-//        out << iterator.value();
-//    }
-//    out <<  sp.getBeginningDate() << sp.getEndingDate() << *sp.getDatesAdded()
-//         << sp.getEnergy() << sp.getDuration();
-//    return out;
-        out << sp.yearData << sp.start << sp.end << sp.datesAdded
-             << sp.energy << sp.duration << sp.highestDayEnergy;
+    out << sp.yearData << sp.start << sp.end << sp.datesAdded
+         << sp.energy << sp.duration << sp.highestDayEnergy;
     return out;
 }
 
 
 QDataStream &operator >>(QDataStream &in, SolarPart &sp)
 {
-//    qDebug() << "Deserialize SolarPart";
-//    int size;
-//    QDate start;
-//    QDate end;
-//    QSet<QDate> datesAdded;
-//    QMap<int, Year*> *yearData = new QMap<int, Year*>();
-//    float energy;
-//    float duration;
-//    in >> size;
-//    for (int i=0; i<size; i++) {
-//        int key;
-//        Year year;
-//        in >> key;
-//        in >> year;
-//        yearData->insert(key, &year);
-//    }
-//    in >> start >> end >> datesAdded >> energy >> duration;
-
-//    sp = SolarPart(&start, &end, &datesAdded, yearData, energy, duration);
     QMap<int, Year> map;
     QDate start;
     QDate end;
@@ -237,8 +199,6 @@ QDataStream &operator >>(QDataStream &in, SolarPart &sp)
     sp.duration = duration;
     sp.datesAdded = datesAdded;
     sp.highestDayEnergy = highestDayEnergy;
-
-    //sp = SolarPart(start, end, datesAdded, map, energy, duration);
 
     return in;
 }

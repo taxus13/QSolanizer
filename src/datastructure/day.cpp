@@ -7,8 +7,6 @@ Day::Day(QMap<QDateTime, float> powerCurve, QList<QDateTime> importantDates, QDa
     this->maximumPower = maximumPower;
     this->energy = energy;
     this->calculateDuration();
-//     qDebug() << sunrise.toString("dd.MM.yyyy") << " " << sunset << " " << momentOfMaximumPower << " " << maximumPower << " " << energy;
-//     qDebug() << "full day init";
 }
 
 Day::Day()
@@ -22,8 +20,6 @@ Day::Day(const Day &day) {
     this->maximumPower = day.maximumPower;
     this->energy = day.energy;
     this->calculateDuration();
-//    qDebug() << sunrise.toString("dd.MM.yyyy") << " " << sunset << " " << momentOfMaximumPower << " " << maximumPower << " " << energy;
-//    qDebug() << "copy day constructor";
 }
 
 Day::~Day()

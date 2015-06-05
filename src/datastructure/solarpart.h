@@ -16,7 +16,6 @@ class SolarPart
 {
 public:
     SolarPart();
-//    SolarPart(QDate start, QDate end, QSet<QDate> datesAdded, QMap<int, Year> yearData, float energy, float duration);
     ~SolarPart();
     void addDay(Day day);
     void doFinalStatistics();
@@ -48,6 +47,7 @@ public:
     Year &getYear(int year);
     Month &getMonth(QDate &date);
     Day &getDay(QDate &date);
+
     // for IO
     friend QDataStream &operator <<(QDataStream &out, const SolarPart &sp);
     friend QDataStream &operator >>(QDataStream &in, SolarPart &sp);

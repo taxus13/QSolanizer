@@ -15,12 +15,11 @@ Day CSVReader::parseFile(const QString& path) {
     QMap<QDateTime, float> map = QMap<QDateTime, float>();
     float startEnergy = 0;
     float endEnergy = 0;
-    float sumOfPower = 0; // actually, this is energy, but ignore the timefactor, as it is not relevant here
+    float sumOfPower = 0; // actually, this is an energy value, but ignorea the timefactor, as it is not relevant here
 
     if(file->open(QIODevice::ReadOnly|QIODevice::Text)) {
         QTextStream textStream(file);
         QString line;
-
 
         int lineNumber = 1;
         do {
@@ -37,7 +36,6 @@ Day CSVReader::parseFile(const QString& path) {
                    // parse data
                    QDateTime time = QDateTime::fromString(currentData.at(0), "dd.MM.yyyy HH:mm:ss");
                    if (!time.isValid()) {
-                      // qDebug() << "invalid date: " << currentData.at(0);
                        time = QDateTime::fromString(currentData.at(0), "dd.MM.yyyy HH:mm");
                    }
                    QString floatString = currentData.at(2);
@@ -112,10 +110,6 @@ Day CSVReader::parseFile(const QString& path) {
                 importantDates.append(time);
             }
         }
-
-       // qDebug() << path ;
-       // qDebug() << sunrise << " " << sunset << " " << momentOfMaximumPower;
-       // qDebug() << sunrise->toString("HH:mm:ss") << " " << sunset->toString("HH:mm:ss") << " " << momentOfMaximumPower->toString("dd.MM.yyyy HH:mm:ss") << " " << maximumPower << " " << energy;
         file->close();
         return Day(map, importantDates, momentOfMaximumPower, maximumPower, energy);
     } else {

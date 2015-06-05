@@ -14,8 +14,9 @@ class Day
 public:
     Day(QMap<QDateTime, float> powerCurve, QList<QDateTime> importantDates, QDateTime momentOfMaximumPower, float maximumPower, float energy);
     Day(); //QtConcurrent needs this
-    Day(const Day &day);
+    Day(const Day &day); // copy constructor for the "reduced" feature
     ~Day();
+
     QMap<QDateTime, float> &getPowerCurve();
     QList<QDateTime> &getImportantDates();
     QDate getDate() const;

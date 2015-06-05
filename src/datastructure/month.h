@@ -14,8 +14,6 @@ public:
     ~Month();
     void addDay(Day day);
 
-
-
     QDate getFirst();
     QDate getLast();
     QList<Day> getAllDays();
