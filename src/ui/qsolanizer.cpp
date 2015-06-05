@@ -51,8 +51,8 @@ void QSolanizer::initializeVariables()
 
 
     for (int i=0; i<=24; i++) {
-        xTicksDay << i * 1000 * 3600;
-        xLabelDay << QString::number(i, 'f', 0) + ":00";
+        dayTicksMSecs << i * 1000 * 3600;
+        dayLabelMSecs << QString::number(i, 'f', 0) + ":00";
     }
 
 }
@@ -280,8 +280,8 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs)
     ui->wPowerCurve->xAxis->setAutoTickStep(false);
     ui->wPowerCurve->xAxis->setAutoTicks(false);
     ui->wPowerCurve->xAxis->setAutoTickLabels(false);
-    ui->wPowerCurve->xAxis->setTickVector(xTicksDay);
-    ui->wPowerCurve->xAxis->setTickVectorLabels(xLabelDay);
+    ui->wPowerCurve->xAxis->setTickVector(dayTicksMSecs);
+    ui->wPowerCurve->xAxis->setTickVectorLabels(dayLabelMSecs);
     ui->wPowerCurve->xAxis->setSubTickCount(6); // every 10 minutes
     ui->wPowerCurve->xAxis->setTickLabelRotation(60);
 
@@ -352,9 +352,9 @@ void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &d
     QPen pen;
     pen.setWidthF(1.2);
     //bars->setName(date.toString("MMMM yyyy"));
-    pen.setColor(QColor(255, 131, 0));
+    pen.setColor(QColor(255, 110, 0));
     bars->setPen(pen);
-    bars->setBrush(QColor(255, 131, 0, 50));
+    bars->setBrush(QColor(255, 110, 0, 50));
     QVector<double> ticks;
     QVector<QString> labels;
     QVector<double> values;
@@ -402,17 +402,8 @@ void QSolanizer::plotDailyDistribution(QVector<QList<QDateTime> > &data)
 {
     this->ui->wMonthPlot->clearPlottables();
 
-    //QVector<QCPStatisticalBox *> boxes;
     QVector<QString> xLabel;
     QVector<double> xTicks;
-    QVector<double> yTicks;
-    QVector<QString> yLabel;
-    qDebug() << "highest energy" << this->sp.getHighestDayEnergy();
-
-    for (int i=0; i<=24; i++) {
-        yTicks << i * 1000 * 3600;
-        yLabel << QString::number(i, 'f', 0) + ":00";
-    }
 
     for (int i=0; i<data.size(); i++) {
         xTicks << i;
@@ -445,8 +436,8 @@ void QSolanizer::plotDailyDistribution(QVector<QList<QDateTime> > &data)
 
     this->ui->wMonthPlot->yAxis->setAutoTickLabels(false);
     this->ui->wMonthPlot->yAxis->setAutoTicks(false);
-    this->ui->wMonthPlot->yAxis->setTickVector(yTicks);
-    this->ui->wMonthPlot->yAxis->setTickVectorLabels(yLabel);
+    this->ui->wMonthPlot->yAxis->setTickVector(this->dayTicksMSecs);
+    this->ui->wMonthPlot->yAxis->setTickVectorLabels(this->dayLabelMSecs);
     this->ui->wMonthPlot->yAxis->setSubTickCount(4);
     this->ui->wMonthPlot->yAxis->setRange(0, 24* 1000 * 3600);
     this->ui->wMonthPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
