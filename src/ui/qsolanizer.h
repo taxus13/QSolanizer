@@ -59,6 +59,11 @@ private:
     QString path;
     QString filename;
 
+    // plotting
+    QVector<double> xTicksDay;
+    QVector<QString> xLabelDay;
+
+
 
 private slots:
     void on_calendarWidget_selectionChanged();

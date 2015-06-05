@@ -47,6 +47,14 @@ void QSolanizer::initializeVariables()
     this->dayColors.append(Qt::black);
     this->dayColors.append(Qt::magenta);
     this->dayColors.append(Qt::darkCyan);
+
+
+
+    for (int i=0; i<=24; i++) {
+        xTicksDay << i * 1000 * 3600;
+        xLabelDay << QString::number(i, 'f', 0) + ":00";
+    }
+
 }
 
 void QSolanizer::readSettings()
@@ -255,13 +263,6 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs)
     // maybe move this into day-class
     Day dd = sp.getDay(date);
 
-    QVector<double> xTicks;
-    QVector<QString> xLabel;
-    for (int i=0; i<=24; i++) {
-        xTicks << i * 1000 * 3600;
-        xLabel << QString::number(i, 'f', 0) + ":00";
-    }
-
     QVector<double> timeline;
     QVector<double> power;
 
@@ -289,8 +290,8 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs)
     ui->wPowerCurve->xAxis->setAutoTickStep(false);
     ui->wPowerCurve->xAxis->setAutoTicks(false);
     ui->wPowerCurve->xAxis->setAutoTickLabels(false);
-    ui->wPowerCurve->xAxis->setTickVector(xTicks);
-    ui->wPowerCurve->xAxis->setTickVectorLabels(xLabel);
+    ui->wPowerCurve->xAxis->setTickVector(xTicksDay);
+    ui->wPowerCurve->xAxis->setTickVectorLabels(xLabelDay);
     ui->wPowerCurve->xAxis->setSubTickCount(6); // every 10 minutes
     ui->wPowerCurve->xAxis->setTickLabelRotation(60);
 
