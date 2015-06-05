@@ -1,15 +1,5 @@
 #include "csvreader.h"
 
-CSVReader::CSVReader()
-{
-
-}
-
-CSVReader::~CSVReader()
-{
-
-}
-
 Day CSVReader::parseFile(const QString& path) {
     QFile *file = new QFile(path);
     QMap<QDateTime, float> map = QMap<QDateTime, float>();
