@@ -262,25 +262,15 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs)
     }
     // maybe move this into day-class
     Day dd = sp.getDay(date);
-
-    QVector<double> timeline;
-    QVector<double> power;
-
-    QMap<QDateTime, float> powerCurve = dd.getPowerCurve();
-    QMap<QDateTime, float>::iterator i;
-    for (i = powerCurve.begin(); i != powerCurve.end(); ++i) {
-        timeline.append(i.key().time().msecsSinceStartOfDay());
-        power.append(i.value());
-    }
+    QPair<QVector<double>, QVector<double> > data = dd.getPowerCurveForPlotting();
 
     int colorKey = ui->wPowerCurve->graphCount() % this->dayColors.size();
     QColor color = this->dayColors.at(colorKey);
     QColor colorAlpha = color;
     colorAlpha.setAlpha(20);
 
-
     ui->wPowerCurve->addGraph();
-    ui->wPowerCurve->graph()->setData(timeline, power);
+    ui->wPowerCurve->graph()->setData(data.first, data.second);
     ui->wPowerCurve->graph()->setPen(QPen(color)); // Qt::blue
     ui->wPowerCurve->graph()->setBrush(QBrush(colorAlpha));
     ui->wPowerCurve->graph()->addToLegend();

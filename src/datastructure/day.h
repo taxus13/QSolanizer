@@ -18,6 +18,7 @@ public:
     ~Day();
 
     QMap<QDateTime, float> &getPowerCurve();
+    QPair<QVector<double>, QVector<double> > getPowerCurveForPlotting();
     QList<QDateTime> &getImportantDates();
     QDate getDate() const;
     QDateTime getSunrise();

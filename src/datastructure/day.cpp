@@ -37,6 +37,19 @@ QMap<QDateTime, float> &Day::getPowerCurve()
     return this->powerCurve;
 }
 
+QPair<QVector<double>, QVector<double> > Day::getPowerCurveForPlotting()
+{
+    QVector<double> timeline;
+    QVector<double> power;
+
+    QMap<QDateTime, float>::iterator i;
+    for (i = this->powerCurve.begin(); i != this->powerCurve.end(); ++i) {
+        timeline.append(i.key().time().msecsSinceStartOfDay());
+        power.append(i.value());
+    }
+    return QPair<QVector<double>, QVector<double> >(timeline, power);
+}
+
 QDate Day::getDate() const
 {
     return this->importantDates.at(0).date();
@@ -53,6 +66,8 @@ QDateTime Day::getSunset() {
 QDateTime Day::getMomentOfMaximumPower() {
     return this->momentOfMaximumPower;
 }
+
+
 
 float Day::getMaximumPower() {
     return this->maximumPower;
