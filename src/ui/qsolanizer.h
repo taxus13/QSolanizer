@@ -55,6 +55,7 @@ private:
 
     //variables
     static const int fileFormatVersion = 1;
+    QString version;
 
     SolarPart sp;
     QList<QColor> someColors;

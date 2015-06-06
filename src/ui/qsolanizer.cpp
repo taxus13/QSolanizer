@@ -25,6 +25,7 @@ QSolanizer::~QSolanizer()
 
 void QSolanizer::initializeVariables()
 {
+    this->version = QString("0.9.9");
     this->filename = "qsolanizer.dat";
     this->dataSuccessfullyLoaded = false;
     // first color list for years
@@ -867,7 +868,10 @@ void QSolanizer::on_actionClose_triggered()
 
 void QSolanizer::on_actionAbout_triggered()
 {
-    QMessageBox::about(this, "Über", "QSolanizer 0.9 (beta)");
+    QMessageBox::about(this, "Über", "QSolanizer "+this->version+" (beta)"
+                                                                 "\n Carsten Menne"
+                                                                 "\n qsolanizer@lostbit.de"
+                                                                 "\n https://github.com/taxus13/QSolanizer");
 }
 
 void QSolanizer::on_cCompareYears_stateChanged(int checkState)
