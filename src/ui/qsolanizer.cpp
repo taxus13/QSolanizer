@@ -42,13 +42,14 @@ void QSolanizer::initializeVariables()
     this->dayColors.append(Qt::blue);
     this->dayColors.append(Qt::red);
     this->dayColors.append(Qt::darkGray);
-    this->dayColors.append(Qt::darkYellow);
-    this->dayColors.append(Qt::darkGreen);
-    this->dayColors.append(Qt::black);
     this->dayColors.append(Qt::magenta);
+    this->dayColors.append(Qt::darkYellow);
+    this->dayColors.append(Qt::green);
+    this->dayColors.append(Qt::black);
     this->dayColors.append(Qt::darkCyan);
 
-
+    this->minEnergyColor = Qt::green;
+    this->maxEnergyColor = Qt::red;
 
     for (int i=0; i<=24; i++) {
         dayTicksMSecs << i * 1000 * 3600;
@@ -122,10 +123,12 @@ void QSolanizer::fillDataWidgets() {
         }
         this->ui->tMonthSelection->addTopLevelItem(treeItem);
         //fill year list
-        this->ui->listWidget->addItem(QString::number(yearNumber));
+        QListWidgetItem *listItem = new QListWidgetItem(QString::number(yearNumber));
+        listItem->setTextAlignment(Qt::AlignRight);
+        this->ui->listWidget->addItem(listItem);
     }
 
-    this->ui->listWidget->setMinimumWidth(this->ui->listWidget->sizeHintForColumn(0));
+    this->ui->listWidget->setFixedWidth(100);
     // show some data, so the plots are not empty
     this->plotDayData(sp.getEndingDate(), false);
     this->showMonthData(sp.getEndingDate());
@@ -134,7 +137,23 @@ void QSolanizer::fillDataWidgets() {
     this->plotTotalData();
 
     this->ui->tMonthSelection->expandAll();
-
+    this->ui->wColorScale->setFixedHeight(180);
+    this->ui->wColorScaleParent->setFixedHeight(200);
+    QLinearGradient gradient(this->ui->wColorScale->rect().bottomLeft(), this->ui->wColorScale->rect().topLeft());
+    QPalette palette(this->ui->wColorScale->palette());
+    int red = this->minEnergyColor.red() + (this->maxEnergyColor.red() - this->minEnergyColor.red()) * .5;
+    int green = this->minEnergyColor.green() + (this->maxEnergyColor.green() - this->minEnergyColor.green()) * .5;
+    int blue = this->minEnergyColor.blue() + (this->maxEnergyColor.blue() - this->minEnergyColor.blue()) * .5;
+    gradient.setColorAt(0, this->minEnergyColor);
+    gradient.setColorAt(.5, QColor(red, green, blue));
+    gradient.setColorAt(1, this->maxEnergyColor);
+    palette.setBrush(QPalette::Window, QBrush(gradient));
+    this->ui->wColorScale->setAutoFillBackground(true);
+    this->ui->wColorScale->setPalette(palette);
+    this->ui->wColorScale->setStyleSheet("border: 1px solid black");
+    this->ui->lMaxEnergy->setText(QString("%1 kWh").arg(this->sp.getHighestDayEnergy(),0,'f',1));
+    this->ui->lHalfEnergy->setText(QString("%1 kWh").arg(this->sp.getHighestDayEnergy()/2,0,'f',1));
+    this->ui->lMinEnergy->setText(QString("%1 kWh").arg(0.0, 0,'f',1));
 }
 
 void QSolanizer::disableAllInputWidgets()
@@ -348,6 +367,7 @@ void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &d
 {
     QCPBars *bars = new QCPBars(this->ui->wMonthPlot->xAxis, this->ui->wMonthPlot->yAxis);
     this->ui->wMonthPlot->clearPlottables();
+    this->ui->wColorScaleParent->setVisible(false);
     this->ui->wMonthPlot->addPlottable(bars);
     QPen pen;
     pen.setWidthF(1.2);
@@ -380,13 +400,15 @@ void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &d
     this->ui->wMonthPlot->xAxis->setTickLength(0,4);
     this->ui->wMonthPlot->xAxis->grid()->setVisible(false);
     this->ui->wMonthPlot->xAxis->setRange(0, ticks.size()+1);
-    this->ui->wMonthPlot->yAxis->setRange(0, 100);
+    this->ui->wMonthPlot->yAxis->setRange(0, sp.getHighestDayEnergy());
     this->ui->wMonthPlot->yAxis->setPadding(5);
-    this->ui->wTotalPlot->yAxis->setAutoTicks(true);
-    this->ui->wTotalPlot->yAxis->setAutoTickLabels(true);
+    this->ui->wMonthPlot->yAxis->setAutoTicks(true);
+    this->ui->wMonthPlot->yAxis->setAutoTickLabels(true);
+    this->ui->wMonthPlot->yAxis->setAutoSubTicks(true);
+    this->ui->wMonthPlot->yAxis->setAutoTickLabels(true);
     this->ui->wMonthPlot->yAxis->grid()->setSubGridVisible(true);
 
-    this->ui->wMonthPlot->yAxis->setLabel("Energie");
+    this->ui->wMonthPlot->yAxis->setLabel("Energie [kWh]");
 
     QPen gridPen;
     gridPen.setStyle(Qt::SolidLine);
@@ -401,7 +423,7 @@ void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &d
 void QSolanizer::plotDailyDistribution(QVector<QList<QDateTime> > &data)
 {
     this->ui->wMonthPlot->clearPlottables();
-
+    this->ui->wColorScaleParent->setVisible(true);
     QVector<QString> xLabel;
     QVector<double> xTicks;
 
@@ -415,7 +437,12 @@ void QSolanizer::plotDailyDistribution(QVector<QList<QDateTime> > &data)
 
         float percent = this->sp.getDay(date).getEnergy() / this->sp.getHighestDayEnergy();
 
-        QBrush boxBrush(QColor(255 * percent, 255 * (1-percent), 0, 150));
+        int red = this->minEnergyColor.red() + (this->maxEnergyColor.red() - this->minEnergyColor.red()) * percent;
+        int green = this->minEnergyColor.green() + (this->maxEnergyColor.green() - this->minEnergyColor.green()) * percent;
+        int blue = this->minEnergyColor.blue() + (this->maxEnergyColor.blue() - this->minEnergyColor.blue()) * percent;
+
+//        QBrush boxBrush(QColor(255 * percent, 255 * (1-percent), 0, 150));
+        QBrush boxBrush(QColor(red, green, blue));
         box->setBrush(boxBrush);
         box->setKey(i);
         box->setMinimum(data.at(i).at(0).time().msecsSinceStartOfDay());
@@ -479,7 +506,7 @@ void QSolanizer::plotYearData(int yearNumber)
     this->ui->wYearPlot->yAxis->grid()->setSubGridVisible(true);
 
 
-    this->ui->wYearPlot->yAxis->setLabel("Energie");
+    this->ui->wYearPlot->yAxis->setLabel("Energie [kWh]");
 
     QPen gridPen;
     gridPen.setStyle(Qt::SolidLine);
@@ -639,10 +666,12 @@ void QSolanizer::plotTotalData()
     this->ui->wTotalPlot->xAxis->setRange(years.at(0)-1, years.at(years.size()-1)+2); //+2 to have space for the legend
 
     this->ui->wTotalPlot->yAxis->setRange(0, 14000);
+    this->ui->wTotalPlot->yAxis->setLabel("Energie [kWh]");
+
     QPen gridPen;
     gridPen.setStyle(Qt::SolidLine);
     gridPen.setColor(QColor(0,0,0,25));
-    this->ui->wTotalPlot->yAxis->grid()->setPen(gridPen);
+//    this->ui->wTotalPlot->yAxis->grid()->setPen(gridPen);
     gridPen.setStyle(Qt::DotLine);
     this->ui->wTotalPlot->yAxis->grid()->setSubGridPen(gridPen);
 
@@ -658,7 +687,6 @@ void QSolanizer::plotTotalData()
     this->ui->wTotalPlot->legend->setFont(legendFont);
 
     this->ui->wTotalPlot->setInteractions(QCP::iRangeZoom | QCP::iRangeDrag);
-
     this->ui->wTotalPlot->replot();
 
      // set group box data
@@ -667,6 +695,22 @@ void QSolanizer::plotTotalData()
     this->ui->lTotalDuration->setText(QString("%1 h").arg(sp.getDuration(),0,'f',0));
     this->ui->lTotalEnergy->setText(QString("%1 kWh").arg(sp.getEnergy(),0,'f',0));
     this->ui->lTotalData->setText(QString::number(sp.getDayCount()));
+}
+
+void QSolanizer::resizeEvent(QResizeEvent *event)
+{
+    QMainWindow::resizeEvent(event);
+    QLinearGradient gradient(this->ui->wColorScale->rect().bottomLeft(), this->ui->wColorScale->rect().topLeft());
+    QPalette palette(this->ui->wColorScale->palette());
+    int red = this->minEnergyColor.red() + (this->maxEnergyColor.red() - this->minEnergyColor.red()) * .5;
+    int green = this->minEnergyColor.green() + (this->maxEnergyColor.green() - this->minEnergyColor.green()) * .5;
+    int blue = this->minEnergyColor.blue() + (this->maxEnergyColor.blue() - this->minEnergyColor.blue()) * .5;
+    gradient.setColorAt(0, this->minEnergyColor);
+    gradient.setColorAt(.5, QColor(red, green, blue));
+    gradient.setColorAt(1, this->maxEnergyColor);
+    palette.setBrush(QPalette::Window, QBrush(gradient));
+    this->ui->wColorScale->setAutoFillBackground(true);
+    this->ui->wColorScale->setPalette(palette);
 }
 
 void QSolanizer::closeEvent(QCloseEvent *event)
@@ -698,8 +742,6 @@ void QSolanizer::on_tMonthSelection_itemSelectionChanged()
 
             month >= sp.getBeginningDate() ? min = month : min = sp.getBeginningDate();
             lastDayOfMonth <= sp.getEndingDate() ? max = lastDayOfMonth : max = sp.getEndingDate();
-
-            qDebug() << min << max;
 
             this->ui->dateEditStart->setMaximumDate(max);
             this->ui->dateEditEnd->setMinimumDate(min);

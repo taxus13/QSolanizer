@@ -49,19 +49,23 @@ private:
     void plotAllYearData();
     void plotTotalData();
 
+    void resizeEvent(QResizeEvent* event);
     void closeEvent(QCloseEvent *event);
 
     //variables
     SolarPart sp;
     QList<QColor> someColors;
     QList<QColor> dayColors;
+    QColor maxEnergyColor;
+    QColor minEnergyColor;
+
 
     QString path;
     QString filename;
 
     // plotting
-    QVector<double> xTicksDay;
-    QVector<QString> xLabelDay;
+    QVector<double> dayTicksMSecs;
+    QVector<QString> dayLabelMSecs;
 
 
 
