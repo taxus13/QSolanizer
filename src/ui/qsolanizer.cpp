@@ -372,35 +372,44 @@ void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &d
     bars->setPen(pen);
     bars->setBrush(QColor(255, 110, 0, 50));
     QVector<double> ticks;
+    QVector<double> dataPos;
     QVector<QString> labels;
     QVector<double> values;
+    int step = qCeil((float)data.first.size()/31);
+
     for (int i=0; i<data.first.size(); ++i) {
-        ticks << i+1;
-        labels << data.first.at(i).toString("dd.MM.");
         values << data.second.at(i);
+        dataPos << i+1;
+        if ((i%step) == 0) {
+            labels << data.first.at(i).toString("dd.MM.");
+            ticks << i+1;
+        }
     }
-    if (data.first.size() <= 31) {
+//    if (data.first.size() <= 31) {
         this->ui->wMonthPlot->xAxis->setAutoTicks(false);
         this->ui->wMonthPlot->xAxis->setAutoTickLabels(false);
         this->ui->wMonthPlot->xAxis->setTickVector(ticks);
         this->ui->wMonthPlot->xAxis->setTickVectorLabels(labels);
         this->ui->wMonthPlot->xAxis->setTickLabelRotation(60);
-    } else {
-        this->ui->wMonthPlot->xAxis->setAutoTicks(true);
-        this->ui->wMonthPlot->xAxis->setAutoTickLabels(true);
-        this->ui->wMonthPlot->xAxis->setTickLabelType(QCPAxis::ltDateTime);
-        this->ui->wMonthPlot->xAxis->setDateTimeFormat("dd.MM.yy");
-    }
+        this->ui->wMonthPlot->xAxis->setAutoSubTicks(false);
+//        this->ui->wMonthPlot->xAxis->setSubTickCount(step-1);
+//    } else {
+//        this->ui->wMonthPlot->xAxis->setAutoTicks(true);
+//        this->ui->wMonthPlot->xAxis->setAutoTickLabels(true);
+//        this->ui->wMonthPlot->xAxis->setTickLabelType(QCPAxis::ltDateTime);
+//        this->ui->wMonthPlot->xAxis->setDateTimeFormat("dd.MM.yy");
+//    }
 
-    this->ui->wMonthPlot->xAxis->setSubTickCount(0);
+//    this->ui->wMonthPlot->xAxis->setSubTickCount(0);
     this->ui->wMonthPlot->xAxis->setTickLength(0,4);
     this->ui->wMonthPlot->xAxis->grid()->setVisible(false);
-    this->ui->wMonthPlot->xAxis->setRange(0, ticks.size()+1);
+    this->ui->wMonthPlot->xAxis->setRange(0, values.size()+1);
     this->ui->wMonthPlot->yAxis->setRange(0, sp.getHighestDayEnergy()*1.1);
     this->ui->wMonthPlot->yAxis->setPadding(5);
     this->ui->wMonthPlot->yAxis->setAutoTicks(true);
     this->ui->wMonthPlot->yAxis->setAutoTickLabels(true);
-    this->ui->wMonthPlot->yAxis->setAutoSubTicks(true);
+    this->ui->wMonthPlot->yAxis->setAutoSubTicks(false);
+    this->ui->wMonthPlot->yAxis->setSubTickCount(4);
     this->ui->wMonthPlot->yAxis->setAutoTickLabels(true);
     this->ui->wMonthPlot->yAxis->grid()->setSubGridVisible(true);
 
@@ -412,7 +421,8 @@ void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &d
     this->ui->wMonthPlot->yAxis->grid()->setPen(gridPen);
     gridPen.setStyle(Qt::DotLine);
     this->ui->wMonthPlot->yAxis->grid()->setSubGridPen(gridPen);
-    bars->setData(ticks, values);
+    bars->setData(dataPos, values);
+    this->ui->wMonthPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
     this->ui->wMonthPlot->replot();
 }
 
