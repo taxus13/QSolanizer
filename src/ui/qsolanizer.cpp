@@ -26,6 +26,7 @@ QSolanizer::~QSolanizer()
 void QSolanizer::initializeVariables()
 {
     this->filename = "qsolanizer.dat";
+    this->dataSuccessfullyLoaded = false;
     // first color list for years
     this->someColors.append(QColor(230, 250, 7));
     this->someColors.append(QColor(250, 137, 7));
@@ -74,12 +75,27 @@ void QSolanizer::readSettings()
     if ((tabNo < 0) || (tabNo >= this->ui->tabWidget->count())) {
         tabNo = 0;
     }
+    bool showEnergy = settings.value("showEnergy", true).toBool();
+//    this->ui->rEnergy->setChecked(showEnergy);
+    if (showEnergy) {
+        this->ui->rEnergy->setChecked(true);
+    } else {
+//        this->ui->rEnergy->setChecked(false);
+        this->ui->rDistribution->setChecked(true);
+    }
+
+
     this->ui->tabWidget->setCurrentIndex(tabNo);
     settings.endGroup();
     settings.beginGroup("Path");
     this->path = settings.value("path", "--").toString();
     settings.endGroup();
-
+    settings.beginGroup("Colors");
+    QString minEC = settings.value("minEnergyColor", QColor(Qt::green).name()).toString();
+    QString maxEC = settings.value("maxEnergyColor", QColor(Qt::red).name()).toString();
+    this->minEnergyColor = QColor(minEC);
+    this->maxEnergyColor = QColor(maxEC);
+    settings.endGroup();
 }
 
 void QSolanizer::writeSettings()
@@ -91,9 +107,14 @@ void QSolanizer::writeSettings()
     settings.setValue("size", this->size());
     settings.setValue("pos", this->pos());
     settings.setValue("tab", this->ui->tabWidget->currentIndex());
+    settings.setValue("showEnergy", this->ui->rEnergy->isChecked());
     settings.endGroup();
     settings.beginGroup("Path");
     settings.setValue("path", this->path);
+    settings.endGroup();
+    settings.beginGroup("Colors");
+    settings.setValue("minEnergyColor", this->minEnergyColor.name());
+    settings.setValue("maxEnergyColor", this->maxEnergyColor.name());
     settings.endGroup();
 }
 
@@ -120,6 +141,9 @@ void QSolanizer::fillDataWidgets() {
             QTreeWidgetItem *monthItem = new QTreeWidgetItem();
             monthItem->setText(0, month.toString("MMMM"));
             treeItem->addChild(monthItem);
+            if ((yearNumber == sp.getEndingDate().year()) && (month.month() == sp.getEndingDate().month())) {
+                monthItem->setSelected(true); // implicitly call "showCustomRange"
+            }
         }
         this->ui->tMonthSelection->addTopLevelItem(treeItem);
         //fill year list
@@ -131,7 +155,7 @@ void QSolanizer::fillDataWidgets() {
     this->ui->listWidget->setFixedWidth(100);
     // show some data, so the plots are not empty
     this->plotDayData(sp.getEndingDate(), false);
-    this->showMonthData(sp.getEndingDate());
+
 
     this->plotYearData(sp.getEndingDate().year());
     this->plotTotalData();
@@ -139,6 +163,7 @@ void QSolanizer::fillDataWidgets() {
     this->ui->tMonthSelection->expandAll();
     this->ui->wColorScale->setFixedHeight(180);
     this->ui->wColorScaleParent->setFixedHeight(200);
+    this->drawColorScale();
     this->ui->wColorScale->setStyleSheet("border: 1px solid black");
     this->ui->lMaxEnergy->setText(QString("%1 kWh").arg(this->sp.getHighestDayEnergy(),0,'f',1));
     this->ui->lHalfEnergy->setText(QString("%1 kWh").arg(this->sp.getHighestDayEnergy()/2,0,'f',1));
@@ -201,6 +226,7 @@ bool QSolanizer::getProperDir(bool changeDir)
 }
 
 bool QSolanizer::readData() {
+    this->dataSuccessfullyLoaded = false;
     if (QDir(this->path).exists()) {
         QStringList files = CSVReader::getFileList(this->path);
         QFuture<SolarPart> reduced = QtConcurrent::mappedReduced(files, &CSVReader::parseFile, &CSVReader::addData);
@@ -223,6 +249,7 @@ bool QSolanizer::readData() {
             qDebug() << " got results";
             sp.doFinalStatistics();
             qDebug() << sp.getDayCount() << " days read";
+            this->dataSuccessfullyLoaded = true;
             return true;
         } else {
             QMessageBox::critical(this, "Abgebrochen", "Sie haben den Vorgang abgebrochen!");
@@ -235,6 +262,7 @@ bool QSolanizer::readData() {
 
 bool QSolanizer::readSerializedData()
 {
+    this->dataSuccessfullyLoaded = false;
     QString path = QDir(this->path).filePath(this->filename);
     QFile file(path);
     qDebug() << path;
@@ -247,6 +275,7 @@ bool QSolanizer::readSerializedData()
             qDebug() << "finished reading";
             qDebug() << "read" << sp.getDayCount() << "days";
             file.close();
+            this->dataSuccessfullyLoaded = true;
             return true;
         } else {
             file.close();
@@ -385,22 +414,14 @@ void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &d
             ticks << i+1;
         }
     }
-//    if (data.first.size() <= 31) {
-        this->ui->wMonthPlot->xAxis->setAutoTicks(false);
-        this->ui->wMonthPlot->xAxis->setAutoTickLabels(false);
-        this->ui->wMonthPlot->xAxis->setTickVector(ticks);
-        this->ui->wMonthPlot->xAxis->setTickVectorLabels(labels);
-        this->ui->wMonthPlot->xAxis->setTickLabelRotation(60);
-        this->ui->wMonthPlot->xAxis->setAutoSubTicks(false);
-//        this->ui->wMonthPlot->xAxis->setSubTickCount(step-1);
-//    } else {
-//        this->ui->wMonthPlot->xAxis->setAutoTicks(true);
-//        this->ui->wMonthPlot->xAxis->setAutoTickLabels(true);
-//        this->ui->wMonthPlot->xAxis->setTickLabelType(QCPAxis::ltDateTime);
-//        this->ui->wMonthPlot->xAxis->setDateTimeFormat("dd.MM.yy");
-//    }
 
-//    this->ui->wMonthPlot->xAxis->setSubTickCount(0);
+    this->ui->wMonthPlot->xAxis->setAutoTicks(false);
+    this->ui->wMonthPlot->xAxis->setAutoTickLabels(false);
+    this->ui->wMonthPlot->xAxis->setTickVector(ticks);
+    this->ui->wMonthPlot->xAxis->setTickVectorLabels(labels);
+    this->ui->wMonthPlot->xAxis->setTickLabelRotation(60);
+    this->ui->wMonthPlot->xAxis->setAutoSubTicks(false);
+
     this->ui->wMonthPlot->xAxis->setTickLength(0,4);
     this->ui->wMonthPlot->xAxis->grid()->setVisible(false);
     this->ui->wMonthPlot->xAxis->setRange(0, values.size()+1);
@@ -432,10 +453,12 @@ void QSolanizer::plotDailyDistribution(QVector<QList<QDateTime> > &data)
     this->ui->wColorScaleParent->setVisible(true);
     QVector<QString> xLabel;
     QVector<double> xTicks;
-
+    int step = qCeil((float)data.size()/31);
     for (int i=0; i<data.size(); i++) {
-        xTicks << i;
-        xLabel << data.at(i).at(0).toString("dd.MM.yyyy");
+        if ((i % step) == 0) {
+            xTicks << i;
+            xLabel << data.at(i).at(0).toString("dd.MM.yyyy");
+        }
         QCPStatisticalBox *box = new QCPStatisticalBox(this->ui->wMonthPlot->xAxis, this->ui->wMonthPlot->yAxis);
         this->ui->wMonthPlot->addPlottable(box);
 
@@ -704,11 +727,8 @@ void QSolanizer::plotTotalData()
     this->ui->lTotalData->setText(QString::number(sp.getDayCount()));
 }
 
-void QSolanizer::resizeEvent(QResizeEvent *event)
+void QSolanizer::drawColorScale()
 {
-    QMainWindow::resizeEvent(event);
-
-    // for a reason, this must be implemented here
     QLinearGradient gradient(this->ui->wColorScale->rect().bottomLeft(), this->ui->wColorScale->rect().topLeft());
     QPalette palette(this->ui->wColorScale->palette());
     int red = this->minEnergyColor.red() + (this->maxEnergyColor.red() - this->minEnergyColor.red()) * .5;
@@ -720,6 +740,14 @@ void QSolanizer::resizeEvent(QResizeEvent *event)
     palette.setBrush(QPalette::Window, QBrush(gradient));
     this->ui->wColorScale->setAutoFillBackground(true);
     this->ui->wColorScale->setPalette(palette);
+}
+
+void QSolanizer::resizeEvent(QResizeEvent *event)
+{
+    QMainWindow::resizeEvent(event);
+
+    // for a reason, this must be implemented here
+    drawColorScale();
 }
 
 void QSolanizer::closeEvent(QCloseEvent *event)
@@ -793,7 +821,9 @@ void QSolanizer::on_dateEditEnd_userDateChanged(const QDate &date)
 
 void QSolanizer::on_rEnergy_toggled(bool checked)
 {
-    this->showCustomRange(this->ui->dateEditStart->date(), this->ui->dateEditEnd->date());
+    if (this->dataSuccessfullyLoaded) {
+        this->showCustomRange(this->ui->dateEditStart->date(), this->ui->dateEditEnd->date());
+    }
 }
 
 void QSolanizer::on_cMultpleChoice_toggled(bool checked)

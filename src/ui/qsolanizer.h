@@ -22,6 +22,7 @@ public:
     explicit QSolanizer(QWidget *parent = 0);
     ~QSolanizer();
 
+    void drawColorScale();
 private:
     Ui::QSolanizer *ui;
     // initializing, settings
@@ -64,6 +65,7 @@ private:
 
     QString path;
     QString filename;
+    bool dataSuccessfullyLoaded;
 
     // plotting
     QVector<double> dayTicksMSecs;

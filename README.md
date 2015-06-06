@@ -13,10 +13,10 @@ Please provide some exported files from your power converter, so other power con
 ### First release
 * ~~save settings~~ done
 * ~~(de-)serialize data in background~~ not neccessary
-* add option to autosize diagrams
+* ~~add option to autosize diagrams~~
 * ~~compare different days~~ done
 * ~~show "energy distribution" of day~~ done
-* clean up code (primary qsolanizer.cpp)
+* ~~clean up code (primary qsolanizer.cpp)~~ done
 
 ### Later
 * additional user input to calculate kWp/kWh
