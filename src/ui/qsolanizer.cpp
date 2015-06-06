@@ -124,7 +124,7 @@ void QSolanizer::fillDataWidgets() {
         this->ui->tMonthSelection->addTopLevelItem(treeItem);
         //fill year list
         QListWidgetItem *listItem = new QListWidgetItem(QString::number(yearNumber));
-        listItem->setTextAlignment(Qt::AlignRight);
+        listItem->setTextAlignment(Qt::AlignCenter);
         this->ui->listWidget->addItem(listItem);
     }
 
@@ -139,17 +139,6 @@ void QSolanizer::fillDataWidgets() {
     this->ui->tMonthSelection->expandAll();
     this->ui->wColorScale->setFixedHeight(180);
     this->ui->wColorScaleParent->setFixedHeight(200);
-    QLinearGradient gradient(this->ui->wColorScale->rect().bottomLeft(), this->ui->wColorScale->rect().topLeft());
-    QPalette palette(this->ui->wColorScale->palette());
-    int red = this->minEnergyColor.red() + (this->maxEnergyColor.red() - this->minEnergyColor.red()) * .5;
-    int green = this->minEnergyColor.green() + (this->maxEnergyColor.green() - this->minEnergyColor.green()) * .5;
-    int blue = this->minEnergyColor.blue() + (this->maxEnergyColor.blue() - this->minEnergyColor.blue()) * .5;
-    gradient.setColorAt(0, this->minEnergyColor);
-    gradient.setColorAt(.5, QColor(red, green, blue));
-    gradient.setColorAt(1, this->maxEnergyColor);
-    palette.setBrush(QPalette::Window, QBrush(gradient));
-    this->ui->wColorScale->setAutoFillBackground(true);
-    this->ui->wColorScale->setPalette(palette);
     this->ui->wColorScale->setStyleSheet("border: 1px solid black");
     this->ui->lMaxEnergy->setText(QString("%1 kWh").arg(this->sp.getHighestDayEnergy(),0,'f',1));
     this->ui->lHalfEnergy->setText(QString("%1 kWh").arg(this->sp.getHighestDayEnergy()/2,0,'f',1));
@@ -251,11 +240,18 @@ bool QSolanizer::readSerializedData()
     qDebug() << path;
     if (file.exists() && file.open(QIODevice::ReadOnly)) {
         QDataStream in(&file);
-        in >> this->sp;
-        qDebug() << "finished reading";
-        qDebug() << "read " << sp.getDayCount() << " days";
-        file.close();
-        return true;
+        int version;
+        in >> version ;
+        if (version == this->fileFormatVersion) {
+            in >> this->sp;
+            qDebug() << "finished reading";
+            qDebug() << "read" << sp.getDayCount() << "days";
+            file.close();
+            return true;
+        } else {
+            file.close();
+            return false;
+        }
     } else {
         file.close();
         return false;
@@ -269,7 +265,7 @@ void QSolanizer::writeSerializedData()
     QFile file(path);
     if (file.open(QIODevice::WriteOnly)) {
         QDataStream out(&file);
-        out << this->sp;
+        out << this->fileFormatVersion << this->sp;
     }
     file.close();
 }
@@ -308,7 +304,7 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs)
 
     ui->wPowerCurve->setAntialiasedElement(QCP::aePlottables);
 
-    ui->wPowerCurve->yAxis->setRange(0, 15);
+    ui->wPowerCurve->yAxis->setRange(0, sp.getHighestPower()*1.1);
 
     ui->wPowerCurve->legend->setVisible(true);
     ui->wPowerCurve->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop|Qt::AlignRight);
@@ -400,7 +396,7 @@ void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &d
     this->ui->wMonthPlot->xAxis->setTickLength(0,4);
     this->ui->wMonthPlot->xAxis->grid()->setVisible(false);
     this->ui->wMonthPlot->xAxis->setRange(0, ticks.size()+1);
-    this->ui->wMonthPlot->yAxis->setRange(0, sp.getHighestDayEnergy());
+    this->ui->wMonthPlot->yAxis->setRange(0, sp.getHighestDayEnergy()*1.1);
     this->ui->wMonthPlot->yAxis->setPadding(5);
     this->ui->wMonthPlot->yAxis->setAutoTicks(true);
     this->ui->wMonthPlot->yAxis->setAutoTickLabels(true);
@@ -459,6 +455,7 @@ void QSolanizer::plotDailyDistribution(QVector<QList<QDateTime> > &data)
     this->ui->wMonthPlot->xAxis->setAutoTicks(false);
     this->ui->wMonthPlot->xAxis->setTickVector(xTicks);
     this->ui->wMonthPlot->xAxis->setTickVectorLabels(xLabel);
+    this->ui->wMonthPlot->xAxis->setRange(-1, data.size());
     this->ui->wMonthPlot->yAxis->setLabel("");
 
     this->ui->wMonthPlot->yAxis->setAutoTickLabels(false);
@@ -501,7 +498,7 @@ void QSolanizer::plotYearData(int yearNumber)
     this->ui->wYearPlot->xAxis->setTickLength(0,4);
     this->ui->wYearPlot->xAxis->grid()->setVisible(false);
     this->ui->wYearPlot->xAxis->setRange(0, 13);
-    this->ui->wYearPlot->yAxis->setRange(0, 2000);
+    this->ui->wYearPlot->yAxis->setRange(0, sp.getHighestMonthEnergy()*1.1);
     this->ui->wYearPlot->yAxis->setPadding(5);
     this->ui->wYearPlot->yAxis->grid()->setSubGridVisible(true);
 
@@ -572,7 +569,7 @@ void QSolanizer::plotAllYearData()
     }
 
     this->ui->wYearPlot->xAxis->setRange(0, 13);
-    this->ui->wYearPlot->yAxis->setRange(0, 2000);
+    this->ui->wYearPlot->yAxis->setRange(0, sp.getHighestMonthEnergy()*1.1);
     this->ui->wYearPlot->xAxis->setTickVector(months);
     this->ui->wYearPlot->xAxis->setTickVectorLabels(labels);
     this->ui->wYearPlot->xAxis->setAutoTickStep(false);
@@ -665,7 +662,7 @@ void QSolanizer::plotTotalData()
     this->ui->wTotalPlot->xAxis->setSubTickCount(0);
     this->ui->wTotalPlot->xAxis->setRange(years.at(0)-1, years.at(years.size()-1)+2); //+2 to have space for the legend
 
-    this->ui->wTotalPlot->yAxis->setRange(0, 14000);
+    this->ui->wTotalPlot->yAxis->setRange(0, sp.getHighestYearEnergy()*1.1);
     this->ui->wTotalPlot->yAxis->setLabel("Energie [kWh]");
 
     QPen gridPen;
@@ -700,6 +697,8 @@ void QSolanizer::plotTotalData()
 void QSolanizer::resizeEvent(QResizeEvent *event)
 {
     QMainWindow::resizeEvent(event);
+
+    // for a reason, this must be implemented here
     QLinearGradient gradient(this->ui->wColorScale->rect().bottomLeft(), this->ui->wColorScale->rect().topLeft());
     QPalette palette(this->ui->wColorScale->palette());
     int red = this->minEnergyColor.red() + (this->maxEnergyColor.red() - this->minEnergyColor.red()) * .5;

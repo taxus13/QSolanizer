@@ -33,7 +33,8 @@ HEADERS  += \
 FORMS    += \
     ui/qsolanizer.ui
 
-RESOURCES += \
-    ../res/icon.qrc
+RC_FILE = qsolanizer.rc
+
+
 
 

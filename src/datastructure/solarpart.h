@@ -38,7 +38,10 @@ public:
     QMap<int, Year> &getYearData();
     float getEnergy() const;
     float getDuration() const;
+    float getHighestPower();
     float getHighestDayEnergy();
+    float getHighestMonthEnergy();
+    float getHighestYearEnergy();
     QDate &getBeginningDate();
     QDate &getEndingDate();
 
@@ -62,7 +65,10 @@ private:
     float energy;
     float duration;
 
+    float highestPower;
     float highestDayEnergy;
+    float highestMonthEnergy;
+    float highestYearEnergy;
 
 };
 

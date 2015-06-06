@@ -13,10 +13,6 @@
   <property name="windowTitle">
    <string>QSolanizer</string>
   </property>
-  <property name="windowIcon">
-   <iconset resource="../../res/icon.qrc">
-    <normaloff>:/icon/qsolanizer.ico</normaloff>:/icon/qsolanizer.ico</iconset>
-  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
@@ -826,8 +822,6 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="../../res/icon.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

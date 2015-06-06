@@ -53,6 +53,8 @@ private:
     void closeEvent(QCloseEvent *event);
 
     //variables
+    static const int fileFormatVersion = 1;
+
     SolarPart sp;
     QList<QColor> someColors;
     QList<QColor> dayColors;
