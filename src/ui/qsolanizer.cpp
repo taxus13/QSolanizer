@@ -25,7 +25,7 @@ QSolanizer::~QSolanizer()
 
 void QSolanizer::initializeVariables()
 {
-    this->version = QString("0.9.9");
+    this->version = QString("0.10.0");
     this->filename = "qsolanizer.dat";
     this->dataSuccessfullyLoaded = false;
     // first color list for years
@@ -327,7 +327,7 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs)
     ui->wPowerCurve->xAxis->setAutoTickLabels(false);
     ui->wPowerCurve->xAxis->setTickVector(dayTicksMSecs);
     ui->wPowerCurve->xAxis->setTickVectorLabels(dayLabelMSecs);
-    ui->wPowerCurve->xAxis->setSubTickCount(6); // every 10 minutes
+    ui->wPowerCurve->xAxis->setSubTickCount(5); // every 10 minutes
     ui->wPowerCurve->xAxis->setTickLabelRotation(60);
 
     ui->wPowerCurve->yAxis->setLabel("Leistung [kW]");
@@ -348,6 +348,8 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs)
 
 
     ui->wPowerCurve->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+    ui->wPowerCurve->axisRect()->setRangeZoom(Qt::Horizontal);
+    ui->wPowerCurve->axisRect()->setRangeDrag(Qt::Horizontal);
     ui->wPowerCurve->replot();
 
     // fill groupbox
@@ -445,6 +447,8 @@ void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &d
     this->ui->wMonthPlot->yAxis->grid()->setSubGridPen(gridPen);
     bars->setData(dataPos, values);
     this->ui->wMonthPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+    this->ui->wMonthPlot->axisRect()->setRangeZoom(Qt::Horizontal);
+    this->ui->wMonthPlot->axisRect()->setRangeDrag(Qt::Horizontal);
     this->ui->wMonthPlot->replot();
 }
 
@@ -490,8 +494,9 @@ void QSolanizer::plotDailyDistribution(QVector<QList<QDateTime> > &data)
     this->ui->wMonthPlot->xAxis->setTickVector(xTicks);
     this->ui->wMonthPlot->xAxis->setTickVectorLabels(xLabel);
     this->ui->wMonthPlot->xAxis->setRange(-1, data.size());
-    this->ui->wMonthPlot->yAxis->setLabel("");
+    this->ui->wMonthPlot->xAxis->setTickLabelRotation(60);
 
+    this->ui->wMonthPlot->yAxis->setLabel("");
     this->ui->wMonthPlot->yAxis->setAutoTickLabels(false);
     this->ui->wMonthPlot->yAxis->setAutoTicks(false);
     this->ui->wMonthPlot->yAxis->setTickVector(this->dayTicksMSecs);
@@ -499,6 +504,8 @@ void QSolanizer::plotDailyDistribution(QVector<QList<QDateTime> > &data)
     this->ui->wMonthPlot->yAxis->setSubTickCount(4);
     this->ui->wMonthPlot->yAxis->setRange(0, 24* 1000 * 3600);
     this->ui->wMonthPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+    this->ui->wMonthPlot->axisRect()->setRangeZoom(Qt::Horizontal);
+    this->ui->wMonthPlot->axisRect()->setRangeDrag(Qt::Horizontal);
     this->ui->wMonthPlot->replot();
 }
 
