@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     datastructure/year.cpp \
     datastructure/month.cpp \
     utils/csvreader.cpp \
-    ui/qsolanizer.cpp
+    ui/qsolanizer.cpp \
+    utils/qcpbarsenhanced.cpp
 
 HEADERS  += \
     utils/qcustomplot.h \
@@ -28,7 +29,8 @@ HEADERS  += \
     datastructure/year.h \
     datastructure/month.h \
     utils/csvreader.h \
-    ui/qsolanizer.h
+    ui/qsolanizer.h \
+    utils/qcpbarsenhanced.h
 
 FORMS    += \
     ui/qsolanizer.ui
