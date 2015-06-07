@@ -95,7 +95,9 @@ private slots:
     void on_actionAbout_triggered();
     void on_cCompareYears_stateChanged(int arg1);
 
-    void monthItemClicked(QCPAbstractPlottable *item, QMouseEvent* event);
+    void monthItemClicked(QCPAbstractPlottable *plottable, QMouseEvent* event);
+    void yearItemClicked(QCPAbstractPlottable *plottable, QMouseEvent* event);
+    void totalItemClicked(QCPAbstractPlottable *plottable, QMouseEvent* event);
 };
 
 #endif // QSOLANIZER_H

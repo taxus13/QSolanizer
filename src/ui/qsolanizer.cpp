@@ -59,6 +59,7 @@ void QSolanizer::initializeVariables()
         dayLabelMSecs << QString::number(i, 'f', 0) + ":00";
     }
     connect(ui->wMonthPlot, SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)), this, SLOT(monthItemClicked(QCPAbstractPlottable*, QMouseEvent*)));
+    connect(ui->wYearPlot, &QCustomPlot::plottableClick, this, &QSolanizer::yearItemClicked);
 }
 
 void QSolanizer::readSettings()
@@ -521,7 +522,7 @@ void QSolanizer::plotYearData(int yearNumber)
     Year year = sp.getYear(yearNumber);
     this->startYearPlot = year.getFirst();
     QPair<QVector<QDate>, QVector<float> > data = year.getEnergyValues();
-    QCPBars *bars = new QCPBars(this->ui->wYearPlot->xAxis, this->ui->wYearPlot->yAxis);
+    QCPBarsEnhanced *bars = new QCPBarsEnhanced(this->ui->wYearPlot->xAxis, this->ui->wYearPlot->yAxis);
     this->ui->wYearPlot->clearPlottables();
     this->ui->wYearPlot->addPlottable(bars);
     QPen pen;
@@ -595,12 +596,12 @@ void QSolanizer::plotAllYearData()
         allEnergyData << yearEnergy;
     }
     QCPBarsGroup *group = new QCPBarsGroup(this->ui->wYearPlot);
-    QCPBars *bars;
+    QCPBarsEnhanced *bars;
     int j=0;
 
     for (int i=0; i<allEnergyData.size(); i++) {
         QVector<double> yearData = allEnergyData.at(i);
-        bars = new QCPBars(this->ui->wYearPlot->xAxis, this->ui->wYearPlot->yAxis);
+        bars = new QCPBarsEnhanced(this->ui->wYearPlot->xAxis, this->ui->wYearPlot->yAxis);
         this->ui->wYearPlot->addPlottable(bars);
         bars->setData(months, yearData);
         QColor c = QColor(this->someColors.at(j));
@@ -611,6 +612,7 @@ void QSolanizer::plotAllYearData()
         bars->setWidth(2/(3*(1+(float)sp.getEndingDate().year()-sp.getBeginningDate().year())));
         bars->setBarsGroup(group);
         bars->setName(QString::number(sp.getBeginningDate().year()+i));
+        bars->setDataValue(sp.getBeginningDate().year()+i);
         j++;
         if(j == someColors.size()) {
             j=0;
@@ -901,10 +903,10 @@ void QSolanizer::on_cCompareYears_stateChanged(int checkState)
     }
 }
 
-void QSolanizer::monthItemClicked(QCPAbstractPlottable *item, QMouseEvent *event)
+void QSolanizer::monthItemClicked(QCPAbstractPlottable *plottable, QMouseEvent *event)
 {
-    QCPStatisticalBox *box = dynamic_cast<QCPStatisticalBox*>(item);
-    QCPBarsEnhanced *bars = dynamic_cast<QCPBarsEnhanced*>(item);
+    QCPStatisticalBox *box = dynamic_cast<QCPStatisticalBox*>(plottable);
+    QCPBarsEnhanced *bars = dynamic_cast<QCPBarsEnhanced*>(plottable);
     int offset = 0;
     if (box) {
         offset = qRound(box->key());
@@ -913,4 +915,33 @@ void QSolanizer::monthItemClicked(QCPAbstractPlottable *item, QMouseEvent *event
     }
     plotDayData(startMonthPlot.addDays(offset), false);
     this->ui->tabWidget->setCurrentIndex(0);
+}
+
+void QSolanizer::yearItemClicked(QCPAbstractPlottable *plottable, QMouseEvent *event)
+{
+    QCPBarsEnhanced *bars = dynamic_cast<QCPBarsEnhanced*>(plottable);
+    int offset = 0;
+    int year = 0;
+    if (bars) {
+        offset = offset - 1 + qRound(bars->getKeyValueOfPixelPosition(event->x(), event->y()));
+        year = bars->getDataValue();
+    }
+    if (year == 0) {
+        year = this->startYearPlot.year();
+    }
+    QDate start = QDate(year, this->startYearPlot.month()+offset, 1);
+    QDate end = start.addMonths(1).addDays(-1);
+    if (start < sp.getBeginningDate()) {
+        start = sp.getBeginningDate();
+    }
+    if (end > sp.getEndingDate()) {
+        end = sp.getEndingDate();
+    }
+    this->showCustomRange(start, end);
+    this->ui->tabWidget->setCurrentIndex(1);
+}
+
+void QSolanizer::totalItemClicked(QCPAbstractPlottable *plottable, QMouseEvent *event)
+{
+
 }
