@@ -6,8 +6,8 @@
 #include <QTreeWidgetItem>
 #include <QProgressDialog>
 
-#include <utils/csvreader.h>
-
+#include "utils/csvreader.h"
+#include "utils/qcpbarsenhanced.h"
 
 
 namespace Ui {
@@ -53,6 +53,7 @@ private:
     void resizeEvent(QResizeEvent* event);
     void closeEvent(QCloseEvent *event);
 
+
     //variables
     static const int fileFormatVersion = 1;
     QString version;
@@ -72,6 +73,10 @@ private:
     QVector<double> dayTicksMSecs;
     QVector<QString> dayLabelMSecs;
 
+    // information which data is currently plotted and shown
+    QDate startMonthPlot;
+    QDate startYearPlot;
+    int startTotalPlot;
 
 
 private slots:
@@ -89,6 +94,8 @@ private slots:
     void on_actionClose_triggered();
     void on_actionAbout_triggered();
     void on_cCompareYears_stateChanged(int arg1);
+
+    void monthItemClicked(QCPAbstractPlottable *item, QMouseEvent* event);
 };
 
 #endif // QSOLANIZER_H

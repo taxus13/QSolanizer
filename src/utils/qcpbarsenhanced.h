@@ -7,8 +7,8 @@ class QCPBarsEnhanced : public QCPBars
 {
 public:
     QCPBarsEnhanced(QCPAxis *keyAxis, QCPAxis *valueAxis);
+    double getKeyValueOfPixelPosition(int x, int y);
 
-signals:
 
 };
 

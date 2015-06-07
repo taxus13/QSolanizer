@@ -6,3 +6,12 @@ QCPBarsEnhanced::QCPBarsEnhanced(QCPAxis *keyAxis, QCPAxis *valueAxis) :
 
 }
 
+double QCPBarsEnhanced::getKeyValueOfPixelPosition(int x, int y)
+{
+    double key;
+    double value;
+    pixelsToCoords(x, y, key, value);
+    return key;
+}
+
+
