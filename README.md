@@ -17,9 +17,13 @@ Please provide some exported files from your power converter, so other power con
 * ~~compare different days~~ done
 * ~~show "energy distribution" of day~~ done
 * ~~clean up code (primary qsolanizer.cpp)~~ done
+* ~~make bars clickable~~ done
+* additional user input to calculate kWp/kWh
+* show theoretical power curve
+* add dialog which shows missing data (gaps)
+
 
 ### Later
-* additional user input to calculate kWp/kWh
-* save colors in settings file
-* show theoretical power curve
+
+* save colors in settings file (partially done)
 * do not reread everything when additional data is added
