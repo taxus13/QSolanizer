@@ -24,6 +24,9 @@ Please provide some exported files from your power converter, so other power con
 * remove single day plot if multiple plots are shown
 * create installer for windows users
 
+### UI behavior
+* do not threat right clicks the same way as left clicks
+* set a fixed size to the left coloumn
 
 ### Later
 
