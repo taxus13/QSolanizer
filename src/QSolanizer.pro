@@ -20,7 +20,9 @@ SOURCES += main.cpp\
     datastructure/month.cpp \
     utils/csvreader.cpp \
     ui/qsolanizer.cpp \
-    utils/qcpbarsenhanced.cpp
+    utils/qcpbarsenhanced.cpp \
+    ui/solarplantpropertydialog.cpp \
+    datastructure/solarplantproperties.cpp
 
 HEADERS  += \
     utils/qcustomplot.h \
@@ -30,10 +32,13 @@ HEADERS  += \
     datastructure/month.h \
     utils/csvreader.h \
     ui/qsolanizer.h \
-    utils/qcpbarsenhanced.h
+    utils/qcpbarsenhanced.h \
+    ui/solarplantpropertydialog.h \
+    datastructure/solarplantproperties.h
 
 FORMS    += \
-    ui/qsolanizer.ui
+    ui/qsolanizer.ui \
+    ui/solarplantpropertydialog.ui
 
 RC_FILE = qsolanizer.rc
 

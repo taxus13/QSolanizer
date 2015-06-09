@@ -25,7 +25,7 @@ QSolanizer::~QSolanizer()
 
 void QSolanizer::initializeVariables()
 {
-    this->version = QString("0.10.0");
+    this->version = QString("0.11.0");
     this->filename = "qsolanizer.dat";
 
     this->dataSuccessfullyLoaded = false;
