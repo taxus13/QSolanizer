@@ -21,6 +21,7 @@ Please provide some exported files from your power converter, so other power con
 * additional user input to calculate kWp/kWh
 * show theoretical power curve
 * add dialog which shows missing data (gaps)
+* create installer for windows users
 
 
 ### Later
