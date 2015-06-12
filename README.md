@@ -32,3 +32,4 @@ Please provide some exported files from your power converter, so other power con
 
 * save colors in settings file (partially done)
 * do not reread everything when additional data is added
+* restructure project, so that Solarpart also contains the IO
