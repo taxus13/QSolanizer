@@ -19,7 +19,7 @@ Please provide some exported files from your power converter, so other power con
 * ~~clean up code (primary qsolanizer.cpp)~~ done
 * ~~make bars clickable~~ done
 * additional user input to calculate kWh/kWp
-* show theoretical power curve
+* ~~show theoretical power curve~~ done
 * add dialog which shows missing data (gaps)
 * remove single day plot if multiple plots are shown
 * create installer for windows users
