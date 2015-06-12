@@ -25,8 +25,9 @@ QSolanizer::~QSolanizer()
 
 void QSolanizer::initializeVariables()
 {
-    this->version = QString("0.10.0");
+    this->version = QString("0.11.0");
     this->filename = "qsolanizer.dat";
+    this->propertyname = "qsolanizer.ini";
 
     this->dataSuccessfullyLoaded = false;
     // first color list for years
@@ -44,12 +45,19 @@ void QSolanizer::initializeVariables()
     //second color list for different days
     this->dayColors.append(Qt::blue);
     this->dayColors.append(Qt::red);
-    this->dayColors.append(Qt::darkGray);
-    this->dayColors.append(Qt::magenta);
-    this->dayColors.append(Qt::darkYellow);
     this->dayColors.append(Qt::green);
-    this->dayColors.append(Qt::black);
-    this->dayColors.append(Qt::darkCyan);
+    this->dayColors.append(Qt::cyan);
+    this->dayColors.append(Qt::magenta);
+    this->dayColors.append(Qt::yellow);
+    this->dayColors.append(Qt::gray);
+
+    this->dayColorsDark.append(Qt::darkBlue);
+    this->dayColorsDark.append(Qt::darkRed);
+    this->dayColorsDark.append(Qt::darkGreen);
+    this->dayColorsDark.append(Qt::darkCyan);
+    this->dayColorsDark.append(Qt::darkMagenta);
+    this->dayColorsDark.append(Qt::darkYellow);
+    this->dayColorsDark.append(Qt::darkGray);
 
     this->minEnergyColor = Qt::green;
     this->maxEnergyColor = Qt::red;
@@ -171,6 +179,10 @@ void QSolanizer::fillDataWidgets() {
     this->ui->lMaxEnergy->setText(QString("%1 kWh").arg(this->sp.getHighestDayEnergy(),0,'f',1));
     this->ui->lHalfEnergy->setText(QString("%1 kWh").arg(this->sp.getHighestDayEnergy()/2,0,'f',1));
     this->ui->lMinEnergy->setText(QString("%1 kWh").arg(0.0, 0,'f',1));
+
+    //
+    sp.getSolarPlantProperties().readProperties(QDir(this->path).absoluteFilePath(this->propertyname));
+
 }
 
 void QSolanizer::disableAllInputWidgets()
@@ -302,26 +314,44 @@ void QSolanizer::writeSerializedData()
     file.close();
 }
 
-void QSolanizer::plotDayData(QDate date, bool keepOldGraphs)
+void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, PlottingMode pm)
 {
     if (!keepOldGraphs) {
         resetDayPlot();
     }
-    // maybe move this into day-class
+
+    int colorKey =  this->shownDates.size() % this->dayColors.size();
+
+
+//    this->shownDates.append(date);
     Day dd = sp.getDay(date);
-    QPair<QVector<double>, QVector<double> > data = dd.getPowerCurveForPlotting();
 
-    int colorKey = ui->wPowerCurve->graphCount() % this->dayColors.size();
-    QColor color = this->dayColors.at(colorKey);
-    QColor colorAlpha = color;
-    colorAlpha.setAlpha(20);
+    if ((pm == REAL) || (pm == BOTH)) {
+        QColor color = this->dayColors.at(colorKey);
+        QColor colorAlpha = color;
+            colorAlpha.setAlpha(20);
+        ui->wPowerCurve->addGraph();
+        QPair<QVector<double>, QVector<double> > data = dd.getPowerCurveForPlotting();
+        ui->wPowerCurve->graph()->setData(data.first, data.second);
+        ui->wPowerCurve->graph()->setPen(QPen(color));
+        ui->wPowerCurve->graph()->setBrush(QBrush(colorAlpha));
+        ui->wPowerCurve->graph()->addToLegend();
+        ui->wPowerCurve->graph()->setName(date.toString("dd.MM.yyyy"));
+    }
 
-    ui->wPowerCurve->addGraph();
-    ui->wPowerCurve->graph()->setData(data.first, data.second);
-    ui->wPowerCurve->graph()->setPen(QPen(color)); // Qt::blue
-    ui->wPowerCurve->graph()->setBrush(QBrush(colorAlpha));
-    ui->wPowerCurve->graph()->addToLegend();
-    ui->wPowerCurve->graph()->setName(dd.getDate().toString("dd.MM.yyyy"));
+    if ((pm == THEORETICAL) || (pm == BOTH)) {
+        QColor color = this->dayColorsDark.at(colorKey);
+        QColor colorAlpha = color;
+        colorAlpha.setAlpha(20);
+        ui->wPowerCurve->addGraph();
+        QPair<QVector<double>, QVector<double> > data = sp.getSolarPlantProperties().getTheoreticalPowerCurve(date, true);
+        ui->wPowerCurve->graph()->setData(data.first, data.second);
+        ui->wPowerCurve->graph()->setPen(QPen(color));
+        ui->wPowerCurve->graph()->setBrush(QBrush(colorAlpha));
+        ui->wPowerCurve->graph()->addToLegend();
+        ui->wPowerCurve->graph()->setName(date.toString("dd.MM.yyyy") + QString(" (theo)"));
+    }
+
 
     ui->wPowerCurve->xAxis->setRange(0, 24 * 3600 * 1000);
     ui->wPowerCurve->xAxis->setAutoTickStep(false);
@@ -362,11 +392,22 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs)
     ui->lSunset->setText(dd.getSunset().toString("HH:mm"));
 }
 
+void QSolanizer::replotDayData(QSolanizer::PlottingMode pm)
+{
+    this->ui->wPowerCurve->clearGraphs();
+    this->ui->wPowerCurve->replot();
+    foreach (QDate date, this->shownDates) {
+        this->plotDayData(date, true, pm);
+    }
+
+}
+
 
 void QSolanizer::resetDayPlot()
 {
     this->ui->wPowerCurve->clearGraphs();
     this->ui->wPowerCurve->replot();
+    this->shownDates.clear();
 }
 
 
@@ -745,6 +786,17 @@ void QSolanizer::plotTotalData()
     this->ui->lTotalData->setText(QString::number(sp.getDayCount()));
 }
 
+QSolanizer::PlottingMode QSolanizer::getCurrentPlottingMode()
+{
+    if (this->ui->rBoth->isChecked()) {
+        return BOTH;
+    }
+    if (this->ui->rTheoreticalCurve->isChecked()) {
+        return THEORETICAL;
+    }
+    return REAL;
+}
+
 void QSolanizer::drawColorScale()
 {
     QLinearGradient gradient(this->ui->wColorScale->rect().bottomLeft(), this->ui->wColorScale->rect().topLeft());
@@ -777,7 +829,8 @@ void QSolanizer::closeEvent(QCloseEvent *event)
 void QSolanizer::on_calendarWidget_selectionChanged()
 {
     QDate date = this->ui->calendarWidget->selectedDate();
-    this->plotDayData(date, this->ui->cMultpleChoice->checkState() == Qt::Checked);
+    this->plotDayData(date, this->ui->cMultpleChoice->checkState() == Qt::Checked, this->getCurrentPlottingMode());
+    this->shownDates.append(date);
 
 }
 
@@ -818,7 +871,8 @@ void QSolanizer::on_listWidget_itemSelectionChanged()
 
 void QSolanizer::on_dateEdit_dateChanged(const QDate &date)
 {
-    this->plotDayData(date, this->ui->cCompareYears->checkState() == Qt::Checked);
+    this->plotDayData(date, this->ui->cCompareYears->checkState() == Qt::Checked, this->getCurrentPlottingMode());
+    this->shownDates.append(date);
 }
 
 void QSolanizer::on_dateEditStart_userDateChanged(const QDate &date)
@@ -944,4 +998,29 @@ void QSolanizer::yearItemClicked(QCPAbstractPlottable *plottable, QMouseEvent *e
 void QSolanizer::totalItemClicked(QCPAbstractPlottable *plottable, QMouseEvent *event)
 {
 
+}
+
+void QSolanizer::on_actionSolarPlantProperties_triggered()
+{
+    SolarPlantPropertyDialog diag(this->sp.getSolarPlantProperties(), this);
+    if (diag.exec() == QDialog::Accepted) {
+        sp.setSolarPlantProperties(diag.getSolarPlantProperties());
+        sp.getSolarPlantProperties().writePorperties(QDir(this->path).absoluteFilePath(this->propertyname));
+    }
+}
+
+
+void QSolanizer::on_rTheoreticalCurve_clicked()
+{
+    this->replotDayData(THEORETICAL);
+}
+
+void QSolanizer::on_rBoth_clicked()
+{
+    this->replotDayData(BOTH);
+}
+
+void QSolanizer::on_rRealCurve_clicked()
+{
+    this->replotDayData(REAL);
 }

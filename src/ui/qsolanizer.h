@@ -6,6 +6,8 @@
 #include <QTreeWidgetItem>
 #include <QProgressDialog>
 
+#include "ui/solarplantpropertydialog.h"
+
 #include "utils/csvreader.h"
 #include "utils/qcpbarsenhanced.h"
 
@@ -23,6 +25,9 @@ public:
     ~QSolanizer();
 
     void drawColorScale();
+
+    enum PlottingMode { BOTH, REAL, THEORETICAL};
+
 private:
     Ui::QSolanizer *ui;
     // initializing, settings
@@ -39,8 +44,10 @@ private:
     bool readSerializedData();
     void writeSerializedData();
 
+
     // plotting and label filling functions
-    void plotDayData(QDate date, bool keepOldGraphs);
+    void plotDayData(QDate date, bool keepOldGraphs, PlottingMode pm=REAL);
+    void replotDayData(PlottingMode pm);
     void resetDayPlot();
     void showMonthData(QDate date);
     void showCustomRange(QDate start, QDate end);
@@ -49,6 +56,8 @@ private:
     void plotYearData(int year);
     void plotAllYearData();
     void plotTotalData();
+
+    PlottingMode getCurrentPlottingMode();
 
     void resizeEvent(QResizeEvent* event);
     void closeEvent(QCloseEvent *event);
@@ -61,17 +70,23 @@ private:
     SolarPart sp;
     QList<QColor> someColors;
     QList<QColor> dayColors;
+    QList<QColor> dayColorsDark;
+
     QColor maxEnergyColor;
     QColor minEnergyColor;
 
 
     QString path;
     QString filename;
+    QString propertyname;
     bool dataSuccessfullyLoaded;
 
     // plotting
     QVector<double> dayTicksMSecs;
     QVector<QString> dayLabelMSecs;
+
+    QList<QDate> shownDates;
+
 
     // information which data is currently plotted and shown
     QDate startMonthPlot;
@@ -98,6 +113,10 @@ private slots:
     void monthItemClicked(QCPAbstractPlottable *plottable, QMouseEvent* event);
     void yearItemClicked(QCPAbstractPlottable *plottable, QMouseEvent* event);
     void totalItemClicked(QCPAbstractPlottable *plottable, QMouseEvent* event);
+    void on_actionSolarPlantProperties_triggered();
+    void on_rTheoreticalCurve_clicked();
+    void on_rBoth_clicked();
+    void on_rRealCurve_clicked();
 };
 
 #endif // QSOLANIZER_H
