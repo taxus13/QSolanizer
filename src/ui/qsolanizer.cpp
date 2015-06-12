@@ -27,6 +27,7 @@ void QSolanizer::initializeVariables()
 {
     this->version = QString("0.11.0");
     this->filename = "qsolanizer.dat";
+    this->propertyname = "qsolanizer.ini";
 
     this->dataSuccessfullyLoaded = false;
     // first color list for years
@@ -178,6 +179,10 @@ void QSolanizer::fillDataWidgets() {
     this->ui->lMaxEnergy->setText(QString("%1 kWh").arg(this->sp.getHighestDayEnergy(),0,'f',1));
     this->ui->lHalfEnergy->setText(QString("%1 kWh").arg(this->sp.getHighestDayEnergy()/2,0,'f',1));
     this->ui->lMinEnergy->setText(QString("%1 kWh").arg(0.0, 0,'f',1));
+
+    //
+    sp.getSolarPlantProperties().readProperties(QDir(this->path).absoluteFilePath(this->propertyname));
+
 }
 
 void QSolanizer::disableAllInputWidgets()
@@ -987,6 +992,7 @@ void QSolanizer::on_actionSolarPlantProperties_triggered()
     SolarPlantPropertyDialog diag(this->sp.getSolarPlantProperties(), this);
     if (diag.exec() == QDialog::Accepted) {
         sp.setSolarPlantProperties(diag.getSolarPlantProperties());
+        sp.getSolarPlantProperties().writePorperties(QDir(this->path).absoluteFilePath(this->propertyname));
     }
 }
 

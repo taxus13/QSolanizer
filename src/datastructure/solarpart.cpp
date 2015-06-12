@@ -115,15 +115,9 @@ SolarPlantProperties &SolarPart::getSolarPlantProperties()
     return this->spp;
 }
 
-bool SolarPart::hasSolarPlantProperties()
-{
-    return this->propertiesAvailable;
-}
-
 void SolarPart::setSolarPlantProperties(SolarPlantProperties spp)
 {
     this->spp = spp;
-    this->propertiesAvailable = true;
 }
 
 QList<Day> SolarPart::getDaysInRange(QDate &startDate, QDate &endDate)

@@ -4,6 +4,8 @@
 #include <QPair>
 #include <QVector>
 #include <QDateTime>
+#include <QDataStream>
+#include <QSettings>
 #include <QDebug>
 
 #include "qmath.h"
@@ -22,6 +24,12 @@ public:
     double getEfficiency() const;
     double getPeakPower() const;
 
+    void writePorperties(QString path);
+    void readProperties(QString path);
+
+    friend QDataStream &operator <<(QDataStream &out, const SolarPlantProperties& spp);
+    friend QDataStream &operator >>(QDataStream &in, SolarPlantProperties& spp);
+
 private:
     double calculatePower(double hour, double declination);
 
@@ -34,6 +42,8 @@ private:
     double peakPower; // kWp
 
     static const double solarConstant = 1.367; // kW/m^2
+
+
 
 
 };

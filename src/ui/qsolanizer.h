@@ -44,6 +44,7 @@ private:
     bool readSerializedData();
     void writeSerializedData();
 
+
     // plotting and label filling functions
     void plotDayData(QDate date, bool keepOldGraphs, PlottingMode pm=REAL);
     void replotDayData(PlottingMode pm);
@@ -75,6 +76,7 @@ private:
 
     QString path;
     QString filename;
+    QString propertyname;
     bool dataSuccessfullyLoaded;
 
     // plotting

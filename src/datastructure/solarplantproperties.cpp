@@ -47,7 +47,7 @@ QPair<QVector<double>, QVector<double> > SolarPlantProperties::getTheoreticalPow
             currentPower = peakPower;
         }
         power << currentPower;
-        qDebug() << currentTime << currentPower;
+//        qDebug() << currentTime << currentPower;
         currentTime += 5.0/60;
     }
 
@@ -67,6 +67,32 @@ double SolarPlantProperties::calculatePower(double hour, double declination)
 double SolarPlantProperties::getPeakPower() const
 {
     return peakPower;
+}
+
+void SolarPlantProperties::writePorperties(QString path)
+{
+    QSettings properties(path, QSettings::IniFormat);
+    properties.beginGroup("Properties");
+    properties.setValue("peakpower", this->peakPower);
+    properties.setValue("area", this->area);
+    properties.setValue("efficiency", this->efficiency);
+    properties.setValue("beta", this->beta);
+    properties.setValue("gamma", this->gamma);
+    properties.setValue("latitude", this->latitude);
+    properties.endGroup();
+}
+
+void SolarPlantProperties::readProperties(QString path)
+{
+    QSettings properties(path, QSettings::IniFormat);
+    properties.beginGroup("Properties");
+    this->peakPower = properties.value("peakpower", 0).toDouble();
+    this->area = properties.value("area", 0).toDouble();
+    this->efficiency = properties.value("efficiency", 0).toDouble();
+    this->beta = properties.value("beta", 0).toDouble();
+    this->gamma = properties.value("gamma").toDouble();
+    this->latitude = properties.value("latitude", 0).toDouble();
+    properties.endGroup();
 }
 
 double SolarPlantProperties::getEfficiency() const
@@ -92,5 +118,32 @@ double SolarPlantProperties::getBeta()
 double SolarPlantProperties::getLatitude()
 {
     return qRadiansToDegrees(this->latitude);
+}
+
+QDataStream &operator <<(QDataStream &out, const SolarPlantProperties &spp)
+{
+    out << spp.peakPower << spp.area << spp.efficiency << spp.beta << spp.gamma << spp.latitude;
+    return out;
+}
+
+QDataStream &operator >>(QDataStream &in, SolarPlantProperties &spp)
+{
+    double peakPower;
+    double area;
+    double efficiency;
+    double beta;
+    double gamma;
+    double latitude;
+
+    in >> peakPower >> area >> efficiency >> beta >> gamma >> latitude;
+
+    spp.peakPower = peakPower;
+    spp.area = area;
+    spp.efficiency = efficiency;
+    spp.beta = beta;
+    spp.gamma = gamma;
+    spp.latitude = latitude;
+
+    return in;
 }
 

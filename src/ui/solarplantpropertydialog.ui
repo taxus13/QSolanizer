@@ -19,7 +19,7 @@
      <item>
       <widget class="QGroupBox" name="groupBox">
        <property name="title">
-        <string>GroupBox</string>
+        <string>Eigenschaften</string>
        </property>
        <layout class="QFormLayout" name="formLayout">
         <item row="1" column="0">
@@ -183,6 +183,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>sPeakPower</tabstop>
+  <tabstop>sArea</tabstop>
+  <tabstop>sEfficiency</tabstop>
+  <tabstop>sLatitude</tabstop>
+  <tabstop>sBeta</tabstop>
+  <tabstop>sGamma</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

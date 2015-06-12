@@ -53,10 +53,7 @@ public:
     Day &getDay(QDate &date);
 
     SolarPlantProperties &getSolarPlantProperties();
-    bool hasSolarPlantProperties();
-
     void setSolarPlantProperties(SolarPlantProperties spp);
-
     // for IO
     friend QDataStream &operator <<(QDataStream &out, const SolarPart &sp);
     friend QDataStream &operator >>(QDataStream &in, SolarPart &sp);
