@@ -25,6 +25,9 @@ public:
     ~QSolanizer();
 
     void drawColorScale();
+
+    enum PlottingMode { BOTH, REAL, THEORETICAL};
+
 private:
     Ui::QSolanizer *ui;
     // initializing, settings
@@ -42,7 +45,8 @@ private:
     void writeSerializedData();
 
     // plotting and label filling functions
-    void plotDayData(QDate date, bool keepOldGraphs);
+    void plotDayData(QDate date, bool keepOldGraphs, PlottingMode pm=REAL);
+    void replotDayData(PlottingMode pm);
     void resetDayPlot();
     void showMonthData(QDate date);
     void showCustomRange(QDate start, QDate end);
@@ -63,6 +67,8 @@ private:
     SolarPart sp;
     QList<QColor> someColors;
     QList<QColor> dayColors;
+    QList<QColor> dayColorsDark;
+
     QColor maxEnergyColor;
     QColor minEnergyColor;
 
@@ -74,6 +80,9 @@ private:
     // plotting
     QVector<double> dayTicksMSecs;
     QVector<QString> dayLabelMSecs;
+
+    QList<QDate> shownDates;
+
 
     // information which data is currently plotted and shown
     QDate startMonthPlot;
@@ -101,6 +110,9 @@ private slots:
     void yearItemClicked(QCPAbstractPlottable *plottable, QMouseEvent* event);
     void totalItemClicked(QCPAbstractPlottable *plottable, QMouseEvent* event);
     void on_actionSolarPlantProperties_triggered();
+    void on_rTheoreticalCurve_clicked();
+    void on_rBoth_clicked();
+    void on_rRealCurve_clicked();
 };
 
 #endif // QSOLANIZER_H

@@ -8,6 +8,7 @@ SolarPart::SolarPart()
     this->highestDayEnergy = 0;
     this->highestMonthEnergy = 0;
     this->highestYearEnergy = 0;
+    this->propertiesAvailable = false;
 }
 
 SolarPart::~SolarPart()
@@ -107,6 +108,22 @@ Month& SolarPart::getMonth(QDate &date)
 Day& SolarPart::getDay(QDate &date)
 {
     return this->yearData[date.year()].getDay(date);
+}
+
+SolarPlantProperties &SolarPart::getSolarPlantProperties()
+{
+    return this->spp;
+}
+
+bool SolarPart::hasSolarPlantProperties()
+{
+    return this->propertiesAvailable;
+}
+
+void SolarPart::setSolarPlantProperties(SolarPlantProperties spp)
+{
+    this->spp = spp;
+    this->propertiesAvailable = true;
 }
 
 QList<Day> SolarPart::getDaysInRange(QDate &startDate, QDate &endDate)

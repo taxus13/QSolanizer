@@ -181,6 +181,39 @@
                     </item>
                    </layout>
                   </item>
+                  <item>
+                   <widget class="QGroupBox" name="groupBox_4">
+                    <property name="title">
+                     <string>Anzeigemodus</string>
+                    </property>
+                    <layout class="QVBoxLayout" name="verticalLayout_13">
+                     <item>
+                      <widget class="QRadioButton" name="rTheoreticalCurve">
+                       <property name="text">
+                        <string>theoretische Kurve</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QRadioButton" name="rBoth">
+                       <property name="text">
+                        <string>theoretische und reale Kurve</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QRadioButton" name="rRealCurve">
+                       <property name="text">
+                        <string>reale Kurve</string>
+                       </property>
+                       <property name="checked">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </widget>
+                  </item>
                  </layout>
                 </item>
                 <item>

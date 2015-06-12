@@ -13,7 +13,7 @@ class SolarPlantPropertyDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SolarPlantPropertyDialog(QWidget *parent = 0);
+    explicit SolarPlantPropertyDialog(SolarPlantProperties spp, QWidget *parent = 0);
     ~SolarPlantPropertyDialog();
 
     SolarPlantProperties getSolarPlantProperties();

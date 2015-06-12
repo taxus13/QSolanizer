@@ -7,23 +7,33 @@ SolarPlantProperties::SolarPlantProperties(double latitude, double beta, double 
     this->gamma = qDegreesToRadians(gamma);
 
     this->area = area;
-    this->efficiency = efficiency;
+    this->efficiency = efficiency/100;
     this->peakPower = peakPower;
+}
+
+SolarPlantProperties::SolarPlantProperties() {
+    this->latitude = 0;
+    this->beta = 0;
+    this->gamma = 0;
+
+    this->area = 0;
+    this->efficiency = 0;
+    this->peakPower = 0;
 }
 
 QPair<QVector<double>, QVector<double> > SolarPlantProperties::getTheoreticalPowerCurve(QDate &date, bool cutPower)
 {
+    qDebug() << date;
     QDate endOfLastYear = QDate(date.year()-1, 12, 31);
     int daysSinceYearStart = endOfLastYear.daysTo(date);
     double gAngle = 23.45 * sin(2*M_PI*(daysSinceYearStart-81)/365);
     double delta = qDegreesToRadians(gAngle);    // declination (rad)
-
     double phi = this->latitude;
 
     double timeToZenit = qRadiansToDegrees(acos(-1*tan(delta)*tan(phi))/15);
-
     double hourOfSunrise = 12-timeToZenit;
     double hourOfSunset = 12+timeToZenit;
+    qDebug() << hourOfSunrise << hourOfSunset;
 
     QVector<double> time;
     QVector<double> power;
@@ -37,11 +47,11 @@ QPair<QVector<double>, QVector<double> > SolarPlantProperties::getTheoreticalPow
             currentPower = peakPower;
         }
         power << currentPower;
-
-        currentTime += 5/60;
+        qDebug() << currentTime << currentPower;
+        currentTime += 5.0/60;
     }
 
-
+    return QPair<QVector<double>, QVector<double> >(time, power);
 }
 
 double SolarPlantProperties::calculatePower(double hour, double declination)
@@ -53,5 +63,34 @@ double SolarPlantProperties::calculatePower(double hour, double declination)
             +sin(delta)*sin(this->latitude));
 
     return this->solarConstant * this->area * this->efficiency * sunAngle;
+}
+double SolarPlantProperties::getPeakPower() const
+{
+    return peakPower;
+}
+
+double SolarPlantProperties::getEfficiency() const
+{
+    return efficiency;
+}
+
+double SolarPlantProperties::getArea() const
+{
+    return qRadiansToDegrees(this->area);
+}
+
+double SolarPlantProperties::getGamma()
+{
+    return qRadiansToDegrees(this->gamma);
+}
+
+double SolarPlantProperties::getBeta()
+{
+    return qRadiansToDegrees(this->beta);
+}
+
+double SolarPlantProperties::getLatitude()
+{
+    return qRadiansToDegrees(this->latitude);
 }
 

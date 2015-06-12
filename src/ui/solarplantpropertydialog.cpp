@@ -1,11 +1,17 @@
 #include "solarplantpropertydialog.h"
 #include "ui_solarplantpropertydialog.h"
 
-SolarPlantPropertyDialog::SolarPlantPropertyDialog(QWidget *parent) :
+SolarPlantPropertyDialog::SolarPlantPropertyDialog(SolarPlantProperties spp, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SolarPlantPropertyDialog)
 {
     ui->setupUi(this);
+    this->ui->sArea->setValue(spp.getArea());
+    this->ui->sLatitude->setValue(spp.getLatitude());
+    this->ui->sEfficiency->setValue(spp.getEfficiency());
+    this->ui->sBeta->setValue(spp.getBeta());
+    this->ui->sGamma->setValue(spp.getGamma());
+    this->ui->sPeakPower->setValue(spp.getPeakPower());
 }
 
 SolarPlantPropertyDialog::~SolarPlantPropertyDialog()

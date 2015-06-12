@@ -11,6 +11,7 @@
 
 #include "day.h"
 #include "year.h"
+#include "solarplantproperties.h"
 
 class SolarPart
 {
@@ -51,6 +52,11 @@ public:
     Month &getMonth(QDate &date);
     Day &getDay(QDate &date);
 
+    SolarPlantProperties &getSolarPlantProperties();
+    bool hasSolarPlantProperties();
+
+    void setSolarPlantProperties(SolarPlantProperties spp);
+
     // for IO
     friend QDataStream &operator <<(QDataStream &out, const SolarPart &sp);
     friend QDataStream &operator >>(QDataStream &in, SolarPart &sp);
@@ -61,6 +67,9 @@ private:
 
     QSet<QDate> datesAdded;
     QMap<int, Year> yearData;
+
+    bool propertiesAvailable;
+    SolarPlantProperties spp;
 
     float energy;
     float duration;
