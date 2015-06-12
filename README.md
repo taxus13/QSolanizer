@@ -23,6 +23,7 @@ Please provide some exported files from your power converter, so other power con
 * add dialog which shows missing data (gaps)
 * remove single day plot if multiple plots are shown
 * create installer for windows users
+* show and calculate average day (per month) 
 
 ### UI behavior
 * do not threat right clicks the same way as left clicks
