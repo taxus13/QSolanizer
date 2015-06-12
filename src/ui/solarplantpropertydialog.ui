@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Eigenschaften</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -82,7 +82,7 @@
            <string> %</string>
           </property>
           <property name="decimals">
-           <number>0</number>
+           <number>1</number>
           </property>
          </widget>
         </item>
@@ -98,11 +98,17 @@
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
+          <property name="buttonSymbols">
+           <enum>QAbstractSpinBox::NoButtons</enum>
+          </property>
           <property name="correctionMode">
-           <enum>QAbstractSpinBox::CorrectToPreviousValue</enum>
+           <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
           </property>
           <property name="suffix">
            <string> °</string>
+          </property>
+          <property name="decimals">
+           <number>1</number>
           </property>
           <property name="minimum">
            <double>-90.000000000000000</double>
@@ -116,6 +122,12 @@
          <widget class="QDoubleSpinBox" name="sArea">
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="buttonSymbols">
+           <enum>QAbstractSpinBox::NoButtons</enum>
+          </property>
+          <property name="correctionMode">
+           <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
           </property>
           <property name="suffix">
            <string> m²</string>
@@ -151,8 +163,23 @@
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
+          <property name="buttonSymbols">
+           <enum>QAbstractSpinBox::NoButtons</enum>
+          </property>
+          <property name="correctionMode">
+           <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
+          </property>
           <property name="suffix">
            <string> °</string>
+          </property>
+          <property name="decimals">
+           <number>1</number>
+          </property>
+          <property name="minimum">
+           <double>-90.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>90.000000000000000</double>
           </property>
          </widget>
         </item>
@@ -161,8 +188,20 @@
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
+          <property name="buttonSymbols">
+           <enum>QAbstractSpinBox::NoButtons</enum>
+          </property>
           <property name="suffix">
            <string> °</string>
+          </property>
+          <property name="decimals">
+           <number>1</number>
+          </property>
+          <property name="minimum">
+           <double>-90.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>90.000000000000000</double>
           </property>
          </widget>
         </item>

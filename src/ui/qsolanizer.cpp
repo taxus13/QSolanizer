@@ -323,7 +323,7 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, PlottingMode pm)
     int colorKey =  this->shownDates.size() % this->dayColors.size();
 
 
-    this->shownDates.append(date);
+//    this->shownDates.append(date);
     Day dd = sp.getDay(date);
 
     if ((pm == REAL) || (pm == BOTH)) {
@@ -786,6 +786,17 @@ void QSolanizer::plotTotalData()
     this->ui->lTotalData->setText(QString::number(sp.getDayCount()));
 }
 
+QSolanizer::PlottingMode QSolanizer::getCurrentPlottingMode()
+{
+    if (this->ui->rBoth->isChecked()) {
+        return BOTH;
+    }
+    if (this->ui->rTheoreticalCurve->isChecked()) {
+        return THEORETICAL;
+    }
+    return REAL;
+}
+
 void QSolanizer::drawColorScale()
 {
     QLinearGradient gradient(this->ui->wColorScale->rect().bottomLeft(), this->ui->wColorScale->rect().topLeft());
@@ -818,7 +829,8 @@ void QSolanizer::closeEvent(QCloseEvent *event)
 void QSolanizer::on_calendarWidget_selectionChanged()
 {
     QDate date = this->ui->calendarWidget->selectedDate();
-    this->plotDayData(date, this->ui->cMultpleChoice->checkState() == Qt::Checked);
+    this->plotDayData(date, this->ui->cMultpleChoice->checkState() == Qt::Checked, this->getCurrentPlottingMode());
+    this->shownDates.append(date);
 
 }
 
@@ -859,7 +871,8 @@ void QSolanizer::on_listWidget_itemSelectionChanged()
 
 void QSolanizer::on_dateEdit_dateChanged(const QDate &date)
 {
-    this->plotDayData(date, this->ui->cCompareYears->checkState() == Qt::Checked);
+    this->plotDayData(date, this->ui->cCompareYears->checkState() == Qt::Checked, this->getCurrentPlottingMode());
+    this->shownDates.append(date);
 }
 
 void QSolanizer::on_dateEditStart_userDateChanged(const QDate &date)

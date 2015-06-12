@@ -23,7 +23,6 @@ SolarPlantProperties::SolarPlantProperties() {
 
 QPair<QVector<double>, QVector<double> > SolarPlantProperties::getTheoreticalPowerCurve(QDate &date, bool cutPower)
 {
-    qDebug() << date;
     QDate endOfLastYear = QDate(date.year()-1, 12, 31);
     int daysSinceYearStart = endOfLastYear.daysTo(date);
     double gAngle = 23.45 * sin(2*M_PI*(daysSinceYearStart-81)/365);
@@ -33,7 +32,6 @@ QPair<QVector<double>, QVector<double> > SolarPlantProperties::getTheoreticalPow
     double timeToZenit = qRadiansToDegrees(acos(-1*tan(delta)*tan(phi))/15);
     double hourOfSunrise = 12-timeToZenit;
     double hourOfSunset = 12+timeToZenit;
-    qDebug() << hourOfSunrise << hourOfSunset;
 
     QVector<double> time;
     QVector<double> power;
@@ -97,12 +95,17 @@ void SolarPlantProperties::readProperties(QString path)
 
 double SolarPlantProperties::getEfficiency() const
 {
-    return efficiency;
+    return this->efficiency;
+}
+
+double SolarPlantProperties::getEfficiencyPerc()
+{
+    return this->efficiency*100;
 }
 
 double SolarPlantProperties::getArea() const
 {
-    return qRadiansToDegrees(this->area);
+    return this->area;
 }
 
 double SolarPlantProperties::getGamma()

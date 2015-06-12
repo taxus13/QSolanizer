@@ -26,7 +26,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tabDay">
            <attribute name="title">
@@ -457,7 +457,11 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QDateEdit" name="dateEditStart"/>
+                    <widget class="QDateEdit" name="dateEditStart">
+                     <property name="calendarPopup">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
                    </item>
                    <item>
                     <widget class="QLabel" name="label_2">
@@ -467,7 +471,11 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QDateEdit" name="dateEditEnd"/>
+                    <widget class="QDateEdit" name="dateEditEnd">
+                     <property name="calendarPopup">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
                    </item>
                   </layout>
                   <zorder>label</zorder>

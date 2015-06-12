@@ -22,6 +22,7 @@ public:
     double getGamma();
     double getArea() const;
     double getEfficiency() const;
+    double getEfficiencyPerc();
     double getPeakPower() const;
 
     void writePorperties(QString path);

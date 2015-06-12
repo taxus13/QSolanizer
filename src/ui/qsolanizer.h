@@ -57,6 +57,8 @@ private:
     void plotAllYearData();
     void plotTotalData();
 
+    PlottingMode getCurrentPlottingMode();
+
     void resizeEvent(QResizeEvent* event);
     void closeEvent(QCloseEvent *event);
 
