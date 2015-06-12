@@ -113,7 +113,17 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QDoubleSpinBox" name="sArea"/>
+         <widget class="QDoubleSpinBox" name="sArea">
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="suffix">
+           <string> m²</string>
+          </property>
+          <property name="maximum">
+           <double>999999999999.000000000000000</double>
+          </property>
+         </widget>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="label_4">

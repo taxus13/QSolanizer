@@ -785,6 +785,8 @@
     <addaction name="actionOpenNew"/>
     <addaction name="actionReload"/>
     <addaction name="separator"/>
+    <addaction name="actionSolarPlantProperties"/>
+    <addaction name="separator"/>
     <addaction name="actionClose"/>
    </widget>
    <widget class="QMenu" name="menuHilfe">
@@ -814,6 +816,11 @@
   <action name="actionAbout">
    <property name="text">
     <string>Über</string>
+   </property>
+  </action>
+  <action name="actionSolarPlantProperties">
+   <property name="text">
+    <string>Eigenschaften der Solaranlage</string>
    </property>
   </action>
  </widget>

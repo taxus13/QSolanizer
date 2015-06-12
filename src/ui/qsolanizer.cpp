@@ -945,3 +945,13 @@ void QSolanizer::totalItemClicked(QCPAbstractPlottable *plottable, QMouseEvent *
 {
 
 }
+
+void QSolanizer::on_actionSolarPlantProperties_triggered()
+{
+    SolarPlantPropertyDialog diag(this);
+    if (diag.exec() == QDialog::Accepted) {
+        qDebug() << "OK";
+    } else {
+        qDebug() << "Abort";
+    }
+}

@@ -2,8 +2,10 @@
 #define SOLARPLANTPROPERTIES_H
 
 #include <QPair>
+#include <QVector>
 #include <QDateTime>
 
+#include "qmath.h"
 #include "math.h"
 
 class SolarPlantProperties
@@ -13,6 +15,8 @@ public:
 
     QPair<QVector<double>, QVector<double> > getTheoreticalPowerCurve(QDate &date, bool cutPower);
 private:
+    double calculatePower(double hour, double declination);
+
     double latitude; // degree
     double beta; // degree
     double gamma; //degree
@@ -22,6 +26,7 @@ private:
     double peakPower; // kWp
 
     static const double solarConstant = 1.367; // kW/m^2
+
 
 };
 

@@ -6,6 +6,8 @@
 #include <QTreeWidgetItem>
 #include <QProgressDialog>
 
+#include "ui/solarplantpropertydialog.h"
+
 #include "utils/csvreader.h"
 #include "utils/qcpbarsenhanced.h"
 
@@ -98,6 +100,7 @@ private slots:
     void monthItemClicked(QCPAbstractPlottable *plottable, QMouseEvent* event);
     void yearItemClicked(QCPAbstractPlottable *plottable, QMouseEvent* event);
     void totalItemClicked(QCPAbstractPlottable *plottable, QMouseEvent* event);
+    void on_actionSolarPlantProperties_triggered();
 };
 
 #endif // QSOLANIZER_H
