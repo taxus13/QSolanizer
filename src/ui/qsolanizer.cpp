@@ -12,6 +12,7 @@ QSolanizer::QSolanizer(QWidget *parent) :
     if (this->readSerializedData()) {
         // if it is possible to load data, show it
         this->fillDataWidgets();
+        this->initializePlots();
     } else {
         // present empty UI
         this->disableAllInputWidgets();
@@ -25,7 +26,7 @@ QSolanizer::~QSolanizer()
 
 void QSolanizer::initializeVariables()
 {
-    this->version = QString("0.11.0");
+    this->version = QString("0.12.0");
     this->filename = "qsolanizer.dat";
     this->propertyname = "qsolanizer.ini";
 
@@ -107,6 +108,58 @@ void QSolanizer::readSettings()
     this->minEnergyColor = QColor(minEC);
     this->maxEnergyColor = QColor(maxEC);
     settings.endGroup();
+}
+
+void QSolanizer::initializePlots()
+{
+    // day plot
+    ui->wPowerCurve->xAxis->setRange(0, 24 * 3600 * 1000);
+    ui->wPowerCurve->xAxis->setAutoTickStep(false);
+    ui->wPowerCurve->xAxis->setAutoTicks(false);
+    ui->wPowerCurve->xAxis->setAutoTickLabels(false);
+    ui->wPowerCurve->xAxis->setTickVector(dayTicksMSecs);
+    ui->wPowerCurve->xAxis->setTickVectorLabels(dayLabelMSecs);
+    ui->wPowerCurve->xAxis->setSubTickCount(5); // every 10 minutes
+    ui->wPowerCurve->xAxis->setTickLabelRotation(60);
+
+    ui->wPowerCurve->yAxis->setLabel("Leistung [kW]");
+
+    ui->wPowerCurve->setAntialiasedElement(QCP::aePlottables);
+
+    ui->wPowerCurve->yAxis->setRange(0, sp.getHighestPower()*1.1);
+
+    ui->wPowerCurve->legend->setVisible(true);
+    ui->wPowerCurve->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop|Qt::AlignRight);
+    ui->wPowerCurve->legend->setBrush(QColor(255, 255, 255, 200));
+    QPen legendPen;
+    legendPen.setColor(QColor(130, 130, 130, 200));
+    ui->wPowerCurve->legend->setBorderPen(legendPen);
+    QFont legendFont = font();
+    legendFont.setPointSize(10);
+    ui->wPowerCurve->legend->setFont(legendFont);
+
+
+    ui->wPowerCurve->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+    ui->wPowerCurve->axisRect()->setRangeZoom(Qt::Horizontal);
+    ui->wPowerCurve->axisRect()->setRangeDrag(Qt::Horizontal);
+
+
+    // month plot
+    this->ui->wMonthPlot->xAxis->setSubTickCount(0);
+    this->ui->wMonthPlot->xAxis->setAutoTickLabels(false);
+    this->ui->wMonthPlot->xAxis->setAutoTicks(false);
+    this->ui->wMonthPlot->xAxis->setAutoSubTicks(false);
+
+    this->ui->wMonthPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+    this->ui->wMonthPlot->axisRect()->setRangeZoom(Qt::Horizontal);
+    this->ui->wMonthPlot->axisRect()->setRangeDrag(Qt::Horizontal);
+
+    //year plot
+    this->ui->wYearPlot->xAxis->setRange(0, 13);
+    this->ui->wYearPlot->yAxis->setRange(0, sp.getHighestMonthEnergy()*1.1);
+    this->ui->wYearPlot->yAxis->setPadding(5);
+    this->ui->wYearPlot->yAxis->grid()->setSubGridVisible(true);
+    this->ui->wYearPlot->yAxis->setLabel("Energie [kWh]");
 }
 
 void QSolanizer::writeSettings()
@@ -322,8 +375,6 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, PlottingMode pm)
 
     int colorKey =  this->shownDates.size() % this->dayColors.size();
 
-
-//    this->shownDates.append(date);
     Day dd = sp.getDay(date);
 
     if ((pm == REAL) || (pm == BOTH)) {
@@ -353,35 +404,7 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, PlottingMode pm)
     }
 
 
-    ui->wPowerCurve->xAxis->setRange(0, 24 * 3600 * 1000);
-    ui->wPowerCurve->xAxis->setAutoTickStep(false);
-    ui->wPowerCurve->xAxis->setAutoTicks(false);
-    ui->wPowerCurve->xAxis->setAutoTickLabels(false);
-    ui->wPowerCurve->xAxis->setTickVector(dayTicksMSecs);
-    ui->wPowerCurve->xAxis->setTickVectorLabels(dayLabelMSecs);
-    ui->wPowerCurve->xAxis->setSubTickCount(5); // every 10 minutes
-    ui->wPowerCurve->xAxis->setTickLabelRotation(60);
 
-    ui->wPowerCurve->yAxis->setLabel("Leistung [kW]");
-
-    ui->wPowerCurve->setAntialiasedElement(QCP::aePlottables);
-
-    ui->wPowerCurve->yAxis->setRange(0, sp.getHighestPower()*1.1);
-
-    ui->wPowerCurve->legend->setVisible(true);
-    ui->wPowerCurve->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop|Qt::AlignRight);
-    ui->wPowerCurve->legend->setBrush(QColor(255, 255, 255, 200));
-    QPen legendPen;
-    legendPen.setColor(QColor(130, 130, 130, 200));
-    ui->wPowerCurve->legend->setBorderPen(legendPen);
-    QFont legendFont = font();
-    legendFont.setPointSize(10);
-    ui->wPowerCurve->legend->setFont(legendFont);
-
-
-    ui->wPowerCurve->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
-    ui->wPowerCurve->axisRect()->setRangeZoom(Qt::Horizontal);
-    ui->wPowerCurve->axisRect()->setRangeDrag(Qt::Horizontal);
     ui->wPowerCurve->replot();
 
     // fill groupbox
@@ -444,7 +467,6 @@ void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &d
     this->ui->wMonthPlot->clearPlottables();
     this->ui->wColorScaleParent->setVisible(false);
     this->ui->wMonthPlot->addPlottable(bars);
-//    this->ui->wMonthPlot->setInteraction(QCP::iSelectPlottables);
     bars->setSelectable(true);
     QPen pen;
     pen.setWidthF(1.2);
@@ -467,16 +489,14 @@ void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &d
         }
     }
 
-    this->ui->wMonthPlot->xAxis->setAutoTicks(false);
-    this->ui->wMonthPlot->xAxis->setAutoTickLabels(false);
+
     this->ui->wMonthPlot->xAxis->setTickVector(ticks);
     this->ui->wMonthPlot->xAxis->setTickVectorLabels(labels);
     this->ui->wMonthPlot->xAxis->setTickLabelRotation(60);
-    this->ui->wMonthPlot->xAxis->setAutoSubTicks(false);
-
     this->ui->wMonthPlot->xAxis->setTickLength(0,4);
     this->ui->wMonthPlot->xAxis->grid()->setVisible(false);
     this->ui->wMonthPlot->xAxis->setRange(-1, values.size());
+
     this->ui->wMonthPlot->yAxis->setRange(0, sp.getHighestDayEnergy()*1.1);
     this->ui->wMonthPlot->yAxis->setPadding(5);
     this->ui->wMonthPlot->yAxis->setAutoTicks(true);
@@ -495,9 +515,6 @@ void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &d
     gridPen.setStyle(Qt::DotLine);
     this->ui->wMonthPlot->yAxis->grid()->setSubGridPen(gridPen);
     bars->setData(dataPos, values);
-    this->ui->wMonthPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
-    this->ui->wMonthPlot->axisRect()->setRangeZoom(Qt::Horizontal);
-    this->ui->wMonthPlot->axisRect()->setRangeDrag(Qt::Horizontal);
     this->ui->wMonthPlot->replot();
 }
 
@@ -537,9 +554,7 @@ void QSolanizer::plotDailyDistribution(QVector<QList<QDateTime> > &data)
     }
 
     this->ui->wMonthPlot->rescaleAxes();
-    this->ui->wMonthPlot->xAxis->setSubTickCount(0);
-    this->ui->wMonthPlot->xAxis->setAutoTickLabels(false);
-    this->ui->wMonthPlot->xAxis->setAutoTicks(false);
+
     this->ui->wMonthPlot->xAxis->setTickVector(xTicks);
     this->ui->wMonthPlot->xAxis->setTickVectorLabels(xLabel);
     this->ui->wMonthPlot->xAxis->setRange(-1, data.size());
@@ -552,9 +567,6 @@ void QSolanizer::plotDailyDistribution(QVector<QList<QDateTime> > &data)
     this->ui->wMonthPlot->yAxis->setTickVectorLabels(this->dayLabelMSecs);
     this->ui->wMonthPlot->yAxis->setSubTickCount(4);
     this->ui->wMonthPlot->yAxis->setRange(0, 24* 1000 * 3600);
-    this->ui->wMonthPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
-    this->ui->wMonthPlot->axisRect()->setRangeZoom(Qt::Horizontal);
-    this->ui->wMonthPlot->axisRect()->setRangeDrag(Qt::Horizontal);
     this->ui->wMonthPlot->replot();
 }
 
@@ -588,13 +600,7 @@ void QSolanizer::plotYearData(int yearNumber)
     this->ui->wYearPlot->xAxis->setSubTickCount(0);
     this->ui->wYearPlot->xAxis->setTickLength(0,4);
     this->ui->wYearPlot->xAxis->grid()->setVisible(false);
-    this->ui->wYearPlot->xAxis->setRange(0, 13);
-    this->ui->wYearPlot->yAxis->setRange(0, sp.getHighestMonthEnergy()*1.1);
-    this->ui->wYearPlot->yAxis->setPadding(5);
-    this->ui->wYearPlot->yAxis->grid()->setSubGridVisible(true);
 
-
-    this->ui->wYearPlot->yAxis->setLabel("Energie [kWh]");
 
     QPen gridPen;
     gridPen.setStyle(Qt::SolidLine);
@@ -638,8 +644,8 @@ void QSolanizer::plotAllYearData()
     }
     QCPBarsGroup *group = new QCPBarsGroup(this->ui->wYearPlot);
     QCPBarsEnhanced *bars;
-    int j=0;
 
+    int j=0;
     for (int i=0; i<allEnergyData.size(); i++) {
         QVector<double> yearData = allEnergyData.at(i);
         bars = new QCPBarsEnhanced(this->ui->wYearPlot->xAxis, this->ui->wYearPlot->yAxis);
@@ -660,8 +666,6 @@ void QSolanizer::plotAllYearData()
         }
     }
 
-    this->ui->wYearPlot->xAxis->setRange(0, 13);
-    this->ui->wYearPlot->yAxis->setRange(0, sp.getHighestMonthEnergy()*1.1);
     this->ui->wYearPlot->xAxis->setTickVector(months);
     this->ui->wYearPlot->xAxis->setTickVectorLabels(labels);
     this->ui->wYearPlot->xAxis->setAutoTickStep(false);
@@ -915,6 +919,7 @@ void QSolanizer::on_actionReload_triggered()
     if (this->getProperDir(false)) {
         if (this->readData()) {
             this->fillDataWidgets();
+            this->initializePlots();
             this->writeSerializedData();
             this->enableAllInputWidgets();
         }
@@ -926,6 +931,7 @@ void QSolanizer::on_actionOpenNew_triggered()
     if (this->getProperDir(true)) {
         if (this->readSerializedData() || this->readData()) {
             this->fillDataWidgets();
+            this->initializePlots();
             this->writeSerializedData();
             this->enableAllInputWidgets();
         }

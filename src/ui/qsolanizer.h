@@ -24,7 +24,6 @@ public:
     explicit QSolanizer(QWidget *parent = 0);
     ~QSolanizer();
 
-    void drawColorScale();
 
     enum PlottingMode { BOTH, REAL, THEORETICAL};
 
@@ -33,9 +32,12 @@ private:
     // initializing, settings
     void initializeVariables();
     void readSettings();
+    void initializePlots();
     void writeSettings();
     // widget operations
     void fillDataWidgets();
+    void drawColorScale();
+
     void disableAllInputWidgets();
     void enableAllInputWidgets();
     // data io
