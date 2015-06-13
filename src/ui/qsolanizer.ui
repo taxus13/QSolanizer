@@ -26,7 +26,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>3</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tabDay">
            <attribute name="title">
@@ -602,7 +602,7 @@
                    <item row="4" column="0">
                     <widget class="QLabel" name="label_18">
                      <property name="text">
-                      <string>TextLabel</string>
+                      <string>Volllaststunden</string>
                      </property>
                     </widget>
                    </item>
@@ -779,6 +779,9 @@
                     <widget class="QLabel" name="lTotalFullLoadHours">
                      <property name="text">
                       <string>TextLabel</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                      </property>
                     </widget>
                    </item>
