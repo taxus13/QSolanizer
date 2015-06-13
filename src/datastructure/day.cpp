@@ -1,6 +1,6 @@
 #include "day.h"
 
-Day::Day(QMap<QDateTime, float> powerCurve, QList<QDateTime> importantDates, QDateTime momentOfMaximumPower, float maximumPower, float energy) {
+Day::Day(QPair<QDateVector, QDataRow> powerCurve, QList<QDateTime> importantDates, QDateTime momentOfMaximumPower, float maximumPower, float energy) {
     this->powerCurve = powerCurve;
     this->importantDates = importantDates;
     this->momentOfMaximumPower = momentOfMaximumPower;
@@ -32,22 +32,25 @@ QList<QDateTime> &Day::getImportantDates()
     return this->importantDates;
 }
 
-QMap<QDateTime, float> &Day::getPowerCurve()
+QPair<QDateVector, QDataRow> &Day::getPowerCurve()
 {
     return this->powerCurve;
 }
 
-QPair<QVector<double>, QVector<double> > Day::getPowerCurveForPlotting()
+QPair<QDataRow, QDataRow> Day::getPowerCurveForPlotting()
 {
     QVector<double> timeline;
-    QVector<double> power;
+//    QVector<double> power;
 
-    QMap<QDateTime, float>::iterator i;
-    for (i = this->powerCurve.begin(); i != this->powerCurve.end(); ++i) {
-        timeline.append(i.key().time().msecsSinceStartOfDay());
-        power.append(i.value());
+//    QMap<QDateTime, float>::iterator i;
+//    for (i = this->powerCurve.begin(); i != this->powerCurve.end(); ++i) {
+//        timeline.append(i.key().time().msecsSinceStartOfDay());
+//        power.append(i.value());
+//    }
+    for (int i=0; i<this->powerCurve.first.size(); i++) {
+        timeline << this->powerCurve.first[i].time().msecsSinceStartOfDay();
     }
-    return QPair<QVector<double>, QVector<double> >(timeline, power);
+    return QPair<QVector<double>, QVector<double> >(timeline, this->powerCurve.second);
 }
 
 QDate Day::getDate() const
@@ -90,7 +93,7 @@ void Day::calculateDuration()
 
 QDataStream &operator <<(QDataStream &out, const Day &day)
 {
-   out << day.powerCurve << day.importantDates
+   out << day.powerCurve.second << day.powerCurve.first << day.importantDates
        << day.momentOfMaximumPower << day.maximumPower << day.energy;
    return out;
 }
@@ -98,15 +101,18 @@ QDataStream &operator <<(QDataStream &out, const Day &day)
 
 QDataStream &operator >>(QDataStream &in, Day &day)
 {
-    QMap<QDateTime, float> powerCurve;
+//    QMap<QDateTime, float> powerCurve;
+//    QPair<QDateTime, QDataRow> powerCurve;
+    QDateVector dateVector;
+    QDataRow dataVector;
     QList<QDateTime> importantDates;
     QDateTime momentOfMaximumPower;
 
     float maximumPower;
     float energy;
-    in >> powerCurve >> importantDates >> momentOfMaximumPower >> maximumPower >> energy;
+    in >> dataVector >> dateVector >> importantDates >> momentOfMaximumPower >> maximumPower >> energy;
 
-    day.powerCurve = powerCurve;
+    day.powerCurve = QPair<QDateVector, QDataRow>(dateVector, dataVector);
     day.importantDates = importantDates;
     day.momentOfMaximumPower = momentOfMaximumPower;
     day.maximumPower = maximumPower;

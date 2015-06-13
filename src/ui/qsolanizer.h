@@ -66,7 +66,7 @@ private:
 
 
     //variables
-    static const int fileFormatVersion = 1;
+    static const int fileFormatVersion = 2;
     QString version;
 
     SolarPart sp;

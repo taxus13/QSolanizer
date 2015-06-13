@@ -2,7 +2,9 @@
 
 Day CSVReader::parseFile(const QString& path) {
     QFile *file = new QFile(path);
-    QMap<QDateTime, float> map = QMap<QDateTime, float>();
+    QDateVector timeVector;
+    QDataRow dataVector;
+
     float startEnergy = 0;
     float endEnergy = 0;
     float sumOfPower = 0; // actually, this is an energy value, but ignorea the timefactor, as it is not relevant here
@@ -31,7 +33,9 @@ Day CSVReader::parseFile(const QString& path) {
                    QString floatString = currentData.at(2);
                    floatString = floatString.replace(",", ".");
                    float power = floatString.toFloat();
-                   map.insert(time, power);
+//                   map.insert(time, power);
+                   timeVector << time;
+                   dataVector << power;
                    sumOfPower += power;
                    // TODO: find a better way:
                    floatString = currentData.at(1);
@@ -50,58 +54,64 @@ Day CSVReader::parseFile(const QString& path) {
 
         float currentEnergy = 0;
 
-        QMap<QDateTime, float>::iterator i ;
+//        QMap<QDateTime, float>::iterator i ;
         QList<QDateTime> importantDates;
         QDateTime momentOfMaximumPower;
         float maximumPower = 0;
 
-        for (i = map.begin(); i != map.end(); ++i) {
-            if (i.value() != 0) {
+        for (int i=0; i<dataVector.size();++i) {
+            if (dataVector[i] != 0) {
                 // look for maximumPower
-                if (maximumPower < i.value()) {
-                    maximumPower = i.value();
-                    momentOfMaximumPower = QDateTime(i.key());
+                if (maximumPower < dataVector[i]) {
+                    maximumPower = dataVector[i];
+                    momentOfMaximumPower = QDateTime(timeVector[i]);
                 }
-                currentEnergy += i.value();
+                currentEnergy += dataVector[i];
                 if (importantDates.size() == 0) {
                     if (currentEnergy > 0) {
-                        importantDates.append(i.key());
+                        importantDates.append(timeVector[i]);
                     }
                 } else if (importantDates.size() == 1) {
                     if (currentEnergy >= quarterEnergy) {
-                        importantDates.append(i.key());
+                        importantDates.append(timeVector[i]);
                     }
                 } else if (importantDates.size() == 2) {
                     if (currentEnergy >= halfEnergy) {
-                        importantDates.append(i.key());
+                        importantDates.append(timeVector[i]);
                     }
                 } else if (importantDates.size() == 3) {
                     if (currentEnergy >= threeQuarterEnergy) {
-                        importantDates.append(i.key());
+                        importantDates.append(timeVector[i]);
                     }
                 }
             }
         }
 
-        QMapIterator<QDateTime, float> j(map);
-        j.toBack();
-        while (j.hasPrevious()) {
-            j.previous();
-            if (j.value() != 0) {
-                importantDates.append(j.key());
+        for (int i=dataVector.size()-1; i>0; i--) {
+            if (dataVector[i] != 0) {
+                importantDates.append(timeVector[i]);
                 break;
             }
         }
+//        QMapIterator<QDateTime, float> j(map);
+//        j.toBack();
+//        while (j.hasPrevious()) {
+//            j.previous();
+//            if (j.value() != 0) {
+//                importantDates.append(j.key());
+//                break;
+//            }
+//        }
 
         // sometimes, there was no power 'produced', so sunrise and sunrise are not set.
         if (importantDates.size() < 5) {
-            QDateTime time = QDateTime(map.firstKey());
+            QDateTime time = QDateTime(timeVector[0]);
             while (importantDates.size() < 5) {
                 importantDates.append(time);
             }
         }
         file->close();
-        return Day(map, importantDates, momentOfMaximumPower, maximumPower, energy);
+        return Day(QPair<QDateVector, QDataRow>(timeVector, dataVector), importantDates, momentOfMaximumPower, maximumPower, energy);
     } else {
         file->close();
         return Day();
