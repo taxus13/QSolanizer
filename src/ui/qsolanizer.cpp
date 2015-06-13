@@ -108,6 +108,8 @@ void QSolanizer::readSettings()
     this->minEnergyColor = QColor(minEC);
     this->maxEnergyColor = QColor(maxEC);
     settings.endGroup();
+
+    sp.getSolarPlantProperties().readProperties(QDir(this->path).absoluteFilePath(this->propertyname));
 }
 
 void QSolanizer::initializePlots()
@@ -232,10 +234,6 @@ void QSolanizer::fillDataWidgets() {
     this->ui->lMaxEnergy->setText(QString("%1 kWh").arg(this->sp.getHighestDayEnergy(),0,'f',1));
     this->ui->lHalfEnergy->setText(QString("%1 kWh").arg(this->sp.getHighestDayEnergy()/2,0,'f',1));
     this->ui->lMinEnergy->setText(QString("%1 kWh").arg(0.0, 0,'f',1));
-
-    //
-    sp.getSolarPlantProperties().readProperties(QDir(this->path).absoluteFilePath(this->propertyname));
-
 }
 
 void QSolanizer::disableAllInputWidgets()
@@ -413,6 +411,13 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, PlottingMode pm)
     ui->lPeakpower->setText(QString("%1 kW").arg(dd.getMaximumPower(), 0, 'f', 2));
     ui->lSunrise->setText(dd.getSunrise().toString("HH:mm"));
     ui->lSunset->setText(dd.getSunset().toString("HH:mm"));
+
+    if (sp.getSolarPlantProperties().getPeakPower() > 0) {
+        this->ui->lDayFullLoadHours->setText(QString("%1 h").arg(dd.getEnergy()/sp.getSolarPlantProperties().getPeakPower(), 0, 'f', 1));
+    } else {
+        this->ui->lDayFullLoadHours->setText(QString("-"));
+    }
+
 }
 
 void QSolanizer::replotDayData(QSolanizer::PlottingMode pm)
@@ -448,8 +453,16 @@ void QSolanizer::showMonthData(QDate date) {
 void QSolanizer::showCustomRange(QDate start, QDate end)
 {
     this->startMonthPlot = start;
-    this->ui->lMonthEnergy->setText(QString("%1 kWh").arg(sp.getEnergyInRange(start, end),0,'f',2));
+    double energy = sp.getEnergyInRange(start, end);
+    this->ui->lMonthEnergy->setText(QString("%1 kWh").arg(energy,0,'f',2));
     this->ui->lMonthSunhours->setText(QString("%1 h").arg(sp.getSunhoursInRange(start, end),0,'f',2));
+
+    if (sp.getSolarPlantProperties().getPeakPower() > 0) {
+        this->ui->lMonthFullLoadHours->setText(QString("%1 h").arg(energy/sp.getSolarPlantProperties().getPeakPower(), 0, 'f', 1));
+    } else {
+        this->ui->lMonthFullLoadHours->setText(QString("-"));
+    }
+
     if (this->ui->rEnergy->isChecked()) {
         QPair<QVector<QDate>, QVector<float> > data = sp.getEnergyValuesOfDays(start, end);
         this->plotDailyEnergyValues(data);
@@ -614,6 +627,11 @@ void QSolanizer::plotYearData(int yearNumber)
     // set group box data
     this->ui->lYearDuration->setText(QString("%1 h").arg(year.getDuration(),0,'f',0));
     this->ui->lYearEnergy->setText(QString("%1 kWh").arg(year.getEnergy(),0,'f',0));
+    if (sp.getSolarPlantProperties().getPeakPower() > 0) {
+        this->ui->lYearFullLoadHours->setText(QString("%1 h").arg(year.getEnergy()/sp.getSolarPlantProperties().getPeakPower(), 0, 'f', 0));
+    } else {
+        this->ui->lYearFullLoadHours->setText(QString("-"));
+    }
 
 }
 
@@ -788,6 +806,11 @@ void QSolanizer::plotTotalData()
     this->ui->lTotalDuration->setText(QString("%1 h").arg(sp.getDuration(),0,'f',0));
     this->ui->lTotalEnergy->setText(QString("%1 kWh").arg(sp.getEnergy(),0,'f',0));
     this->ui->lTotalData->setText(QString::number(sp.getDayCount()));
+    if (sp.getSolarPlantProperties().getPeakPower() > 0) {
+        this->ui->lTotalFullLoadHours->setText(QString("%1 h").arg(sp.getEnergy()/sp.getSolarPlantProperties().getPeakPower(), 0, 'f', 0));
+    } else {
+        this->ui->lTotalFullLoadHours->setText(QString("-"));
+    }
 }
 
 QSolanizer::PlottingMode QSolanizer::getCurrentPlottingMode()
@@ -1012,6 +1035,7 @@ void QSolanizer::on_actionSolarPlantProperties_triggered()
     if (diag.exec() == QDialog::Accepted) {
         sp.setSolarPlantProperties(diag.getSolarPlantProperties());
         sp.getSolarPlantProperties().writePorperties(QDir(this->path).absoluteFilePath(this->propertyname));
+        this->fillDataWidgets();
     }
 }
 

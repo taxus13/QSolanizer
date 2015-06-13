@@ -26,7 +26,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>1</number>
+           <number>3</number>
           </property>
           <widget class="QWidget" name="tabDay">
            <attribute name="title">
@@ -120,6 +120,23 @@
                    </item>
                    <item row="4" column="1">
                     <widget class="QLabel" name="lDayDuration">
+                     <property name="text">
+                      <string>TextLabel</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="0">
+                    <widget class="QLabel" name="label_15">
+                     <property name="text">
+                      <string>Volllaststunden</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="1">
+                    <widget class="QLabel" name="lDayFullLoadHours">
                      <property name="text">
                       <string>TextLabel</string>
                      </property>
@@ -257,13 +274,6 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="1" column="0">
-                    <widget class="QLabel" name="label_8">
-                     <property name="text">
-                      <string>Ertrag</string>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="0" column="1">
                     <widget class="QLabel" name="lMonthSunhours">
                      <property name="text">
@@ -276,6 +286,30 @@
                    </item>
                    <item row="1" column="1">
                     <widget class="QLabel" name="lMonthEnergy">
+                     <property name="text">
+                      <string>TextLabel</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="label_8">
+                     <property name="text">
+                      <string>Ertrag</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QLabel" name="label_17">
+                     <property name="text">
+                      <string>Volllaststunden</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QLabel" name="lMonthFullLoadHours">
                      <property name="text">
                       <string>TextLabel</string>
                      </property>
@@ -545,6 +579,16 @@
                      </property>
                     </widget>
                    </item>
+                   <item row="3" column="1">
+                    <widget class="QLabel" name="lYearEnergy">
+                     <property name="text">
+                      <string>TextLabel</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
                    <item row="0" column="1">
                     <widget class="QLabel" name="lYearDuration">
                      <property name="text">
@@ -555,8 +599,15 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="3" column="1">
-                    <widget class="QLabel" name="lYearEnergy">
+                   <item row="4" column="0">
+                    <widget class="QLabel" name="label_18">
+                     <property name="text">
+                      <string>TextLabel</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="1">
+                    <widget class="QLabel" name="lYearFullLoadHours">
                      <property name="text">
                       <string>TextLabel</string>
                      </property>
@@ -683,16 +734,6 @@
                    <string>Eckdaten</string>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_4">
-                   <item row="3" column="1" colspan="2">
-                    <widget class="QLabel" name="lTotalEnergy">
-                     <property name="text">
-                      <string>TextLabel</string>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="3" column="0">
                     <widget class="QLabel" name="label_12">
                      <property name="text">
@@ -707,6 +748,16 @@
                      </property>
                     </widget>
                    </item>
+                   <item row="3" column="1" colspan="2">
+                    <widget class="QLabel" name="lTotalEnergy">
+                     <property name="text">
+                      <string>TextLabel</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
                    <item row="2" column="2">
                     <widget class="QLabel" name="lTotalDuration">
                      <property name="text">
@@ -714,6 +765,20 @@
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0">
+                    <widget class="QLabel" name="label_20">
+                     <property name="text">
+                      <string>Volllaststunden</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="2">
+                    <widget class="QLabel" name="lTotalFullLoadHours">
+                     <property name="text">
+                      <string>TextLabel</string>
                      </property>
                     </widget>
                    </item>
