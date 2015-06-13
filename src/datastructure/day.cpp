@@ -40,13 +40,7 @@ QPair<QDateVector, QDataRow> &Day::getPowerCurve()
 QPair<QDataRow, QDataRow> Day::getPowerCurveForPlotting()
 {
     QVector<double> timeline;
-//    QVector<double> power;
 
-//    QMap<QDateTime, float>::iterator i;
-//    for (i = this->powerCurve.begin(); i != this->powerCurve.end(); ++i) {
-//        timeline.append(i.key().time().msecsSinceStartOfDay());
-//        power.append(i.value());
-//    }
     for (int i=0; i<this->powerCurve.first.size(); i++) {
         timeline << this->powerCurve.first[i].time().msecsSinceStartOfDay();
     }
@@ -84,6 +78,11 @@ float Day::getDuration() {
     return this->duration;
 }
 
+bool Day::isComplete()
+{
+    return this->powerCurve.second.size() == 288;
+}
+
 void Day::calculateDuration()
 {
     this->duration = this->importantDates.at(0).secsTo(this->importantDates.at(4))/3600;
@@ -101,8 +100,6 @@ QDataStream &operator <<(QDataStream &out, const Day &day)
 
 QDataStream &operator >>(QDataStream &in, Day &day)
 {
-//    QMap<QDateTime, float> powerCurve;
-//    QPair<QDateTime, QDataRow> powerCurve;
     QDateVector dateVector;
     QDataRow dataVector;
     QList<QDateTime> importantDates;

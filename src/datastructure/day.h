@@ -32,6 +32,8 @@ public:
     float getEnergy();
     float getDuration();
 
+    bool isComplete();
+
     // io
     friend QDataStream &operator <<(QDataStream &out, const Day& day);
     friend QDataStream &operator >>(QDataStream &in, Day& day);

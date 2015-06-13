@@ -1,7 +1,8 @@
 #include "csvreader.h"
 
 Day CSVReader::parseFile(const QString& path) {
-    QFile *file = new QFile(path);
+//    QFile *file = new QFile(path);
+    QFile file(path);
     QDateVector timeVector;
     QDataRow dataVector;
 
@@ -9,8 +10,8 @@ Day CSVReader::parseFile(const QString& path) {
     float endEnergy = 0;
     float sumOfPower = 0; // actually, this is an energy value, but ignorea the timefactor, as it is not relevant here
 
-    if(file->open(QIODevice::ReadOnly|QIODevice::Text)) {
-        QTextStream textStream(file);
+    if(file.open(QIODevice::ReadOnly|QIODevice::Text)) {
+        QTextStream textStream(&file);
         QString line;
 
         int lineNumber = 1;
@@ -33,7 +34,7 @@ Day CSVReader::parseFile(const QString& path) {
                    QString floatString = currentData.at(2);
                    floatString = floatString.replace(",", ".");
                    float power = floatString.toFloat();
-//                   map.insert(time, power);
+
                    timeVector << time;
                    dataVector << power;
                    sumOfPower += power;
@@ -54,7 +55,6 @@ Day CSVReader::parseFile(const QString& path) {
 
         float currentEnergy = 0;
 
-//        QMap<QDateTime, float>::iterator i ;
         QList<QDateTime> importantDates;
         QDateTime momentOfMaximumPower;
         float maximumPower = 0;
@@ -93,15 +93,6 @@ Day CSVReader::parseFile(const QString& path) {
                 break;
             }
         }
-//        QMapIterator<QDateTime, float> j(map);
-//        j.toBack();
-//        while (j.hasPrevious()) {
-//            j.previous();
-//            if (j.value() != 0) {
-//                importantDates.append(j.key());
-//                break;
-//            }
-//        }
 
         // sometimes, there was no power 'produced', so sunrise and sunrise are not set.
         if (importantDates.size() < 5) {
@@ -110,10 +101,10 @@ Day CSVReader::parseFile(const QString& path) {
                 importantDates.append(time);
             }
         }
-        file->close();
+        file.close();
         return Day(QPair<QDateVector, QDataRow>(timeVector, dataVector), importantDates, momentOfMaximumPower, maximumPower, energy);
     } else {
-        file->close();
+        file.close();
         return Day();
     }
 
