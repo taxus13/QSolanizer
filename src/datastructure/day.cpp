@@ -85,10 +85,10 @@ bool Day::isComplete()
 
 void Day::fillVariables()
 {
-
-    float quarterEnergy = this->energy/4;
-    float halfEnergy = this->energy/2;
-    float threeQuarterEnergy = 3*this->energy/4;
+    float sumOfPower = (float) this->powerCurve.second.getSum();
+    float quarterEnergy = sumOfPower/4;
+    float halfEnergy = sumOfPower/2;
+    float threeQuarterEnergy = 3*sumOfPower/4;
 
     float currentEnergy = 0;
 
