@@ -147,14 +147,14 @@
         <item row="5" column="0">
          <widget class="QLabel" name="label_5">
           <property name="text">
-           <string>Beta</string>
+           <string>Beta (Aufstellwinkel)</string>
           </property>
          </widget>
         </item>
         <item row="6" column="0">
          <widget class="QLabel" name="label_6">
           <property name="text">
-           <string>Gamma</string>
+           <string>Gamma (Südausrichtung)</string>
           </property>
          </widget>
         </item>
@@ -176,7 +176,7 @@
            <number>1</number>
           </property>
           <property name="minimum">
-           <double>-90.000000000000000</double>
+           <double>0.000000000000000</double>
           </property>
           <property name="maximum">
            <double>90.000000000000000</double>

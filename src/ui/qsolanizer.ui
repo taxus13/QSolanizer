@@ -205,26 +205,26 @@
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_13">
                      <item>
-                      <widget class="QRadioButton" name="rTheoreticalCurve">
+                      <widget class="QCheckBox" name="cRealCurve">
+                       <property name="text">
+                        <string>reale Kurve</string>
+                       </property>
+                       <property name="checked">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QCheckBox" name="cTheoreticalCurve">
                        <property name="text">
                         <string>theoretische Kurve</string>
                        </property>
                       </widget>
                      </item>
                      <item>
-                      <widget class="QRadioButton" name="rBoth">
+                      <widget class="QCheckBox" name="cAvergeageCurve">
                        <property name="text">
-                        <string>theoretische und reale Kurve</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QRadioButton" name="rRealCurve">
-                       <property name="text">
-                        <string>reale Kurve</string>
-                       </property>
-                       <property name="checked">
-                        <bool>true</bool>
+                        <string>durchschnittliche Kurve</string>
                        </property>
                       </widget>
                      </item>

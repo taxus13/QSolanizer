@@ -51,6 +51,7 @@ public:
     Year &getYear(int year);
     Month &getMonth(QDate &date);
     Day &getDay(QDate &date);
+    Day &getAverageDay(int month);
 
     SolarPlantProperties &getSolarPlantProperties();
     void setSolarPlantProperties(SolarPlantProperties spp);

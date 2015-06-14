@@ -25,7 +25,7 @@ public:
     ~QSolanizer();
 
 
-    enum PlottingMode { BOTH, REAL, THEORETICAL};
+    enum PlottingMode {  REAL = 0x1, THEORETICAL = 0x2, AVERAGE = 0x4};
 
 private:
     Ui::QSolanizer *ui;
@@ -48,8 +48,8 @@ private:
 
 
     // plotting and label filling functions
-    void plotDayData(QDate date, bool keepOldGraphs, PlottingMode pm=REAL);
-    void replotDayData(PlottingMode pm);
+    void plotDayData(QDate date, bool keepOldGraphs, int pm=REAL);
+    void replotDayData(int pm);
     void resetDayPlot();
     void showMonthData(QDate date);
     void showCustomRange(QDate start, QDate end);
@@ -59,7 +59,7 @@ private:
     void plotAllYearData();
     void plotTotalData();
 
-    PlottingMode getCurrentPlottingMode();
+    int getCurrentPlottingMode();
 
     void resizeEvent(QResizeEvent* event);
     void closeEvent(QCloseEvent *event);
@@ -89,6 +89,8 @@ private:
 
     QList<QDate> shownDates;
 
+    QSet<QDate> currentlyShownDates;
+    QSet<int> currentlyShownAverageMonths;
 
     // information which data is currently plotted and shown
     QDate startMonthPlot;
@@ -116,9 +118,9 @@ private slots:
     void yearItemClicked(QCPAbstractPlottable *plottable, QMouseEvent* event);
     void totalItemClicked(QCPAbstractPlottable *plottable, QMouseEvent* event);
     void on_actionSolarPlantProperties_triggered();
-    void on_rTheoreticalCurve_clicked();
-    void on_rBoth_clicked();
-    void on_rRealCurve_clicked();
+    void on_cRealCurve_clicked();
+    void on_cTheoreticalCurve_clicked();
+    void on_cAvergeageCurve_clicked();
 };
 
 #endif // QSOLANIZER_H

@@ -365,7 +365,7 @@ void QSolanizer::writeSerializedData()
     file.close();
 }
 
-void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, PlottingMode pm)
+void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, int pm)
 {
     if (!keepOldGraphs) {
         resetDayPlot();
@@ -375,7 +375,7 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, PlottingMode pm)
 
     Day dd = sp.getDay(date);
 
-    if ((pm == REAL) || (pm == BOTH)) {
+    if (((pm & REAL) == REAL) && !this->currentlyShownDates.contains(date)) {
         QColor color = this->dayColors.at(colorKey);
         QColor colorAlpha = color;
             colorAlpha.setAlpha(20);
@@ -388,7 +388,7 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, PlottingMode pm)
         ui->wPowerCurve->graph()->setName(date.toString("dd.MM.yyyy"));
     }
 
-    if ((pm == THEORETICAL) || (pm == BOTH)) {
+    if (((pm & THEORETICAL) == THEORETICAL) && !this->currentlyShownDates.contains(date)) {
         QColor color = this->dayColorsDark.at(colorKey);
         QColor colorAlpha = color;
         colorAlpha.setAlpha(20);
@@ -398,10 +398,18 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, PlottingMode pm)
         ui->wPowerCurve->graph()->setPen(QPen(color));
         ui->wPowerCurve->graph()->setBrush(QBrush(colorAlpha));
         ui->wPowerCurve->graph()->addToLegend();
-        ui->wPowerCurve->graph()->setName(date.toString("dd.MM.yyyy") + QString(" (theo)"));
+        ui->wPowerCurve->graph()->setName(date.toString("dd.MM.yyyy") + QString(" (theoretisch)"));
     }
 
-
+    if (((pm & AVERAGE) == AVERAGE) && !this->currentlyShownAverageMonths.contains(date.month())) {
+        QColor color = Qt::black;
+        ui->wPowerCurve->addGraph();
+        QPair<QVector<double>, QVector<double> > data = sp.getAverageDay(date.month()).getPowerCurveForPlotting();
+        ui->wPowerCurve->graph()->setData(data.first, data.second);
+        ui->wPowerCurve->graph()->setPen(QPen(color));
+        ui->wPowerCurve->graph()->addToLegend();
+        ui->wPowerCurve->graph()->setName(date.toString("MMMM") + QString(" (Durchschnitt)"));
+    }
 
     ui->wPowerCurve->replot();
 
@@ -420,10 +428,12 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, PlottingMode pm)
 
 }
 
-void QSolanizer::replotDayData(QSolanizer::PlottingMode pm)
+void QSolanizer::replotDayData(int pm)
 {
     this->ui->wPowerCurve->clearGraphs();
     this->ui->wPowerCurve->replot();
+    this->currentlyShownDates.clear();
+    this->currentlyShownAverageMonths.clear();
     foreach (QDate date, this->shownDates) {
         this->plotDayData(date, true, pm);
     }
@@ -436,6 +446,8 @@ void QSolanizer::resetDayPlot()
     this->ui->wPowerCurve->clearGraphs();
     this->ui->wPowerCurve->replot();
     this->shownDates.clear();
+    this->currentlyShownDates.clear();
+    this->currentlyShownAverageMonths.clear();
 }
 
 
@@ -813,15 +825,19 @@ void QSolanizer::plotTotalData()
     }
 }
 
-QSolanizer::PlottingMode QSolanizer::getCurrentPlottingMode()
+int QSolanizer::getCurrentPlottingMode()
 {
-    if (this->ui->rBoth->isChecked()) {
-        return BOTH;
+    int mode = 0x0;
+    if (this->ui->cTheoreticalCurve->isChecked()) {
+        mode |= THEORETICAL;
     }
-    if (this->ui->rTheoreticalCurve->isChecked()) {
-        return THEORETICAL;
+    if (this->ui->cAvergeageCurve->isChecked()) {
+        mode |= AVERAGE;
     }
-    return REAL;
+    if (this->ui->cRealCurve->isChecked()) {
+        mode |= REAL;
+    }
+    return mode;
 }
 
 void QSolanizer::drawColorScale()
@@ -858,7 +874,8 @@ void QSolanizer::on_calendarWidget_selectionChanged()
     QDate date = this->ui->calendarWidget->selectedDate();
     this->plotDayData(date, this->ui->cMultpleChoice->checkState() == Qt::Checked, this->getCurrentPlottingMode());
     this->shownDates.append(date);
-
+    this->currentlyShownDates.insert(date);
+    this->currentlyShownAverageMonths.insert(date.month());
 }
 
 void QSolanizer::on_tMonthSelection_itemSelectionChanged()
@@ -898,8 +915,11 @@ void QSolanizer::on_listWidget_itemSelectionChanged()
 
 void QSolanizer::on_dateEdit_dateChanged(const QDate &date)
 {
-    this->plotDayData(date, this->ui->cCompareYears->checkState() == Qt::Checked, this->getCurrentPlottingMode());
+//    QDate date = this->ui->calendarWidget->selectedDate();
+    this->plotDayData(date, this->ui->cMultpleChoice->checkState() == Qt::Checked, this->getCurrentPlottingMode());
     this->shownDates.append(date);
+    this->currentlyShownDates.insert(date);
+    this->currentlyShownAverageMonths.insert(date.month());
 }
 
 void QSolanizer::on_dateEditStart_userDateChanged(const QDate &date)
@@ -1040,17 +1060,18 @@ void QSolanizer::on_actionSolarPlantProperties_triggered()
 }
 
 
-void QSolanizer::on_rTheoreticalCurve_clicked()
+
+void QSolanizer::on_cRealCurve_clicked()
 {
-    this->replotDayData(THEORETICAL);
+    this->replotDayData(this->getCurrentPlottingMode());
 }
 
-void QSolanizer::on_rBoth_clicked()
+void QSolanizer::on_cTheoreticalCurve_clicked()
 {
-    this->replotDayData(BOTH);
+    this->replotDayData(this->getCurrentPlottingMode());
 }
 
-void QSolanizer::on_rRealCurve_clicked()
+void QSolanizer::on_cAvergeageCurve_clicked()
 {
-    this->replotDayData(REAL);
+    this->replotDayData(this->getCurrentPlottingMode());
 }

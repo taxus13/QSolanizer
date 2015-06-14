@@ -13,6 +13,8 @@ public:
 
     QDataRow operator+(const QDataRow& right);
     QDataRow operator+=(const QDataRow& right);
+    QDataRow operator+(const int& right);
+    QDataRow operator+=(const int& right);
     QDataRow operator-(const QDataRow& right);
     QDataRow operator-=(const QDataRow& right);
 

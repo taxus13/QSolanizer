@@ -45,6 +45,23 @@ QDataRow QDataRow::operator+=(const QDataRow &right)
     return *this;
 }
 
+QDataRow QDataRow::operator+(const int &right)
+{
+    QDataRow qdr;
+    for (int i=0; i<this->size(); i++){
+        qdr.append(this->at(i) + right);
+    }
+    return qdr;
+}
+
+QDataRow QDataRow::operator+=(const int &right)
+{
+    for (int i=0; i<this->size(); i++){
+        this->replace(i, this->at(i) + right);
+    }
+    return *this;
+}
+
 QDataRow QDataRow::operator-(const QDataRow &right)
 {
     if (this->size() == right.size()) {

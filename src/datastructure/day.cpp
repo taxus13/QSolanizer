@@ -134,7 +134,7 @@ void Day::fillVariables()
             importantDates.append(time);
         }
     }
-    this->duration = this->importantDates.at(0).secsTo(this->importantDates.at(4))/3600;
+    this->duration = this->importantDates.at(0).secsTo(this->importantDates.at(4))/3600.0;
 }
 
 

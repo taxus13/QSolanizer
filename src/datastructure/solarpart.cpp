@@ -139,6 +139,11 @@ Day& SolarPart::getDay(QDate &date)
     return this->yearData[date.year()].getDay(date);
 }
 
+Day &SolarPart::getAverageDay(int month)
+{
+    return this->averageDayData[month];
+}
+
 SolarPlantProperties &SolarPart::getSolarPlantProperties()
 {
     return this->spp;

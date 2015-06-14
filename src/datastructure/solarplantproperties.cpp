@@ -29,12 +29,16 @@ QPair<QVector<double>, QVector<double> > SolarPlantProperties::getTheoreticalPow
     double delta = qDegreesToRadians(gAngle);    // declination (rad)
     double phi = this->latitude;
 
-    double timeToZenit = qRadiansToDegrees(acos(-1*tan(delta)*tan(phi))/15);
+//    double timeToZenit = qRadiansToDegrees(acos(-1*tan(delta)*tan(phi))/15);
+
+    double timeToZenit = qRadiansToDegrees(this->getOmega(delta))/15; // omega (rad) => set sunangle to 0, get omega value
+
     double hourOfSunrise = 12-timeToZenit;
     double hourOfSunset = 12+timeToZenit;
 
-    QVector<double> time;
-    QVector<double> power;
+
+    QDataRow time;
+    QDataRow power;
 
     double currentTime = hourOfSunrise;
 
@@ -49,6 +53,12 @@ QPair<QVector<double>, QVector<double> > SolarPlantProperties::getTheoreticalPow
         currentTime += 5.0/60;
     }
 
+    QTime stime(12, 0);
+    QDateTime dt(date, stime);
+//    dt.setTimeZone(QTimeZone);
+    if (dt.isDaylightTime()) {
+        time+= 3600 * 1000;
+    }
     return QPair<QVector<double>, QVector<double> >(time, power);
 }
 
@@ -61,6 +71,25 @@ double SolarPlantProperties::calculatePower(double hour, double declination)
             +sin(delta)*sin(this->latitude));
 
     return this->solarConstant * this->area * this->efficiency * sunAngle;
+}
+
+double SolarPlantProperties::getOmega(double declination)
+{
+    double omega = 0; //rad
+    double smallestSunAngle = 999; // rad
+
+    for (double omega_deg = 0; omega_deg < 180; omega_deg++) {
+        double omega_rad = qDegreesToRadians(omega_deg);
+        double sunAngle = sin(this->beta)*cos(this->gamma)*(cos(declination)*cos(omega_rad)*sin(this->latitude)-sin(declination)*cos(this->latitude))
+                    +sin(this->beta)*sin(this->gamma)*cos(declination)*sin(omega_rad)+cos(this->beta)*(cos(declination)*cos(omega_rad)*cos(this->latitude)
+                    +sin(declination)*sin(this->latitude));
+        if (qAbs(sunAngle) < qAbs(smallestSunAngle)) {
+            smallestSunAngle = sunAngle;
+            omega = omega_rad;
+        }
+    }
+
+    return omega;
 }
 double SolarPlantProperties::getPeakPower() const
 {
