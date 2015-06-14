@@ -24,12 +24,6 @@ void SolarPart::addDay(Day day) {
         this->energy += day.getEnergy();
         this->duration += day.getDuration();
         this->datesAdded.insert(day.getDate());
-        if (this->highestDayEnergy < day.getEnergy()) {
-            this->highestDayEnergy = day.getEnergy();
-        }
-        if (this->highestPower < day.getMaximumPower()) {
-            this->highestPower = day.getMaximumPower();
-        }
     }
 }
 
@@ -37,6 +31,12 @@ void SolarPart::doFinalStatistics()
 {
     this->start = QDate(this->yearData.first().getFirst());
     this->end = QDate(this->yearData.last().getLast());
+
+    QMap<int, QDataRow> accumulatedPowerCurves;
+    QMap<int, int> dayCount;
+
+    QDateVector dateVector;
+
     foreach (Year year, yearData.values()) {
         if (this->highestYearEnergy < year.getEnergy()) {
             this->highestYearEnergy = year.getEnergy();
@@ -45,8 +45,37 @@ void SolarPart::doFinalStatistics()
             if (this->highestMonthEnergy < month.getEnergy()) {
                 this->highestMonthEnergy = month.getEnergy();
             }
+            foreach (Day day, month.getDayData()) {
+                if (day.isComplete()) {
+                    if (dateVector.isEmpty()) {
+                        dateVector = day.getPowerCurve().first;
+                    }
+                    if (accumulatedPowerCurves.contains(day.getDate().month())) {
+                        accumulatedPowerCurves[day.getDate().month()] += day.getPowerCurve().second;
+                        dayCount[day.getDate().month()]++;
+                    } else {
+                        accumulatedPowerCurves[day.getDate().month()] = day.getPowerCurve().second;
+                        dayCount[day.getDate().month()] = 1;
+                    }
+                }
+                if (this->highestDayEnergy < day.getEnergy()) {
+                    this->highestDayEnergy = day.getEnergy();
+                }
+                if (this->highestPower < day.getMaximumPower()) {
+                    this->highestPower = day.getMaximumPower();
+                }
+            }
         }
     }
+
+    foreach (int key, accumulatedPowerCurves.keys()) {
+        accumulatedPowerCurves[key]/=dayCount[key];
+        float energy = (float) accumulatedPowerCurves[key].getSum();
+        energy *= (5/60);
+        averageDayData[key] = Day(QPair<QDateVector, QDataRow>(dateVector, accumulatedPowerCurves[key]), energy);
+
+    }
+
 }
 
 float SolarPart::getEnergy() const
@@ -218,7 +247,7 @@ QDataStream &operator <<(QDataStream &out, const SolarPart &sp)
 {
     out << sp.yearData << sp.start << sp.end << sp.datesAdded
          << sp.energy << sp.duration << sp.highestPower << sp.highestDayEnergy
-         << sp.highestMonthEnergy << sp.highestYearEnergy;
+         << sp.highestMonthEnergy << sp.highestYearEnergy << sp.averageDayData;
     return out;
 }
 
@@ -235,9 +264,10 @@ QDataStream &operator >>(QDataStream &in, SolarPart &sp)
     float highestDayEnergy;
     float highestMonthEnergy;
     float highestYearEnergy;
+    QMap<int, Day> averageDayData;
 
     in >> map >> start >> end >> datesAdded >> energy >> duration >> highestPower >> highestDayEnergy
-            >> highestMonthEnergy >> highestYearEnergy;
+            >> highestMonthEnergy >> highestYearEnergy >> averageDayData;
 
     sp.yearData = map;
     sp.start = start;
@@ -249,6 +279,7 @@ QDataStream &operator >>(QDataStream &in, SolarPart &sp)
     sp.highestDayEnergy = highestDayEnergy;
     sp.highestMonthEnergy = highestMonthEnergy;
     sp.highestYearEnergy = highestYearEnergy;
+    sp.averageDayData = averageDayData;
 
     return in;
 }

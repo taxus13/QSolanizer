@@ -9,6 +9,8 @@
 
 #include "datastructure/solarpart.h"
 #include "datastructure/day.h"
+#include "datastructure/qdatarow.h"
+#include "datastructure/typedefs.h"
 
 #include <QDebug>
 

@@ -1,14 +1,17 @@
 #include "csvreader.h"
 
 Day CSVReader::parseFile(const QString& path) {
-    QFile *file = new QFile(path);
-    QMap<QDateTime, float> map = QMap<QDateTime, float>();
+//    QFile *file = new QFile(path);
+    QFile file(path);
+    QDateVector timeVector;
+    QDataRow dataVector;
+
     float startEnergy = 0;
     float endEnergy = 0;
     float sumOfPower = 0; // actually, this is an energy value, but ignorea the timefactor, as it is not relevant here
 
-    if(file->open(QIODevice::ReadOnly|QIODevice::Text)) {
-        QTextStream textStream(file);
+    if(file.open(QIODevice::ReadOnly|QIODevice::Text)) {
+        QTextStream textStream(&file);
         QString line;
 
         int lineNumber = 1;
@@ -31,7 +34,9 @@ Day CSVReader::parseFile(const QString& path) {
                    QString floatString = currentData.at(2);
                    floatString = floatString.replace(",", ".");
                    float power = floatString.toFloat();
-                   map.insert(time, power);
+
+                   timeVector << time;
+                   dataVector << power;
                    sumOfPower += power;
                    // TODO: find a better way:
                    floatString = currentData.at(1);
@@ -44,66 +49,10 @@ Day CSVReader::parseFile(const QString& path) {
 
         float energy = endEnergy - startEnergy;
 
-        float quarterEnergy = sumOfPower/4;
-        float halfEnergy = sumOfPower/2;
-        float threeQuarterEnergy = 3*sumOfPower/4;
-
-        float currentEnergy = 0;
-
-        QMap<QDateTime, float>::iterator i ;
-        QList<QDateTime> importantDates;
-        QDateTime momentOfMaximumPower;
-        float maximumPower = 0;
-
-        for (i = map.begin(); i != map.end(); ++i) {
-            if (i.value() != 0) {
-                // look for maximumPower
-                if (maximumPower < i.value()) {
-                    maximumPower = i.value();
-                    momentOfMaximumPower = QDateTime(i.key());
-                }
-                currentEnergy += i.value();
-                if (importantDates.size() == 0) {
-                    if (currentEnergy > 0) {
-                        importantDates.append(i.key());
-                    }
-                } else if (importantDates.size() == 1) {
-                    if (currentEnergy >= quarterEnergy) {
-                        importantDates.append(i.key());
-                    }
-                } else if (importantDates.size() == 2) {
-                    if (currentEnergy >= halfEnergy) {
-                        importantDates.append(i.key());
-                    }
-                } else if (importantDates.size() == 3) {
-                    if (currentEnergy >= threeQuarterEnergy) {
-                        importantDates.append(i.key());
-                    }
-                }
-            }
-        }
-
-        QMapIterator<QDateTime, float> j(map);
-        j.toBack();
-        while (j.hasPrevious()) {
-            j.previous();
-            if (j.value() != 0) {
-                importantDates.append(j.key());
-                break;
-            }
-        }
-
-        // sometimes, there was no power 'produced', so sunrise and sunrise are not set.
-        if (importantDates.size() < 5) {
-            QDateTime time = QDateTime(map.firstKey());
-            while (importantDates.size() < 5) {
-                importantDates.append(time);
-            }
-        }
-        file->close();
-        return Day(map, importantDates, momentOfMaximumPower, maximumPower, energy);
+        file.close();
+        return Day(QPair<QDateVector, QDataRow>(timeVector, dataVector), energy);
     } else {
-        file->close();
+        file.close();
         return Day();
     }
 

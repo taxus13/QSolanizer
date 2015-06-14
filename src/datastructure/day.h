@@ -1,7 +1,7 @@
 #ifndef DAY_H
 #define DAY_H
 
-#include <QMap>
+//#include <QMap>
 #include <QDateTime>
 #include <QString>
 #include <QDataStream>
@@ -9,16 +9,19 @@
 
 #include <QDebug>
 
+#include "typedefs.h"
+#include "qdatarow.h"
+
 class Day
 {
 public:
-    Day(QMap<QDateTime, float> powerCurve, QList<QDateTime> importantDates, QDateTime momentOfMaximumPower, float maximumPower, float energy);
+    Day(QPair<QDateVector, QDataRow> powerCurve, float energy);
     Day(); //QtConcurrent needs this
     Day(const Day &day); // copy constructor for the "reduced" feature
     ~Day();
 
-    QMap<QDateTime, float> &getPowerCurve();
-    QPair<QVector<double>, QVector<double> > getPowerCurveForPlotting();
+    QPair<QDateVector, QDataRow> &getPowerCurve();
+    QPair<QDataRow, QDataRow > getPowerCurveForPlotting();
     QList<QDateTime> &getImportantDates();
     QDate getDate() const;
     QDateTime getSunrise();
@@ -29,6 +32,8 @@ public:
     float getEnergy();
     float getDuration();
 
+    bool isComplete();
+
     // io
     friend QDataStream &operator <<(QDataStream &out, const Day& day);
     friend QDataStream &operator >>(QDataStream &in, Day& day);
@@ -36,7 +41,8 @@ public:
 
 
 private:
-    QMap<QDateTime, float> powerCurve;
+//    QMap<QDateTime, float> powerCurve;
+    QPair<QDateVector, QDataRow> powerCurve;
     QList<QDateTime> importantDates;
     QDateTime momentOfMaximumPower;
 
@@ -44,7 +50,7 @@ private:
     float energy;
     float duration;
 
-    void calculateDuration();
+    void fillVariables();
 };
 
 

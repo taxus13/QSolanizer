@@ -65,6 +65,8 @@ private:
     QSet<QDate> datesAdded;
     QMap<int, Year> yearData;
 
+    QMap<int, Day> averageDayData;
+
     bool propertiesAvailable;
     SolarPlantProperties spp;
 
