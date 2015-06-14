@@ -15,7 +15,7 @@
 class Day
 {
 public:
-    Day(QPair<QDateVector, QDataRow> powerCurve, QList<QDateTime> importantDates, QDateTime momentOfMaximumPower, float maximumPower, float energy);
+    Day(QPair<QDateVector, QDataRow> powerCurve, float energy);
     Day(); //QtConcurrent needs this
     Day(const Day &day); // copy constructor for the "reduced" feature
     ~Day();
@@ -50,7 +50,7 @@ private:
     float energy;
     float duration;
 
-    void calculateDuration();
+    void fillVariables();
 };
 
 

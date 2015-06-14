@@ -9,6 +9,8 @@ public:
     QDataRow();
     QDataRow(const QVector<double> &copy);
 
+    double getSum();
+
     QDataRow operator+(const QDataRow& right);
     QDataRow operator+=(const QDataRow& right);
     QDataRow operator-(const QDataRow& right);
