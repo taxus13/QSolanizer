@@ -60,6 +60,19 @@ void QSolanizer::initializeVariables()
     this->dayColorsDark.append(Qt::darkYellow);
     this->dayColorsDark.append(Qt::darkGray);
 
+    this->yearColors.append(QColor(129, 227, 227)); //january
+    this->yearColors.append(QColor(104, 176, 176)); // february
+    this->yearColors.append(QColor(129, 255, 125)); // march
+    this->yearColors.append(QColor(59, 255, 60)); //april
+    this->yearColors.append(QColor(38, 189, 60)); // may
+    this->yearColors.append(QColor(230, 250, 7)); // june
+    this->yearColors.append(QColor(250, 137, 7)); // july
+    this->yearColors.append(QColor(252, 75, 5)); // august
+    this->yearColors.append(QColor(252, 129, 5)); // september
+    this->yearColors.append(QColor(196, 98, 0)); //october
+    this->yearColors.append(QColor(133, 70, 7)); // november
+    this->yearColors.append(QColor(45, 45, 45)); // december
+
     this->minEnergyColor = Qt::green;
     this->maxEnergyColor = Qt::red;
 
@@ -370,8 +383,7 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, int pm)
     if (!keepOldGraphs) {
         resetDayPlot();
     }
-
-    int colorKey =  this->shownDates.size() % this->dayColors.size();
+    int colorKey =  this->currentlyShownDates.size() % this->dayColors.size();
 
     Day dd = sp.getDay(date);
 
@@ -402,11 +414,10 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, int pm)
     }
 
     if (((pm & AVERAGE) == AVERAGE) && !this->currentlyShownAverageMonths.contains(date.month())) {
-        QColor color = Qt::black;
         ui->wPowerCurve->addGraph();
         QPair<QVector<double>, QVector<double> > data = sp.getAverageDay(date.month()).getPowerCurveForPlotting();
         ui->wPowerCurve->graph()->setData(data.first, data.second);
-        ui->wPowerCurve->graph()->setPen(QPen(color));
+        ui->wPowerCurve->graph()->setPen(QPen(this->yearColors.at(date.month()-1)));
         ui->wPowerCurve->graph()->addToLegend();
         ui->wPowerCurve->graph()->setName(date.toString("MMMM") + QString(" (Durchschnitt)"));
     }
@@ -425,6 +436,8 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, int pm)
     } else {
         this->ui->lDayFullLoadHours->setText(QString("-"));
     }
+    this->currentlyShownDates.insert(date);
+    this->currentlyShownAverageMonths.insert(date.month());
 
 }
 
@@ -730,20 +743,6 @@ void QSolanizer::plotTotalData()
     QVector<double> years;
     QVector<QString> labels;
 
-    QList<QColor> colors;
-    colors.append(QColor(129, 227, 227)); //january
-    colors.append(QColor(104, 176, 176)); // february
-    colors.append(QColor(129, 255, 125)); // march
-    colors.append(QColor(59, 255, 60)); //april
-    colors.append(QColor(38, 189, 60)); // may
-    colors.append(QColor(230, 250, 7)); // june
-    colors.append(QColor(250, 137, 7)); // july
-    colors.append(QColor(252, 75, 5)); // august
-    colors.append(QColor(252, 129, 5)); // september
-    colors.append(QColor(196, 98, 0)); //october
-    colors.append(QColor(133, 70, 7)); // november
-    colors.append(QColor(45, 45, 45)); // december
-
     for (int i=sp.getBeginningDate().year(); i<=sp.getEndingDate().year(); i++) {
         years << i;
         labels << QString::number(i);
@@ -768,10 +767,10 @@ void QSolanizer::plotTotalData()
     for (int i=1; i<=12; i++) {
         QCPBars *bar = new QCPBars(this->ui->wTotalPlot->xAxis, this->ui->wTotalPlot->yAxis);
         bar->setName(QDate(2015, i, 1).toString("MMMM"));
-        pen.setColor(colors.at(i-1));
+        pen.setColor(this->yearColors.at(i-1));
         bar->setPen(pen);
         bar->addToLegend();
-        QColor color = QColor(colors.at(i-1));
+        QColor color = QColor(this->yearColors.at(i-1));
         color.setAlpha(150);
         bar->setBrush(color);
         bar->setData(years , allEnergyData.at(i-1));
@@ -874,8 +873,6 @@ void QSolanizer::on_calendarWidget_selectionChanged()
     QDate date = this->ui->calendarWidget->selectedDate();
     this->plotDayData(date, this->ui->cMultpleChoice->checkState() == Qt::Checked, this->getCurrentPlottingMode());
     this->shownDates.append(date);
-    this->currentlyShownDates.insert(date);
-    this->currentlyShownAverageMonths.insert(date.month());
 }
 
 void QSolanizer::on_tMonthSelection_itemSelectionChanged()
@@ -918,8 +915,8 @@ void QSolanizer::on_dateEdit_dateChanged(const QDate &date)
 //    QDate date = this->ui->calendarWidget->selectedDate();
     this->plotDayData(date, this->ui->cMultpleChoice->checkState() == Qt::Checked, this->getCurrentPlottingMode());
     this->shownDates.append(date);
-    this->currentlyShownDates.insert(date);
-    this->currentlyShownAverageMonths.insert(date.month());
+//    this->currentlyShownDates.insert(date);
+//    this->currentlyShownAverageMonths.insert(date.month());
 }
 
 void QSolanizer::on_dateEditStart_userDateChanged(const QDate &date)

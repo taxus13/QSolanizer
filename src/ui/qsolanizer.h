@@ -73,6 +73,7 @@ private:
     QList<QColor> someColors;
     QList<QColor> dayColors;
     QList<QColor> dayColorsDark;
+    QList<QColor> yearColors;
 
     QColor maxEnergyColor;
     QColor minEnergyColor;
