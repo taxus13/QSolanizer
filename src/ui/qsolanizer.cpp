@@ -1005,40 +1005,50 @@ void QSolanizer::on_cCompareYears_stateChanged(int checkState)
 
 void QSolanizer::monthItemClicked(QCPAbstractPlottable *plottable, QMouseEvent *event)
 {
-    QCPStatisticalBox *box = dynamic_cast<QCPStatisticalBox*>(plottable);
-    QCPBarsEnhanced *bars = dynamic_cast<QCPBarsEnhanced*>(plottable);
-    int offset = 0;
-    if (box) {
-        offset = qRound(box->key());
-    } else if (bars) {
-        offset = qRound(bars->getKeyValueOfPixelPosition(event->x(), event->y()));
+    if (event->button() == Qt::LeftButton) {
+        QCPStatisticalBox *box = dynamic_cast<QCPStatisticalBox*>(plottable);
+        QCPBarsEnhanced *bars = dynamic_cast<QCPBarsEnhanced*>(plottable);
+        int offset = 0;
+        if (box) {
+            offset = qRound(box->key());
+        } else if (bars) {
+            offset = qRound(bars->getKeyValueOfPixelPosition(event->x(), event->y()));
+        }
+        plotDayData(startMonthPlot.addDays(offset), false);
+        this->ui->tabWidget->setCurrentIndex(0);
+        event->accept();
+    } else {
+        event->ignore();
     }
-    plotDayData(startMonthPlot.addDays(offset), false);
-    this->ui->tabWidget->setCurrentIndex(0);
 }
 
 void QSolanizer::yearItemClicked(QCPAbstractPlottable *plottable, QMouseEvent *event)
 {
-    QCPBarsEnhanced *bars = dynamic_cast<QCPBarsEnhanced*>(plottable);
-    int offset = 0;
-    int year = 0;
-    if (bars) {
-        offset = offset - 1 + qRound(bars->getKeyValueOfPixelPosition(event->x(), event->y()));
-        year = bars->getDataValue();
+    if (event->button() == Qt::LeftButton) {
+        QCPBarsEnhanced *bars = dynamic_cast<QCPBarsEnhanced*>(plottable);
+        int offset = 0;
+        int year = 0;
+        if (bars) {
+            offset = offset - 1 + qRound(bars->getKeyValueOfPixelPosition(event->x(), event->y()));
+            year = bars->getDataValue();
+        }
+        if (year == 0) {
+            year = this->startYearPlot.year();
+        }
+        QDate start = QDate(year, this->startYearPlot.month()+offset, 1);
+        QDate end = start.addMonths(1).addDays(-1);
+        if (start < sp.getBeginningDate()) {
+            start = sp.getBeginningDate();
+        }
+        if (end > sp.getEndingDate()) {
+            end = sp.getEndingDate();
+        }
+        this->showCustomRange(start, end);
+        this->ui->tabWidget->setCurrentIndex(1);
+        event->accept();
+    } else {
+        event->ignore();
     }
-    if (year == 0) {
-        year = this->startYearPlot.year();
-    }
-    QDate start = QDate(year, this->startYearPlot.month()+offset, 1);
-    QDate end = start.addMonths(1).addDays(-1);
-    if (start < sp.getBeginningDate()) {
-        start = sp.getBeginningDate();
-    }
-    if (end > sp.getEndingDate()) {
-        end = sp.getEndingDate();
-    }
-    this->showCustomRange(start, end);
-    this->ui->tabWidget->setCurrentIndex(1);
 }
 
 void QSolanizer::totalItemClicked(QCPAbstractPlottable *plottable, QMouseEvent *event)
