@@ -12,13 +12,14 @@
 #include "math.h"
 #include "typedefs.h"
 #include "qdatarow.h"
+#include "day.h"
 
 class SolarPlantProperties
 {
 public:
     SolarPlantProperties(double latitude, double beta, double gamma, double area, double efficiency, double peakPower);
     SolarPlantProperties();
-    QPair<QVector<double>, QVector<double> > getTheoreticalPowerCurve(QDate &date, bool cutPower);
+    Day getTheoreticalPowerCurve(QDate &date, bool cutPower);
     double getLatitude();
     double getBeta();
     double getGamma();

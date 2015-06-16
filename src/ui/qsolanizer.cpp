@@ -405,7 +405,8 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, int pm)
         QColor colorAlpha = color;
         colorAlpha.setAlpha(20);
         ui->wPowerCurve->addGraph();
-        QPair<QVector<double>, QVector<double> > data = sp.getSolarPlantProperties().getTheoreticalPowerCurve(date, true);
+        Day d = sp.getSolarPlantProperties().getTheoreticalPowerCurve(date, true);
+        QPair<QVector<double>, QVector<double> > data = d.getPowerCurveForPlotting();
         ui->wPowerCurve->graph()->setData(data.first, data.second);
         ui->wPowerCurve->graph()->setPen(QPen(color));
         ui->wPowerCurve->graph()->setBrush(QBrush(colorAlpha));

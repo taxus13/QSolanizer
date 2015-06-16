@@ -21,7 +21,7 @@ SolarPlantProperties::SolarPlantProperties() {
     this->peakPower = 0;
 }
 
-QPair<QVector<double>, QVector<double> > SolarPlantProperties::getTheoreticalPowerCurve(QDate &date, bool cutPower)
+Day SolarPlantProperties::getTheoreticalPowerCurve(QDate &date, bool cutPower)
 {
     QDate endOfLastYear = QDate(date.year()-1, 12, 31);
     int daysSinceYearStart = endOfLastYear.daysTo(date);
@@ -36,30 +36,37 @@ QPair<QVector<double>, QVector<double> > SolarPlantProperties::getTheoreticalPow
     double hourOfSunrise = 12-timeToZenit;
     double hourOfSunset = 12+timeToZenit;
 
+    float energy = 0;
 
-    QDataRow time;
+    QTime sunrise((int)hourOfSunrise, (int)(hourOfSunrise-(int)hourOfSunrise)*60);
+    QTime sunset((int)hourOfSunset, (int)(hourOfSunset-(int)hourOfSunset)*60);
+
+    QDateVector time;
     QDataRow power;
 
-    double currentTime = hourOfSunrise;
+    QTime currentTime = sunrise;
 
-    while (currentTime < hourOfSunset) {
-        time << currentTime * 3600 * 1000;
-        double currentPower = this->calculatePower(currentTime, delta);
+    while (currentTime < sunset) {
+        time << QDateTime(date, currentTime);
+        double currentPower = this->calculatePower(currentTime.msecsSinceStartOfDay()/(1000.0*3600), delta);
         if (cutPower && (currentPower > peakPower)) {
             currentPower = peakPower;
         }
         power << currentPower;
-//        qDebug() << currentTime << currentPower;
-        currentTime += 5.0/60;
+        energy += currentPower*5/60;
+        currentTime = currentTime.addSecs(5*60);
     }
+    power << .0;
+    time << QDateTime(date, currentTime); // trailing 0
 
     QTime stime(12, 0);
     QDateTime dt(date, stime);
-//    dt.setTimeZone(QTimeZone);
     if (dt.isDaylightTime()) {
-        time+= 3600 * 1000;
+        for(int i=0; i<time.size(); i++) {
+            time[i]=time[i].addSecs(3600);
+        }
     }
-    return QPair<QVector<double>, QVector<double> >(time, power);
+    return Day(QPair<QDateVector, QDataRow>(time, power), energy);
 }
 
 double SolarPlantProperties::calculatePower(double hour, double declination)

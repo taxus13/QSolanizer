@@ -28,14 +28,14 @@ Please provide some exported files from your power converter, so other power con
 * ~~make bars clickable~~ done
 * ~~additional user input to calculate kWh/kWp~~ done
 * ~~show theoretical power curve~~ done
-* add dialog which shows missing data (gaps)
 * remove single day plot if multiple plots are shown
 * create installer for windows users
-* show and calculate average day (per month) 
+* ~~show and calculate average day (per month)~~ done
 
 ### UI behavior
 * do not threat right clicks the same way as left clicks
 * set a fixed size to the left coloumn
+* add dialog which shows missing data (gaps) - delayed
 
 ### Later
 
