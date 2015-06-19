@@ -70,6 +70,8 @@ private:
     static const int fileFormatVersion = 4;
     QString version;
 
+    QMenu *dayContextMenu;
+
     SolarPart sp;
     QList<QColor> someColors;
     QList<QColor> dayColors;
@@ -78,7 +80,6 @@ private:
 
     QColor maxEnergyColor;
     QColor minEnergyColor;
-
 
     QString path;
     QString filename;
@@ -123,6 +124,7 @@ private slots:
     void yearItemClicked(QCPAbstractPlottable *plottable, QMouseEvent* event);
     void totalItemClicked(QCPAbstractPlottable *plottable, QMouseEvent* event);
     void legendItemClicked(QCPLegend *legend, QCPAbstractLegendItem *legendItem, QMouseEvent* event);
+    void contextMenuTriggered(QAction *action);
     void on_actionSolarPlantProperties_triggered();
     void on_cRealCurve_clicked();
     void on_cTheoreticalCurve_clicked();

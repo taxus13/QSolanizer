@@ -28,17 +28,17 @@ Please provide some exported files from your power converter, so other power con
 * ~~make bars clickable~~ done
 * ~~additional user input to calculate kWh/kWp~~ done
 * ~~show theoretical power curve~~ done
-* remove single day plot if multiple plots are shown
-* create installer for windows users
+* ~~remove single day plot if multiple plots are shown~~ done
 * ~~show and calculate average day (per month)~~ done
+* final bugfixes/ consistent UI behaviour
 
 ### UI behavior
 * do not threat right clicks the same way as left clicks
 * set a fixed size to the left coloumn
-* add dialog which shows missing data (gaps) - delayed
-
 ### Later
 
 * save colors in settings file (partially done)
 * do not reread everything when additional data is added
 * restructure project, so that Solarpart also contains the IO
+* add dialog which shows missing data (gaps) - delayed
+* create installer for windows users - delayed

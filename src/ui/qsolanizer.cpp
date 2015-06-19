@@ -1089,8 +1089,8 @@ void QSolanizer::totalItemClicked(QCPAbstractPlottable *plottable, QMouseEvent *
 
 void QSolanizer::legendItemClicked(QCPLegend *legend, QCPAbstractLegendItem *legendItem, QMouseEvent *event)
 {
+    QCPPlottableLegendItem *plottableItem = dynamic_cast<QCPPlottableLegendItem*>(legendItem);
     if (event->button() == Qt::LeftButton) {
-        QCPPlottableLegendItem *plottableItem = dynamic_cast<QCPPlottableLegendItem*>(legendItem);
         this->lastClickedItem = plottableItem;
         if (plottableItem) {
             int type = plottableItem->plottable()->property("type").toInt();
@@ -1109,11 +1109,25 @@ void QSolanizer::legendItemClicked(QCPLegend *legend, QCPAbstractLegendItem *leg
 //        this->lastClickedItem = plottableItem;
         event->accept();
     } else if (event->button() == Qt::RightButton) {
-        // open context menu
+        this->dayContextMenu = new QMenu("QSolanizer");
+        QAction *action = this->dayContextMenu->addAction("Plot entfernen");
+        action->setData((int)plottableItem->plottable());
+        connect(this->dayContextMenu, &QMenu::triggered, this, &QSolanizer::contextMenuTriggered);
+        this->dayContextMenu->exec(QCursor::pos());
         event->accept();
     } else {
         event->ignore();
     }
+}
+
+void QSolanizer::contextMenuTriggered(QAction *action)
+{
+    QCPAbstractPlottable* plottable = (QCPAbstractPlottable*) action->data().toInt();
+    this->shownDates.removeOne(plottable->property("date").toDate());
+    this->replotDayData(this->getCurrentPlottingMode());
+//    this->ui->wPowerCurve->removePlottable(plottable);
+//    this->ui->wPowerCurve->replot();
+
 }
 
 void QSolanizer::on_actionSolarPlantProperties_triggered()
