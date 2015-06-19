@@ -14,9 +14,9 @@ QDataRow::QDataRow(const QVector<double> &copy)
 
 double QDataRow::getSum()
 {
-    double sum;
-    foreach (double d, *this) {
-        sum+=d;
+    double sum = 0;
+    for (int i=0; i<this->size(); i++) {
+        sum+=this->at(i);
     }
     return sum;
 }

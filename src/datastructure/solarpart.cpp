@@ -71,7 +71,7 @@ void SolarPart::doFinalStatistics()
     foreach (int key, accumulatedPowerCurves.keys()) {
         accumulatedPowerCurves[key]/=dayCount[key];
         float energy = (float) accumulatedPowerCurves[key].getSum();
-        energy *= (5/60);
+        energy *= (5/60.0);
         averageDayData[key] = Day(QPair<QDateVector, QDataRow>(dateVector, accumulatedPowerCurves[key]), energy);
 
     }

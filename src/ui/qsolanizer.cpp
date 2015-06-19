@@ -26,7 +26,7 @@ QSolanizer::~QSolanizer()
 
 void QSolanizer::initializeVariables()
 {
-    this->version = QString("0.13.0");
+    this->version = QString("0.14.0");
     this->filename = "qsolanizer.dat";
     this->propertyname = "qsolanizer.ini";
 
@@ -80,8 +80,12 @@ void QSolanizer::initializeVariables()
         dayTicksMSecs << i * 1000 * 3600;
         dayLabelMSecs << QString::number(i, 'f', 0) + ":00";
     }
+
+    this->lastClickedItem = 0;
+
     connect(ui->wMonthPlot, SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)), this, SLOT(monthItemClicked(QCPAbstractPlottable*, QMouseEvent*)));
     connect(ui->wYearPlot, &QCustomPlot::plottableClick, this, &QSolanizer::yearItemClicked);
+    connect(ui->wPowerCurve, &QCustomPlot::legendClick, this, &QSolanizer::legendItemClicked);
 }
 
 void QSolanizer::readSettings()
@@ -154,7 +158,7 @@ void QSolanizer::initializePlots()
     ui->wPowerCurve->legend->setFont(legendFont);
 
 
-    ui->wPowerCurve->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+    ui->wPowerCurve->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectLegend | QCP::iSelectPlottables);
     ui->wPowerCurve->axisRect()->setRangeZoom(Qt::Horizontal);
     ui->wPowerCurve->axisRect()->setRangeDrag(Qt::Horizontal);
 
@@ -378,10 +382,29 @@ void QSolanizer::writeSerializedData()
     file.close();
 }
 
+void QSolanizer::fillDayGroupbox(Day &dd)
+{
+    ui->lDayDuration->setText(QString("%1 h").arg(dd.getDuration(),0, 'f', 2));
+    ui->lDayEnergy->setText(QString("%1 kWh").arg(dd.getEnergy(),0,'f',2));
+    ui->lPeakpower->setText(QString("%1 kW").arg(dd.getMaximumPower(), 0, 'f', 2));
+    ui->lSunrise->setText(dd.getSunrise().toString("HH:mm"));
+    ui->lSunset->setText(dd.getSunset().toString("HH:mm"));
+
+    if (sp.getSolarPlantProperties().getPeakPower() > 0) {
+        this->ui->lDayFullLoadHours->setText(QString("%1 h").arg(dd.getEnergy()/sp.getSolarPlantProperties().getPeakPower(), 0, 'f', 1));
+    } else {
+        this->ui->lDayFullLoadHours->setText(QString("-"));
+    }
+}
+
 void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, int pm)
 {
     if (!keepOldGraphs) {
         resetDayPlot();
+    }
+    if (this->lastClickedItem) {
+        this->lastClickedItem->setSelected(false);
+        this->lastClickedItem->plottable()->setSelected(false);
     }
     int colorKey =  this->currentlyShownDates.size() % this->dayColors.size();
 
@@ -398,6 +421,8 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, int pm)
         ui->wPowerCurve->graph()->setBrush(QBrush(colorAlpha));
         ui->wPowerCurve->graph()->addToLegend();
         ui->wPowerCurve->graph()->setName(date.toString("dd.MM.yyyy"));
+        ui->wPowerCurve->graph()->setProperty("type", REAL);
+        ui->wPowerCurve->graph()->setProperty("date", date);
     }
 
     if (((pm & THEORETICAL) == THEORETICAL) && !this->currentlyShownDates.contains(date)) {
@@ -412,6 +437,8 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, int pm)
         ui->wPowerCurve->graph()->setBrush(QBrush(colorAlpha));
         ui->wPowerCurve->graph()->addToLegend();
         ui->wPowerCurve->graph()->setName(date.toString("dd.MM.yyyy") + QString(" (theoretisch)"));
+        ui->wPowerCurve->graph()->setProperty("type", THEORETICAL);
+        ui->wPowerCurve->graph()->setProperty("date", date);
     }
 
     if (((pm & AVERAGE) == AVERAGE) && !this->currentlyShownAverageMonths.contains(date.month())) {
@@ -421,22 +448,15 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, int pm)
         ui->wPowerCurve->graph()->setPen(QPen(this->yearColors.at(date.month()-1)));
         ui->wPowerCurve->graph()->addToLegend();
         ui->wPowerCurve->graph()->setName(date.toString("MMMM") + QString(" (Durchschnitt)"));
+        ui->wPowerCurve->graph()->setProperty("type", AVERAGE);
+        ui->wPowerCurve->graph()->setProperty("date", date);
     }
 
     ui->wPowerCurve->replot();
 
-    // fill groupbox
-    ui->lDayDuration->setText(QString("%1 h").arg(dd.getDuration(),0, 'f', 2));
-    ui->lDayEnergy->setText(QString("%1 kWh").arg(dd.getEnergy(),0,'f',2));
-    ui->lPeakpower->setText(QString("%1 kW").arg(dd.getMaximumPower(), 0, 'f', 2));
-    ui->lSunrise->setText(dd.getSunrise().toString("HH:mm"));
-    ui->lSunset->setText(dd.getSunset().toString("HH:mm"));
 
-    if (sp.getSolarPlantProperties().getPeakPower() > 0) {
-        this->ui->lDayFullLoadHours->setText(QString("%1 h").arg(dd.getEnergy()/sp.getSolarPlantProperties().getPeakPower(), 0, 'f', 1));
-    } else {
-        this->ui->lDayFullLoadHours->setText(QString("-"));
-    }
+    // fill groupbox
+    this->fillDayGroupbox(dd);
     this->currentlyShownDates.insert(date);
     this->currentlyShownAverageMonths.insert(date.month());
 
@@ -446,6 +466,7 @@ void QSolanizer::replotDayData(int pm)
 {
     this->ui->wPowerCurve->clearGraphs();
     this->ui->wPowerCurve->replot();
+    this->lastClickedItem = 0;
     this->currentlyShownDates.clear();
     this->currentlyShownAverageMonths.clear();
     foreach (QDate date, this->shownDates) {
@@ -459,6 +480,7 @@ void QSolanizer::resetDayPlot()
 {
     this->ui->wPowerCurve->clearGraphs();
     this->ui->wPowerCurve->replot();
+    this->lastClickedItem = 0;
     this->shownDates.clear();
     this->currentlyShownDates.clear();
     this->currentlyShownAverageMonths.clear();
@@ -963,6 +985,10 @@ void QSolanizer::on_actionReload_triggered()
             this->initializePlots();
             this->writeSerializedData();
             this->enableAllInputWidgets();
+            QFileInfo fileInfo(QDir(this->path).absoluteFilePath(this->propertyname));
+            if (fileInfo.exists()) {
+                this->sp.getSolarPlantProperties().readProperties(QDir(this->path).absoluteFilePath(this->propertyname));
+            }
         }
     }
 }
@@ -975,6 +1001,10 @@ void QSolanizer::on_actionOpenNew_triggered()
             this->initializePlots();
             this->writeSerializedData();
             this->enableAllInputWidgets();
+            QFileInfo fileInfo(QDir(this->path).absoluteFilePath(this->propertyname));
+            if (fileInfo.exists()) {
+                this->sp.getSolarPlantProperties().readProperties(QDir(this->path).absoluteFilePath(this->propertyname));
+            }
         }
     }
 }
@@ -1055,6 +1085,35 @@ void QSolanizer::yearItemClicked(QCPAbstractPlottable *plottable, QMouseEvent *e
 void QSolanizer::totalItemClicked(QCPAbstractPlottable *plottable, QMouseEvent *event)
 {
 
+}
+
+void QSolanizer::legendItemClicked(QCPLegend *legend, QCPAbstractLegendItem *legendItem, QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton) {
+        QCPPlottableLegendItem *plottableItem = dynamic_cast<QCPPlottableLegendItem*>(legendItem);
+        this->lastClickedItem = plottableItem;
+        if (plottableItem) {
+            int type = plottableItem->plottable()->property("type").toInt();
+            QDate date = plottableItem->plottable()->property("date").toDate();
+            Day d;
+            if (type == REAL) {
+                d = sp.getDay(date);
+            } else if (type == THEORETICAL) {
+                d = sp.getSolarPlantProperties().getTheoreticalPowerCurve(date, false);
+            } else if (type == AVERAGE){
+                d = sp.getAverageDay(date.month());
+            }
+            this->fillDayGroupbox(d);
+            plottableItem->plottable()->setSelected(true);
+        }
+//        this->lastClickedItem = plottableItem;
+        event->accept();
+    } else if (event->button() == Qt::RightButton) {
+        // open context menu
+        event->accept();
+    } else {
+        event->ignore();
+    }
 }
 
 void QSolanizer::on_actionSolarPlantProperties_triggered()

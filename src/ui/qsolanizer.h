@@ -36,6 +36,7 @@ private:
     void writeSettings();
     // widget operations
     void fillDataWidgets();
+    void fillDayGroupbox(Day &dd);
     void drawColorScale();
 
     void disableAllInputWidgets();
@@ -66,7 +67,7 @@ private:
 
 
     //variables
-    static const int fileFormatVersion = 3;
+    static const int fileFormatVersion = 4;
     QString version;
 
     SolarPart sp;
@@ -93,6 +94,9 @@ private:
     QSet<QDate> currentlyShownDates;
     QSet<int> currentlyShownAverageMonths;
 
+    // state
+    QCPPlottableLegendItem *lastClickedItem;
+
     // information which data is currently plotted and shown
     QDate startMonthPlot;
     QDate startYearPlot;
@@ -118,6 +122,7 @@ private slots:
     void monthItemClicked(QCPAbstractPlottable *plottable, QMouseEvent* event);
     void yearItemClicked(QCPAbstractPlottable *plottable, QMouseEvent* event);
     void totalItemClicked(QCPAbstractPlottable *plottable, QMouseEvent* event);
+    void legendItemClicked(QCPLegend *legend, QCPAbstractLegendItem *legendItem, QMouseEvent* event);
     void on_actionSolarPlantProperties_triggered();
     void on_cRealCurve_clicked();
     void on_cTheoreticalCurve_clicked();
