@@ -238,7 +238,7 @@ void QSolanizer::fillDataWidgets() {
     this->ui->listWidget->setFixedWidth(100);
     // show some data, so the plots are not empty
     this->plotDayData(sp.getEndingDate(), false);
-
+    this->shownDates.append(sp.getEndingDate());
 
     this->plotYearData(sp.getEndingDate().year());
     this->plotTotalData();
@@ -1108,13 +1108,13 @@ void QSolanizer::legendItemClicked(QCPLegend *legend, QCPAbstractLegendItem *leg
         }
 //        this->lastClickedItem = plottableItem;
         event->accept();
-    } else if (event->button() == Qt::RightButton) {
-        this->dayContextMenu = new QMenu("QSolanizer");
-        QAction *action = this->dayContextMenu->addAction("Plot entfernen");
-        action->setData((int)plottableItem->plottable());
-        connect(this->dayContextMenu, &QMenu::triggered, this, &QSolanizer::contextMenuTriggered);
-        this->dayContextMenu->exec(QCursor::pos());
-        event->accept();
+//    } else if (event->button() == Qt::RightButton) {
+//        this->dayContextMenu = new QMenu("QSolanizer");
+//        QAction *action = this->dayContextMenu->addAction("Plot entfernen");
+//        action->setData((int)plottableItem->plottable());
+//        connect(this->dayContextMenu, &QMenu::triggered, this, &QSolanizer::contextMenuTriggered);
+//        this->dayContextMenu->exec(QCursor::pos());
+//        event->accept();
     } else {
         event->ignore();
     }
