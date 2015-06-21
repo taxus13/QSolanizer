@@ -11,8 +11,8 @@ QSolanizer::QSolanizer(QWidget *parent) :
     this->readSettings();
     if (this->readSerializedData()) {
         // if it is possible to load data, show it
-        this->fillDataWidgets();
         this->initializePlots();
+        this->fillDataWidgets();
     } else {
         // present empty UI
         this->disableAllInputWidgets();
@@ -445,7 +445,9 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, int pm)
         ui->wPowerCurve->addGraph();
         QPair<QVector<double>, QVector<double> > data = sp.getAverageDay(date.month()).getPowerCurveForPlotting();
         ui->wPowerCurve->graph()->setData(data.first, data.second);
-        ui->wPowerCurve->graph()->setPen(QPen(this->yearColors.at(date.month()-1)));
+        QPen pen = QPen(this->yearColors.at(date.month()-1));
+        pen.setWidth(3);
+        ui->wPowerCurve->graph()->setPen(pen);
         ui->wPowerCurve->graph()->addToLegend();
         ui->wPowerCurve->graph()->setName(date.toString("MMMM") + QString(" (Durchschnitt)"));
         ui->wPowerCurve->graph()->setProperty("type", AVERAGE);
@@ -1045,7 +1047,7 @@ void QSolanizer::monthItemClicked(QCPAbstractPlottable *plottable, QMouseEvent *
         } else if (bars) {
             offset = qRound(bars->getKeyValueOfPixelPosition(event->x(), event->y()));
         }
-        plotDayData(startMonthPlot.addDays(offset), false);
+        this->plotDayData(startMonthPlot.addDays(offset), false, this->getCurrentPlottingMode());
         this->ui->tabWidget->setCurrentIndex(0);
         event->accept();
     } else {
@@ -1075,6 +1077,10 @@ void QSolanizer::yearItemClicked(QCPAbstractPlottable *plottable, QMouseEvent *e
             end = sp.getEndingDate();
         }
         this->showCustomRange(start, end);
+        this->ui->dateEditEnd->setMinimumDate(start);
+        this->ui->dateEditStart->setMaximumDate(end);
+        this->ui->dateEditStart->setDate(start);
+        this->ui->dateEditEnd->setDate(end);
         this->ui->tabWidget->setCurrentIndex(1);
         event->accept();
     } else {
@@ -1084,7 +1090,7 @@ void QSolanizer::yearItemClicked(QCPAbstractPlottable *plottable, QMouseEvent *e
 
 void QSolanizer::totalItemClicked(QCPAbstractPlottable *plottable, QMouseEvent *event)
 {
-
+    event->ignore();
 }
 
 void QSolanizer::legendItemClicked(QCPLegend *legend, QCPAbstractLegendItem *legendItem, QMouseEvent *event)
