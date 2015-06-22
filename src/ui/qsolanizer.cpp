@@ -260,6 +260,7 @@ void QSolanizer::disableAllInputWidgets()
     this->ui->dateEdit->setEnabled(false);
     this->ui->cMultpleChoice->setEnabled(false);
     this->ui->bReset->setEnabled(false);
+    this->ui->gPlottingMode->setEnabled(false);
 
     //tab "month"
     this->ui->tMonthSelection->setEnabled(false);
@@ -272,6 +273,10 @@ void QSolanizer::disableAllInputWidgets()
     this->ui->listWidget->setEnabled(false);
     this->ui->cCompareYears->setEnabled(false);
 
+    // menu
+    this->ui->actionSolarPlantProperties->setEnabled(false);
+    this->ui->actionReload->setEnabled(false);
+
 }
 
 void QSolanizer::enableAllInputWidgets()
@@ -281,6 +286,7 @@ void QSolanizer::enableAllInputWidgets()
     this->ui->dateEdit->setEnabled(true);
     this->ui->cMultpleChoice->setEnabled(true);
     this->ui->bReset->setEnabled(true);
+    this->ui->gPlottingMode->setEnabled(true);
 
     //tab "month"
     this->ui->tMonthSelection->setEnabled(true);
@@ -292,6 +298,10 @@ void QSolanizer::enableAllInputWidgets()
     // tab "year"
     this->ui->listWidget->setEnabled(true);
     this->ui->cCompareYears->setEnabled(true);
+
+    // menu
+    this->ui->actionSolarPlantProperties->setEnabled(true);
+    this->ui->actionReload->setEnabled(true);
 }
 
 bool QSolanizer::getProperDir(bool changeDir)

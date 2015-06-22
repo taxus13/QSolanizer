@@ -65,7 +65,7 @@
                    <item row="0" column="1">
                     <widget class="QLabel" name="lSunrise">
                      <property name="text">
-                      <string>TextLabel</string>
+                      <string>-</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -82,7 +82,7 @@
                    <item row="1" column="1">
                     <widget class="QLabel" name="lSunset">
                      <property name="text">
-                      <string>TextLabel</string>
+                      <string>-</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -99,7 +99,7 @@
                    <item row="2" column="1">
                     <widget class="QLabel" name="lPeakpower">
                      <property name="text">
-                      <string>TextLabel</string>
+                      <string>-</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -116,7 +116,7 @@
                    <item row="3" column="1">
                     <widget class="QLabel" name="lDayEnergy">
                      <property name="text">
-                      <string>TextLabel</string>
+                      <string>-</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -133,7 +133,7 @@
                    <item row="4" column="1">
                     <widget class="QLabel" name="lDayDuration">
                      <property name="text">
-                      <string>TextLabel</string>
+                      <string>-</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -150,7 +150,7 @@
                    <item row="5" column="1">
                     <widget class="QLabel" name="lDayFullLoadHours">
                      <property name="text">
-                      <string>TextLabel</string>
+                      <string>-</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -211,7 +211,7 @@
                    </layout>
                   </item>
                   <item>
-                   <widget class="QGroupBox" name="groupBox_4">
+                   <widget class="QGroupBox" name="gPlottingMode">
                     <property name="title">
                      <string>Anzeigemodus</string>
                     </property>
@@ -295,7 +295,7 @@
                    <item row="0" column="1">
                     <widget class="QLabel" name="lMonthSunhours">
                      <property name="text">
-                      <string>TextLabel</string>
+                      <string>-</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -305,7 +305,7 @@
                    <item row="1" column="1">
                     <widget class="QLabel" name="lMonthEnergy">
                      <property name="text">
-                      <string>TextLabel</string>
+                      <string>-</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -329,7 +329,7 @@
                    <item row="2" column="1">
                     <widget class="QLabel" name="lMonthFullLoadHours">
                      <property name="text">
-                      <string>TextLabel</string>
+                      <string>-</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -360,7 +360,7 @@
                      <item>
                       <widget class="QLabel" name="lMaxEnergy">
                        <property name="text">
-                        <string>TextLabel</string>
+                        <string>-</string>
                        </property>
                       </widget>
                      </item>
@@ -380,7 +380,7 @@
                      <item>
                       <widget class="QLabel" name="lHalfEnergy">
                        <property name="text">
-                        <string>TextLabel</string>
+                        <string>-</string>
                        </property>
                       </widget>
                      </item>
@@ -400,7 +400,7 @@
                      <item>
                       <widget class="QLabel" name="lMinEnergy">
                        <property name="text">
-                        <string>TextLabel</string>
+                        <string>-</string>
                        </property>
                       </widget>
                      </item>
@@ -606,7 +606,7 @@
                    <item row="3" column="1">
                     <widget class="QLabel" name="lYearEnergy">
                      <property name="text">
-                      <string>TextLabel</string>
+                      <string>-</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -616,7 +616,7 @@
                    <item row="0" column="1">
                     <widget class="QLabel" name="lYearDuration">
                      <property name="text">
-                      <string>TextLabel</string>
+                      <string>-</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -633,7 +633,7 @@
                    <item row="4" column="1">
                     <widget class="QLabel" name="lYearFullLoadHours">
                      <property name="text">
-                      <string>TextLabel</string>
+                      <string>-</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -781,7 +781,7 @@
                    <item row="3" column="1" colspan="2">
                     <widget class="QLabel" name="lTotalEnergy">
                      <property name="text">
-                      <string>TextLabel</string>
+                      <string>-</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -791,7 +791,7 @@
                    <item row="2" column="2">
                     <widget class="QLabel" name="lTotalDuration">
                      <property name="text">
-                      <string>TextLabel</string>
+                      <string>-</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -808,7 +808,7 @@
                    <item row="4" column="2">
                     <widget class="QLabel" name="lTotalFullLoadHours">
                      <property name="text">
-                      <string>TextLabel</string>
+                      <string>-</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -834,7 +834,7 @@
                    <item row="0" column="1">
                     <widget class="QLabel" name="lTotalBegin">
                      <property name="text">
-                      <string>TextLabel</string>
+                      <string>-</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -851,7 +851,7 @@
                    <item row="1" column="1">
                     <widget class="QLabel" name="lTotalEnd">
                      <property name="text">
-                      <string>TextLabel</string>
+                      <string>-</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -861,7 +861,7 @@
                    <item row="2" column="1">
                     <widget class="QLabel" name="lTotalData">
                      <property name="text">
-                      <string>TextLabel</string>
+                      <string>-</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -917,7 +917,7 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuDatei">
+   <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>Datei</string>
     </property>
@@ -928,14 +928,14 @@
     <addaction name="separator"/>
     <addaction name="actionClose"/>
    </widget>
-   <widget class="QMenu" name="menuHilfe">
+   <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Hilfe</string>
     </property>
     <addaction name="actionAbout"/>
    </widget>
-   <addaction name="menuDatei"/>
-   <addaction name="menuHilfe"/>
+   <addaction name="menuFile"/>
+   <addaction name="menuHelp"/>
   </widget>
   <action name="actionReload">
    <property name="text">
@@ -943,6 +943,9 @@
    </property>
   </action>
   <action name="actionOpenNew">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>neue Anlage öffnen</string>
    </property>
