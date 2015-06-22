@@ -35,7 +35,6 @@ Day SolarPlantProperties::getTheoreticalPowerCurve(QDate &date, bool cutPower)
 
     double hourOfSunrise = 12-timeToZenit;
     double hourOfSunset = 12+timeToZenit;
-    qDebug() << timeToZenit << hourOfSunrise << hourOfSunset;
 
     float energy = 0;
 
@@ -46,16 +45,20 @@ Day SolarPlantProperties::getTheoreticalPowerCurve(QDate &date, bool cutPower)
     QDataRow power;
 
     QTime currentTime = sunrise;
+    double currentPower = 0;
 
-    while (currentTime <= sunset) {
+    while ((currentTime <= sunset) || (currentPower >= 0)) {
         time << QDateTime(date, currentTime);
-        double currentPower = this->calculatePower(currentTime.msecsSinceStartOfDay()/(1000.0*3600), delta);
-        if (cutPower && (currentPower > peakPower)) {
-            currentPower = peakPower;
+        currentPower = this->calculatePower(currentTime.msecsSinceStartOfDay()/(1000.0*3600), delta);
+        if (currentPower >= 0) {
+            if (cutPower && (currentPower > peakPower)) {
+                currentPower = peakPower;
+            }
+            power << currentPower;
+            energy += currentPower*5/60;
         }
-        power << currentPower;
-        energy += currentPower*5/60;
         currentTime = currentTime.addSecs(5*60);
+
     }
     power << .0;
     time << QDateTime(date, currentTime); // trailing 0
@@ -67,6 +70,8 @@ Day SolarPlantProperties::getTheoreticalPowerCurve(QDate &date, bool cutPower)
             time[i]=time[i].addSecs(3600);
         }
     }
+    time.insert(0, time[0].addSecs(-300));
+    power.insert(0, 0);
     return Day(QPair<QDateVector, QDataRow>(time, power), energy);
 }
 
