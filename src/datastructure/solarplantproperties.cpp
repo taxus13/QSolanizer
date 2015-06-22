@@ -35,6 +35,7 @@ Day SolarPlantProperties::getTheoreticalPowerCurve(QDate &date, bool cutPower)
 
     double hourOfSunrise = 12-timeToZenit;
     double hourOfSunset = 12+timeToZenit;
+    qDebug() << timeToZenit << hourOfSunrise << hourOfSunset;
 
     float energy = 0;
 
@@ -46,7 +47,7 @@ Day SolarPlantProperties::getTheoreticalPowerCurve(QDate &date, bool cutPower)
 
     QTime currentTime = sunrise;
 
-    while (currentTime < sunset) {
+    while (currentTime <= sunset) {
         time << QDateTime(date, currentTime);
         double currentPower = this->calculatePower(currentTime.msecsSinceStartOfDay()/(1000.0*3600), delta);
         if (cutPower && (currentPower > peakPower)) {
@@ -82,21 +83,36 @@ double SolarPlantProperties::calculatePower(double hour, double declination)
 
 double SolarPlantProperties::getOmega(double declination)
 {
-    double omega = 0; //rad
-    double smallestSunAngle = 999; // rad
+    double w0 = qDegreesToRadians(0.0);
 
-    for (double omega_deg = 0; omega_deg < 180; omega_deg++) {
-        double omega_rad = qDegreesToRadians(omega_deg);
-        double sunAngle = sin(this->beta)*cos(this->gamma)*(cos(declination)*cos(omega_rad)*sin(this->latitude)-sin(declination)*cos(this->latitude))
-                    +sin(this->beta)*sin(this->gamma)*cos(declination)*sin(omega_rad)+cos(this->beta)*(cos(declination)*cos(omega_rad)*cos(this->latitude)
-                    +sin(declination)*sin(this->latitude));
-        if (qAbs(sunAngle) < qAbs(smallestSunAngle)) {
-            smallestSunAngle = sunAngle;
-            omega = omega_rad;
+    // for better readability:
+    double b = this->beta;
+    double d = declination;
+    double g = this->gamma;
+    double p = this->latitude;
+
+    double epsilon = 0.0001;
+
+    int count = 0;
+    while(1) {
+        double X = sin(b)*cos(g)*(cos(d)*cos(w0)*sin(p)-sin(d)*cos(p))+sin(b)*sin(g)*cos(d)*sin(w0)+cos(b)*(cos(d)*cos(w0)*cos(p)+sin(d)*sin(p));
+        if (epsilon <= qAbs(X)) {
+            double dX = sin(b)*cos(g)*(-cos(d)*sin(w0)*sin(p)-sin(d)*cos(p))+sin(b)*sin(g)*cos(d)*cos(w0)+cos(b)*(-cos(d)*sin(w0)*cos(p)+sin(d)*sin(p));
+            w0 = w0-X/dX;
+            count++;
+        } else {
+            break;
         }
+
     }
 
-    return omega;
+    while (w0 <= 0) {
+        w0 += M_PI;
+    }
+    while (w0 >= M_PI) {
+        w0 -= M_PI;
+    }
+    return w0;
 }
 double SolarPlantProperties::getPeakPower() const
 {

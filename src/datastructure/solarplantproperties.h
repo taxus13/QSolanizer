@@ -7,9 +7,12 @@
 #include <QDataStream>
 #include <QSettings>
 #include <QDebug>
+//#include <limits>
 
 #include "qmath.h"
 #include "math.h"
+
+
 #include "typedefs.h"
 #include "qdatarow.h"
 #include "day.h"
