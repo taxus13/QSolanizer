@@ -26,7 +26,7 @@ QSolanizer::~QSolanizer()
 
 void QSolanizer::initializeVariables()
 {
-    this->version = QString("0.14.0");
+    this->version = QString("1.0.0");
     this->filename = "qsolanizer.dat";
     this->propertyname = "qsolanizer.ini";
 
@@ -181,6 +181,13 @@ void QSolanizer::initializePlots()
     this->ui->wYearPlot->yAxis->setPadding(5);
     this->ui->wYearPlot->yAxis->grid()->setSubGridVisible(true);
     this->ui->wYearPlot->yAxis->setLabel("Energie [kWh]");
+
+    this->ui->wYearPlot->legend->setVisible(true);
+    this->ui->wYearPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop|Qt::AlignRight);
+    this->ui->wYearPlot->legend->setBrush(QColor(255, 255, 255, 200));
+    this->ui->wYearPlot->legend->setBorderPen(legendPen);
+    legendFont.setPointSize(10);
+    this->ui->wYearPlot->legend->setFont(legendFont);
 }
 
 void QSolanizer::writeSettings()
@@ -756,16 +763,6 @@ void QSolanizer::plotAllYearData()
     this->ui->wYearPlot->xAxis->setAutoTickStep(false);
     this->ui->wYearPlot->xAxis->setTickStep(1);
 
-    this->ui->wYearPlot->legend->setVisible(true);
-    this->ui->wYearPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop|Qt::AlignRight);
-    this->ui->wYearPlot->legend->setBrush(QColor(255, 255, 255, 200));
-    QPen legendPen;
-    legendPen.setColor(QColor(130, 130, 130, 200));
-    this->ui->wYearPlot->legend->setBorderPen(legendPen);
-    QFont legendFont = font();
-    legendFont.setPointSize(10);
-    this->ui->wYearPlot->legend->setFont(legendFont);
-
     this->ui->wTotalPlot->setInteractions(QCP::iRangeZoom);
 
 
@@ -1035,10 +1032,10 @@ void QSolanizer::on_actionClose_triggered()
 
 void QSolanizer::on_actionAbout_triggered()
 {
-    QMessageBox::about(this, "Über", "QSolanizer "+this->version+" (beta)"
-                                                                 "\n Carsten Menne"
-                                                                 "\n qsolanizer@lostbit.de"
-                                                                 "\n https://github.com/taxus13/QSolanizer");
+    QMessageBox::about(this, "Über", "QSolanizer "+this->version+
+                                "\nCarsten Menne"
+                                "\nqsolanizer@lostbit.de"
+                                "\nhttps://github.com/taxus13/QSolanizer");
 }
 
 void QSolanizer::on_cCompareYears_stateChanged(int checkState)
