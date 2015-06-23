@@ -112,7 +112,9 @@ void QSolanizer::readSettings()
 //        this->ui->rEnergy->setChecked(false);
         this->ui->rDistribution->setChecked(true);
     }
-
+    this->ui->cRealCurve->setChecked(settings.value("showRealCurve", true).toBool());
+    this->ui->cTheoreticalCurve->setChecked(settings.value("showTheoCurve", false).toBool());
+    this->ui->cAvergeageCurve->setChecked(settings.value("showAvgCurve", false).toBool());
 
     this->ui->tabWidget->setCurrentIndex(tabNo);
     settings.endGroup();
@@ -191,10 +193,15 @@ void QSolanizer::writeSettings()
     settings.setValue("pos", this->pos());
     settings.setValue("tab", this->ui->tabWidget->currentIndex());
     settings.setValue("showEnergy", this->ui->rEnergy->isChecked());
+    settings.setValue("showRealCurve", this->ui->cRealCurve->isChecked());
+    settings.setValue("showTheoCurve", this->ui->cTheoreticalCurve->isChecked());
+    settings.setValue("showAvgCurve", this->ui->cAvergeageCurve->isChecked());
     settings.endGroup();
+
     settings.beginGroup("Path");
     settings.setValue("path", this->path);
     settings.endGroup();
+
     settings.beginGroup("Colors");
     settings.setValue("minEnergyColor", this->minEnergyColor.name());
     settings.setValue("maxEnergyColor", this->maxEnergyColor.name());
@@ -237,7 +244,7 @@ void QSolanizer::fillDataWidgets() {
 
     this->ui->listWidget->setFixedWidth(100);
     // show some data, so the plots are not empty
-    this->plotDayData(sp.getEndingDate(), false);
+    this->plotDayData(sp.getEndingDate(), false, this->getCurrentPlottingMode());
     this->shownDates.append(sp.getEndingDate());
 
     this->plotYearData(sp.getEndingDate().year());

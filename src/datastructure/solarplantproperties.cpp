@@ -47,8 +47,6 @@ Day SolarPlantProperties::getTheoreticalPowerCurve(QDate &date, bool cutPower)
     QTime currentTime = sunrise;
     double currentPower = 0;
 
-    qDebug() << timeToZenit << sunrise << sunset;
-
     while ((currentTime <= sunset) || (currentPower >= 0)) {
         currentPower = this->calculatePower(currentTime.msecsSinceStartOfDay()/(1000.0*3600), delta);
         if (currentPower >= 0) {
