@@ -993,8 +993,8 @@ void QSolanizer::on_actionReload_triggered()
 {
     if (this->getProperDir(false)) {
         if (this->readData()) {
-            this->fillDataWidgets();
             this->initializePlots();
+            this->fillDataWidgets();
             this->writeSerializedData();
             this->enableAllInputWidgets();
             QFileInfo fileInfo(QDir(this->path).absoluteFilePath(this->propertyname));
@@ -1009,8 +1009,8 @@ void QSolanizer::on_actionOpenNew_triggered()
 {
     if (this->getProperDir(true)) {
         if (this->readSerializedData() || this->readData()) {
-            this->fillDataWidgets();
             this->initializePlots();
+            this->fillDataWidgets();
             this->writeSerializedData();
             this->enableAllInputWidgets();
             QFileInfo fileInfo(QDir(this->path).absoluteFilePath(this->propertyname));

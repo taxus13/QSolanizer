@@ -38,8 +38,8 @@ Day SolarPlantProperties::getTheoreticalPowerCurve(QDate &date, bool cutPower)
 
     float energy = 0;
 
-    QTime sunrise((int)hourOfSunrise, (int)(hourOfSunrise-(int)hourOfSunrise)*60);
-    QTime sunset((int)hourOfSunset, (int)(hourOfSunset-(int)hourOfSunset)*60);
+    QTime sunrise((int)hourOfSunrise, (int)((hourOfSunrise-(int)hourOfSunrise)*60)); // however, this is wrong
+    QTime sunset((int)hourOfSunset, (int)((hourOfSunset-(int)hourOfSunset)*60));
 
     QDateVector time;
     QDataRow power;
@@ -47,21 +47,24 @@ Day SolarPlantProperties::getTheoreticalPowerCurve(QDate &date, bool cutPower)
     QTime currentTime = sunrise;
     double currentPower = 0;
 
+    qDebug() << timeToZenit << sunrise << sunset;
+
     while ((currentTime <= sunset) || (currentPower >= 0)) {
-        time << QDateTime(date, currentTime);
         currentPower = this->calculatePower(currentTime.msecsSinceStartOfDay()/(1000.0*3600), delta);
         if (currentPower >= 0) {
             if (cutPower && (currentPower > peakPower)) {
                 currentPower = peakPower;
             }
+            time << QDateTime(date, currentTime);
             power << currentPower;
             energy += currentPower*5/60;
         }
         currentTime = currentTime.addSecs(5*60);
-
     }
     power << .0;
-    time << QDateTime(date, currentTime); // trailing 0
+    time << time.last().addSecs(300);
+    time.insert(0, time[0].addSecs(-300));
+    power.insert(0, 0);
 
     QTime stime(12, 0);
     QDateTime dt(date, stime);
@@ -70,8 +73,6 @@ Day SolarPlantProperties::getTheoreticalPowerCurve(QDate &date, bool cutPower)
             time[i]=time[i].addSecs(3600);
         }
     }
-    time.insert(0, time[0].addSecs(-300));
-    power.insert(0, 0);
     return Day(QPair<QDateVector, QDataRow>(time, power), energy);
 }
 
@@ -90,34 +91,34 @@ double SolarPlantProperties::getOmega(double declination)
 {
     double w0 = qDegreesToRadians(0.0);
 
-    // for better readability:
-    double b = this->beta;
-    double d = declination;
-    double g = this->gamma;
-    double p = this->latitude;
+     // for better readability:
+     double b = this->beta;
+     double d = declination;
+     double g = this->gamma;
+     double p = this->latitude;
 
-    double epsilon = 0.0001;
+     double epsilon = 0.001;
 
-    int count = 0;
-    while(1) {
-        double X = sin(b)*cos(g)*(cos(d)*cos(w0)*sin(p)-sin(d)*cos(p))+sin(b)*sin(g)*cos(d)*sin(w0)+cos(b)*(cos(d)*cos(w0)*cos(p)+sin(d)*sin(p));
-        if (epsilon <= qAbs(X)) {
-            double dX = sin(b)*cos(g)*(-cos(d)*sin(w0)*sin(p)-sin(d)*cos(p))+sin(b)*sin(g)*cos(d)*cos(w0)+cos(b)*(-cos(d)*sin(w0)*cos(p)+sin(d)*sin(p));
-            w0 = w0-X/dX;
-            count++;
-        } else {
-            break;
-        }
+     int count = 0;
+     while(1) {
+         double X = sin(b)*cos(g)*(cos(d)*cos(w0)*sin(p)-sin(d)*cos(p))+sin(b)*sin(g)*cos(d)*sin(w0)+cos(b)*(cos(d)*cos(w0)*cos(p)+sin(d)*sin(p));
+         if (epsilon <= qAbs(X)) {
+             double dX = sin(b)*cos(g)*(-cos(d)*sin(w0)*sin(p)-sin(d)*cos(p))+sin(b)*sin(g)*cos(d)*cos(w0)+cos(b)*(-cos(d)*sin(w0)*cos(p)+sin(d)*sin(p));
+             w0 = w0-X/dX;
+             count++;
+         } else {
+             break;
+         }
 
-    }
+     }
 
-    while (w0 <= 0) {
-        w0 += M_PI;
-    }
-    while (w0 >= M_PI) {
-        w0 -= M_PI;
-    }
-    return w0;
+     while (w0 <= 0) {
+         w0 += M_PI;
+     }
+     while (w0 >= M_PI) {
+         w0 -= M_PI;
+     }
+     return w0;
 }
 double SolarPlantProperties::getPeakPower() const
 {
