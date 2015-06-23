@@ -963,7 +963,7 @@ void QSolanizer::on_dateEdit_dateChanged(const QDate &date)
 
 void QSolanizer::on_dateEditStart_userDateChanged(const QDate &date)
 {
-    if (this->ui->dateEditStart->hasFocus()) {
+    if (!this->ui->tMonthSelection->hasFocus()) {
         this->ui->dateEditEnd->setMinimumDate(date);
         this->showCustomRange(date, this->ui->dateEditEnd->date());
     }
@@ -971,7 +971,7 @@ void QSolanizer::on_dateEditStart_userDateChanged(const QDate &date)
 
 void QSolanizer::on_dateEditEnd_userDateChanged(const QDate &date)
 {
-    if (this->ui->dateEditEnd->hasFocus()) {
+    if (!this->ui->tMonthSelection->hasFocus()) {
         this->ui->dateEditStart->setMaximumDate(date);
         this->showCustomRange(this->ui->dateEditStart->date(), date);
     }
