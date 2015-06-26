@@ -1144,6 +1144,8 @@ void QSolanizer::legendItemClicked(QCPLegend *legend, QCPAbstractLegendItem *leg
                 d = sp.getSolarPlantProperties().getTheoreticalPowerCurve(date, false);
             } else if (type == AVERAGE){
                 d = sp.getAverageDay(date.month());
+            } else if (type == MAXIMUM) {
+                d = sp.getMaximumDay(date.month());
             }
             this->fillDayGroupbox(d);
             plottableItem->plottable()->setSelected(true);
