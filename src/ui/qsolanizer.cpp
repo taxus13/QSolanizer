@@ -492,7 +492,7 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, int pm)
         ui->wPowerCurve->graph()->setPen(pen);
         ui->wPowerCurve->graph()->addToLegend();
         ui->wPowerCurve->graph()->setName(date.toString("MMMM") + QString(" (Maximum)"));
-        ui->wPowerCurve->graph()->setProperty("type", AVERAGE);
+        ui->wPowerCurve->graph()->setProperty("type", MAXIMUM);
         ui->wPowerCurve->graph()->setProperty("date", date);
     }
 
