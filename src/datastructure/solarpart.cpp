@@ -33,6 +33,8 @@ void SolarPart::doFinalStatistics()
     this->end = QDate(this->yearData.last().getLast());
 
     QMap<int, QDataRow> accumulatedPowerCurves;
+    QMap<int, QDataRow> maximumPowerCurve;
+
     QMap<int, int> dayCount;
 
     QDateVector dateVector;
@@ -50,12 +52,19 @@ void SolarPart::doFinalStatistics()
                     if (dateVector.isEmpty()) {
                         dateVector = day.getPowerCurve().first;
                     }
+                    // for average day calculation
                     if (accumulatedPowerCurves.contains(day.getDate().month())) {
                         accumulatedPowerCurves[day.getDate().month()] += day.getPowerCurve().second;
                         dayCount[day.getDate().month()]++;
                     } else {
                         accumulatedPowerCurves[day.getDate().month()] = day.getPowerCurve().second;
                         dayCount[day.getDate().month()] = 1;
+                    }
+                    // maximum day calculation
+                    if (maximumPowerCurve.contains(day.getDate().month())) {
+                        maximumPowerCurve[day.getDate().month()].applyMaximumValues(day.getPowerCurve().second);
+                    } else {
+                        maximumPowerCurve[day.getDate().month()] = day.getPowerCurve().second;
                     }
                 }
                 if (this->highestDayEnergy < day.getEnergy()) {
@@ -70,12 +79,13 @@ void SolarPart::doFinalStatistics()
 
     foreach (int key, accumulatedPowerCurves.keys()) {
         accumulatedPowerCurves[key]/=dayCount[key];
-        float energy = (float) accumulatedPowerCurves[key].getSum();
-        energy *= (5/60.0);
-        averageDayData[key] = Day(QPair<QDateVector, QDataRow>(dateVector, accumulatedPowerCurves[key]), energy);
-
+        float energyAvg = (float) accumulatedPowerCurves[key].getSum();
+        energyAvg *= (5/60.0);
+        float energyMax = (float) maximumPowerCurve[key].getSum();
+        energyMax *= (5/60.0);
+        this->averageDayData[key] = Day(QPair<QDateVector, QDataRow>(dateVector, accumulatedPowerCurves[key]), energyAvg);
+        this->maximumDayData[key] = Day(QPair<QDateVector, QDataRow>(dateVector, maximumPowerCurve[key]), energyMax);
     }
-
 }
 
 float SolarPart::getEnergy() const
@@ -142,6 +152,11 @@ Day& SolarPart::getDay(QDate &date)
 Day &SolarPart::getAverageDay(int month)
 {
     return this->averageDayData[month];
+}
+
+Day &SolarPart::getMaximumDay(int month)
+{
+    return this->maximumDayData[month];
 }
 
 SolarPlantProperties &SolarPart::getSolarPlantProperties()
@@ -252,7 +267,7 @@ QDataStream &operator <<(QDataStream &out, const SolarPart &sp)
 {
     out << sp.yearData << sp.start << sp.end << sp.datesAdded
          << sp.energy << sp.duration << sp.highestPower << sp.highestDayEnergy
-         << sp.highestMonthEnergy << sp.highestYearEnergy << sp.averageDayData;
+         << sp.highestMonthEnergy << sp.highestYearEnergy << sp.averageDayData << sp.maximumDayData;
     return out;
 }
 
@@ -270,9 +285,10 @@ QDataStream &operator >>(QDataStream &in, SolarPart &sp)
     float highestMonthEnergy;
     float highestYearEnergy;
     QMap<int, Day> averageDayData;
+    QMap<int, Day> maximumDayData;
 
     in >> map >> start >> end >> datesAdded >> energy >> duration >> highestPower >> highestDayEnergy
-            >> highestMonthEnergy >> highestYearEnergy >> averageDayData;
+            >> highestMonthEnergy >> highestYearEnergy >> averageDayData >> maximumDayData;
 
     sp.yearData = map;
     sp.start = start;
@@ -285,6 +301,7 @@ QDataStream &operator >>(QDataStream &in, SolarPart &sp)
     sp.highestMonthEnergy = highestMonthEnergy;
     sp.highestYearEnergy = highestYearEnergy;
     sp.averageDayData = averageDayData;
+    sp.maximumDayData = maximumDayData;
 
     return in;
 }

@@ -25,7 +25,7 @@ public:
     ~QSolanizer();
 
 
-    enum PlottingMode {  REAL = 0x1, THEORETICAL = 0x2, AVERAGE = 0x4};
+    enum PlottingMode {  REAL = 0x1, THEORETICAL = 0x2, AVERAGE = 0x4, MAXIMUM = 0x8};
 
 private:
     Ui::QSolanizer *ui;
@@ -67,7 +67,7 @@ private:
 
 
     //variables
-    static const int fileFormatVersion = 4;
+    static const int fileFormatVersion = 5;
     QString version;
 
     QMenu *dayContextMenu;
@@ -93,7 +93,7 @@ private:
     QList<QDate> shownDates;
 
     QSet<QDate> currentlyShownDates;
-    QSet<int> currentlyShownAverageMonths;
+    QSet<int> currentlyShownMonths;
 
     // state
     QCPPlottableLegendItem *lastClickedItem;
@@ -129,6 +129,7 @@ private slots:
     void on_cRealCurve_clicked();
     void on_cTheoreticalCurve_clicked();
     void on_cAvergeageCurve_clicked();
+    void on_cMaximumCurve_clicked();
 };
 
 #endif // QSOLANIZER_H

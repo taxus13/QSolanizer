@@ -32,7 +32,7 @@
            </size>
           </property>
           <property name="currentIndex">
-           <number>3</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tabDay">
            <attribute name="title">
@@ -237,6 +237,13 @@
                       <widget class="QCheckBox" name="cAvergeageCurve">
                        <property name="text">
                         <string>durchschnittliche Kurve</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QCheckBox" name="cMaximumCurve">
+                       <property name="text">
+                        <string>maximale Kurve</string>
                        </property>
                       </widget>
                      </item>

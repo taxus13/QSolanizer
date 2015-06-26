@@ -21,6 +21,15 @@ double QDataRow::getSum()
     return sum;
 }
 
+void QDataRow::applyMaximumValues(QDataRow &qdr)
+{
+    if (this->size() == qdr.size()) {
+        for (int i=0; i<this->size(); i++) {
+            this->replace(i, qMax(this->at(i), qdr[i]));
+        }
+    }
+}
+
 QDataRow QDataRow::operator+(const QDataRow &right)
 {
     if (this->size() == right.size()) {

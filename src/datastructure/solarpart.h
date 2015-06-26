@@ -52,6 +52,7 @@ public:
     Month &getMonth(QDate &date);
     Day &getDay(QDate &date);
     Day &getAverageDay(int month);
+    Day &getMaximumDay(int month);
 
     SolarPlantProperties &getSolarPlantProperties();
     void setSolarPlantProperties(SolarPlantProperties spp);
@@ -67,6 +68,7 @@ private:
     QMap<int, Year> yearData;
 
     QMap<int, Day> averageDayData;
+    QMap<int, Day> maximumDayData;
 
     bool propertiesAvailable;
     SolarPlantProperties spp;

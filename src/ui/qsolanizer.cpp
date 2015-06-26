@@ -26,7 +26,7 @@ QSolanizer::~QSolanizer()
 
 void QSolanizer::initializeVariables()
 {
-    this->version = QString("1.0.0");
+    this->version = QString("1.1.0");
     this->filename = "qsolanizer.dat";
     this->propertyname = "qsolanizer.ini";
 
@@ -115,6 +115,7 @@ void QSolanizer::readSettings()
     this->ui->cRealCurve->setChecked(settings.value("showRealCurve", true).toBool());
     this->ui->cTheoreticalCurve->setChecked(settings.value("showTheoCurve", false).toBool());
     this->ui->cAvergeageCurve->setChecked(settings.value("showAvgCurve", false).toBool());
+    this->ui->cMaximumCurve->setChecked(settings.value("showMaxCurve", false).toBool());
 
     this->ui->tabWidget->setCurrentIndex(tabNo);
     settings.endGroup();
@@ -203,6 +204,7 @@ void QSolanizer::writeSettings()
     settings.setValue("showRealCurve", this->ui->cRealCurve->isChecked());
     settings.setValue("showTheoCurve", this->ui->cTheoreticalCurve->isChecked());
     settings.setValue("showAvgCurve", this->ui->cAvergeageCurve->isChecked());
+    settings.setValue("showMaxCurve", this->ui->cMaximumCurve->isChecked());
     settings.endGroup();
 
     settings.beginGroup("Path");
@@ -423,6 +425,8 @@ void QSolanizer::fillDayGroupbox(Day &dd)
 
 void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, int pm)
 {
+    ui->wPowerCurve->yAxis->setRange(0, sp.getHighestPower()*1.1);
+
     if (!keepOldGraphs) {
         resetDayPlot();
     }
@@ -465,7 +469,7 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, int pm)
         ui->wPowerCurve->graph()->setProperty("date", date);
     }
 
-    if (((pm & AVERAGE) == AVERAGE) && !this->currentlyShownAverageMonths.contains(date.month())) {
+    if (((pm & AVERAGE) == AVERAGE) && !this->currentlyShownMonths.contains(date.month())) {
         ui->wPowerCurve->addGraph();
         QPair<QVector<double>, QVector<double> > data = sp.getAverageDay(date.month()).getPowerCurveForPlotting();
         ui->wPowerCurve->graph()->setData(data.first, data.second);
@@ -478,13 +482,28 @@ void QSolanizer::plotDayData(QDate date, bool keepOldGraphs, int pm)
         ui->wPowerCurve->graph()->setProperty("date", date);
     }
 
+    if (((pm & MAXIMUM) == MAXIMUM) && !this->currentlyShownMonths.contains(date.month())) {
+        ui->wPowerCurve->addGraph();
+        QPair<QVector<double>, QVector<double> > data = sp.getMaximumDay(date.month()).getPowerCurveForPlotting();
+        ui->wPowerCurve->graph()->setData(data.first, data.second);
+        QPen pen = QPen(this->yearColors.at(date.month()-1));
+        pen.setWidth(2);
+        pen.setStyle(Qt::DashLine);
+        ui->wPowerCurve->graph()->setPen(pen);
+        ui->wPowerCurve->graph()->addToLegend();
+        ui->wPowerCurve->graph()->setName(date.toString("MMMM") + QString(" (Maximum)"));
+        ui->wPowerCurve->graph()->setProperty("type", AVERAGE);
+        ui->wPowerCurve->graph()->setProperty("date", date);
+    }
+
+
     ui->wPowerCurve->replot();
 
 
     // fill groupbox
     this->fillDayGroupbox(dd);
     this->currentlyShownDates.insert(date);
-    this->currentlyShownAverageMonths.insert(date.month());
+    this->currentlyShownMonths.insert(date.month());
 
 }
 
@@ -494,7 +513,7 @@ void QSolanizer::replotDayData(int pm)
     this->ui->wPowerCurve->replot();
     this->lastClickedItem = 0;
     this->currentlyShownDates.clear();
-    this->currentlyShownAverageMonths.clear();
+    this->currentlyShownMonths.clear();
     foreach (QDate date, this->shownDates) {
         this->plotDayData(date, true, pm);
     }
@@ -509,7 +528,7 @@ void QSolanizer::resetDayPlot()
     this->lastClickedItem = 0;
     this->shownDates.clear();
     this->currentlyShownDates.clear();
-    this->currentlyShownAverageMonths.clear();
+    this->currentlyShownMonths.clear();
 }
 
 
@@ -875,6 +894,9 @@ int QSolanizer::getCurrentPlottingMode()
     if (this->ui->cRealCurve->isChecked()) {
         mode |= REAL;
     }
+    if (this->ui->cMaximumCurve->isChecked()) {
+        mode |= MAXIMUM;
+    }
     return mode;
 }
 
@@ -1173,6 +1195,11 @@ void QSolanizer::on_cTheoreticalCurve_clicked()
 }
 
 void QSolanizer::on_cAvergeageCurve_clicked()
+{
+    this->replotDayData(this->getCurrentPlottingMode());
+}
+
+void QSolanizer::on_cMaximumCurve_clicked()
 {
     this->replotDayData(this->getCurrentPlottingMode());
 }

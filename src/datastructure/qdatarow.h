@@ -11,6 +11,8 @@ public:
 
     double getSum();
 
+    void applyMaximumValues(QDataRow& qdr);
+
     QDataRow operator+(const QDataRow& right);
     QDataRow operator+=(const QDataRow& right);
     QDataRow operator+(const int& right);
