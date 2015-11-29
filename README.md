@@ -5,12 +5,12 @@ Currently it only parses CSV data from the (German?) [Sunny Explorer](http://www
 Please provide some exported files from your power converter, so other power converters are supported.
 
 ## Screenshots
-<img src="http://lostbit.de/uploads/qsolanizer/qsolanizer_day_multi.PNG" width="350">
-<img src="http://lostbit.de/uploads/qsolanizer/qsolanizer_day_theo.PNG" width="350">
-<img src="http://lostbit.de/uploads/qsolanizer/qsolanizer_month_energy.PNG" width="350">
-<img src="http://lostbit.de/uploads/qsolanizer/qsolanizer_customrange_distribution.PNG" width="350">
-<img src="http://lostbit.de/uploads/qsolanizer/qsolanizer_all_years.PNG" width="350">
-<img src="http://lostbit.de/uploads/qsolanizer/qsolanizer_total.PNG" width="350">
+<img src="https://lostbit.de/uploads/qsolanizer/qsolanizer_day_multi.PNG" width="350">
+<img src="https://lostbit.de/uploads/qsolanizer/qsolanizer_day_theo.PNG" width="350">
+<img src="https://lostbit.de/uploads/qsolanizer/qsolanizer_month_energy.PNG" width="350">
+<img src="https://lostbit.de/uploads/qsolanizer/qsolanizer_customrange_distribution.PNG" width="350">
+<img src="https://lostbit.de/uploads/qsolanizer/qsolanizer_all_years.PNG" width="350">
+<img src="https://lostbit.de/uploads/qsolanizer/qsolanizer_total.PNG" width="350">
 
 ## Used Libraries
 * [Qt5](http://www.qt.io/download/)
