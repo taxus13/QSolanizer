@@ -12,8 +12,6 @@ public:
     void setDataValue(int value) { dataValue = value; }
 private:
     int dataValue;
-
-
 };
 
 #endif // QCPBARSENHANCED_H

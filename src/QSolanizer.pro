@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     utils/qcpbarsenhanced.cpp \
     ui/solarplantpropertydialog.cpp \
     datastructure/solarplantproperties.cpp \
-    datastructure/qdatarow.cpp
+    datastructure/qdatarow.cpp \
+    utils/qbarplot.cpp
 
 HEADERS  += \
     utils/qcustomplot.h \
@@ -37,7 +38,8 @@ HEADERS  += \
     ui/solarplantpropertydialog.h \
     datastructure/solarplantproperties.h \
     datastructure/qdatarow.h \
-    datastructure/typedefs.h
+    datastructure/typedefs.h \
+    utils/qbarplot.h
 
 FORMS    += \
     ui/qsolanizer.ui \

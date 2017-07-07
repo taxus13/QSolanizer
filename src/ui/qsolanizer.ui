@@ -32,7 +32,7 @@
            </size>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tabDay">
            <attribute name="title">
@@ -432,7 +432,7 @@
                </layout>
               </item>
               <item>
-               <widget class="QCustomPlot" name="wMonthPlot" native="true"/>
+               <widget class="QBarPlot" name="wMonthPlot" native="true"/>
               </item>
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -979,6 +979,12 @@
    <class>QCustomPlot</class>
    <extends>QWidget</extends>
    <header>utils\qcustomplot.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QBarPlot</class>
+   <extends>QWidget</extends>
+   <header>utils\qbarplot.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

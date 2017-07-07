@@ -14,4 +14,3 @@ double QCPBarsEnhanced::getKeyValueOfPixelPosition(int x, int y)
     return key;
 }
 
-

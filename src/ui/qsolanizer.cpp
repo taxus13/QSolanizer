@@ -1205,3 +1205,4 @@ void QSolanizer::on_cMaximumCurve_clicked()
 {
     this->replotDayData(this->getCurrentPlottingMode());
 }
+
