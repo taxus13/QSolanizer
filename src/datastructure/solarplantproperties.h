@@ -48,7 +48,7 @@ private:
 
     double peakPower; // kWp
 
-    static const double solarConstant = 1.367; // kW/m^2
+    static constexpr double solarConstant = 1.367; // kW/m^2
 
     inline double getOmega(double declination);
 
