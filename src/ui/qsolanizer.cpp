@@ -672,6 +672,8 @@ void QSolanizer::plotYearData(int yearNumber)
     this->startYearPlot = year.getFirst();
     QPair<QVector<QDate>, QVector<float> > data = year.getEnergyValues();
     this->ui->wYearPlot->clearPlottables();
+
+
     QCPBarsEnhanced *bars = new QCPBarsEnhanced(this->ui->wYearPlot->xAxis, this->ui->wYearPlot->yAxis);
 
     QPen pen;
@@ -680,27 +682,18 @@ void QSolanizer::plotYearData(int yearNumber)
     pen.setColor(QColor(255, 131, 0));
     bars->setPen(pen);
     bars->setBrush(QColor(255, 131, 0, 50));
-    //this->ui->wYearPlot->xAxis->setAutoTicks(false);
-    //this->ui->wYearPlot->xAxis->setAutoTickLabels(false);
+
     QVector<double> ticks;
-    //QVector<QString> labels;
+
     QVector<double> values;
     for (int i=0; i<data.first.size(); ++i) {
-        ticks << i+1;
-        // ticks << data.first.at(i).endOfDay().toMSecsSinceEpoch() / 1000.0;
-        //labels << data.first.at(i).toString("MMMM");
+        ticks << data.first.at(i).month();
         values << data.second.at(i);
     }
-    //this->ui->wYearPlot->xAxis->setTickVector(ticks);
-    //this->ui->wYearPlot->xAxis->setTickVectorLabels(labels);
-    //this->ui->wYearPlot->
     this->ui->wYearPlot->xAxis->setTickLabelRotation(60);
-    //this->ui->wYearPlot->xAxis->setSubTickCount(0);
     this->ui->wYearPlot->xAxis->setTickLength(0,4);
     this->ui->wYearPlot->xAxis->grid()->setVisible(false);
-    QSharedPointer<QCPAxisTickerDateTime> ticker(new QCPAxisTickerDateTime());
-    ticker->setDateTimeFormat("MMMM");
-    this->ui->wYearPlot->xAxis->setTicker(ticker);
+
     QPen gridPen(Qt::SolidLine);
     gridPen.setColor(QColor(0,0,0,25));
     this->ui->wYearPlot->yAxis->grid()->setPen(gridPen);
@@ -723,8 +716,10 @@ void QSolanizer::plotYearData(int yearNumber)
 void QSolanizer::plotAllYearData()
 {
     this->ui->wYearPlot->clearPlottables();
+    QVector<double> months;
+    QVector<QString> labels;
 
-    QList<QVector<double> > allEnergyData;
+    QList<QVector<double>> allEnergyData;
 
     for (int i=sp.getBeginningDate().year(); i<=sp.getEndingDate().year(); ++i) {
         Year year = sp.getYear(i);
