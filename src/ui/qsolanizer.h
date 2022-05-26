@@ -120,8 +120,8 @@ private slots:
     void on_actionAbout_triggered();
     void on_cCompareYears_stateChanged(int arg1);
 
-    void monthItemClicked(QCPAbstractPlottable *plottable, QMouseEvent* event);
-    void yearItemClicked(QCPAbstractPlottable *plottable, QMouseEvent* event);
+    void monthItemClicked(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent* event);
+    void yearItemClicked(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent* event);
     void totalItemClicked(QCPAbstractPlottable *plottable, QMouseEvent* event);
     void legendItemClicked(QCPLegend *legend, QCPAbstractLegendItem *legendItem, QMouseEvent* event);
     void contextMenuTriggered(QAction *action);
