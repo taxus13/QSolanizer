@@ -137,9 +137,9 @@ void QSolanizer::initializePlots()
     // day plot
     ui->wPowerCurve->xAxis->setRange(0, 24 * 3600);
 
-    QSharedPointer<QCPAxisTickerTime> ticker(new QCPAxisTickerTime);
-    ticker->setTimeFormat("%h:%m");
-    ui->wPowerCurve->xAxis->setTicker(ticker);
+    QSharedPointer<QCPAxisTickerTime> time_ticker(new QCPAxisTickerTime);
+    time_ticker->setTimeFormat("%h:%m");
+    ui->wPowerCurve->xAxis->setTicker(time_ticker);
     ui->wPowerCurve->xAxis->setTickLabelRotation(60);
     ui->wPowerCurve->xAxis->setSubTicks(true);
 
@@ -180,7 +180,7 @@ void QSolanizer::initializePlots()
     this->ui->wYearPlot->yAxis->setRange(0, sp.getHighestMonthEnergy()*1.1);
     this->ui->wYearPlot->yAxis->setPadding(5);
     this->ui->wYearPlot->yAxis->grid()->setSubGridVisible(true);
-    this->ui->wYearPlot->yAxis->setLabel("Energie [kWh]");
+    this->ui->wYearPlot->yAxis->setLabel("Energie  / kWh");
 
     this->ui->wYearPlot->legend->setVisible(true);
     this->ui->wYearPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop|Qt::AlignRight);
@@ -188,6 +188,18 @@ void QSolanizer::initializePlots()
     this->ui->wYearPlot->legend->setBorderPen(legendPen);
     legendFont.setPointSize(10);
     this->ui->wYearPlot->legend->setFont(legendFont);
+    QVector<double> months;
+    QVector<QString> labels;
+
+    //generate ticklabels and tickvector
+    for (int i=1; i<=12; i++) {
+        months << i;
+        labels << QDate::fromString(QString::number(i), "M").toString("MMMM");
+    }
+
+    QSharedPointer<QCPAxisTickerText> month_ticker(new QCPAxisTickerText);
+    month_ticker->addTicks(months, labels);
+    this->ui->wYearPlot->xAxis->setTicker(month_ticker);
 }
 
 void QSolanizer::writeSettings()
@@ -254,7 +266,7 @@ void QSolanizer::fillDataWidgets() {
     this->plotDayData(sp.getEndingDate(), false, this->getCurrentPlottingMode());
     this->shownDates.append(sp.getEndingDate());
 
-    // this->plotYearData(sp.getEndingDate().year());
+    this->plotYearData(sp.getEndingDate().year());
     this->plotTotalData();
 
     this->ui->tMonthSelection->expandAll();
@@ -594,7 +606,7 @@ void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &d
     // this->ui->wMonthPlot->yAxis->setAutoTickLabels(true);
     this->ui->wMonthPlot->yAxis->grid()->setSubGridVisible(true);
 
-    this->ui->wMonthPlot->yAxis->setLabel("Energie [kWh]");
+    this->ui->wMonthPlot->yAxis->setLabel("Energie / kWh");
 
     QPen gridPen;
     gridPen.setStyle(Qt::SolidLine);
@@ -655,12 +667,13 @@ void QSolanizer::plotDailyDistribution(QVector<QList<QDateTime> > &data)
 
 void QSolanizer::plotYearData(int yearNumber)
 {
+    qDebug() << "Plot year " << yearNumber;
     Year year = sp.getYear(yearNumber);
     this->startYearPlot = year.getFirst();
     QPair<QVector<QDate>, QVector<float> > data = year.getEnergyValues();
-    QCPBarsEnhanced *bars = new QCPBarsEnhanced(this->ui->wYearPlot->xAxis, this->ui->wYearPlot->yAxis);
     this->ui->wYearPlot->clearPlottables();
-    //this->ui->wYearPlot->addPlottable(bars);
+    QCPBarsEnhanced *bars = new QCPBarsEnhanced(this->ui->wYearPlot->xAxis, this->ui->wYearPlot->yAxis);
+
     QPen pen;
     pen.setWidthF(1.2);
     bars->setName(QString::number(yearNumber));
@@ -670,23 +683,25 @@ void QSolanizer::plotYearData(int yearNumber)
     //this->ui->wYearPlot->xAxis->setAutoTicks(false);
     //this->ui->wYearPlot->xAxis->setAutoTickLabels(false);
     QVector<double> ticks;
-    QVector<QString> labels;
+    //QVector<QString> labels;
     QVector<double> values;
     for (int i=0; i<data.first.size(); ++i) {
         ticks << i+1;
-        labels << data.first.at(i).toString("MMMM");
+        // ticks << data.first.at(i).endOfDay().toMSecsSinceEpoch() / 1000.0;
+        //labels << data.first.at(i).toString("MMMM");
         values << data.second.at(i);
     }
     //this->ui->wYearPlot->xAxis->setTickVector(ticks);
     //this->ui->wYearPlot->xAxis->setTickVectorLabels(labels);
+    //this->ui->wYearPlot->
     this->ui->wYearPlot->xAxis->setTickLabelRotation(60);
     //this->ui->wYearPlot->xAxis->setSubTickCount(0);
     this->ui->wYearPlot->xAxis->setTickLength(0,4);
     this->ui->wYearPlot->xAxis->grid()->setVisible(false);
-
-
-    QPen gridPen;
-    gridPen.setStyle(Qt::SolidLine);
+    QSharedPointer<QCPAxisTickerDateTime> ticker(new QCPAxisTickerDateTime());
+    ticker->setDateTimeFormat("MMMM");
+    this->ui->wYearPlot->xAxis->setTicker(ticker);
+    QPen gridPen(Qt::SolidLine);
     gridPen.setColor(QColor(0,0,0,25));
     this->ui->wYearPlot->yAxis->grid()->setPen(gridPen);
     gridPen.setStyle(Qt::DotLine);
@@ -710,19 +725,12 @@ void QSolanizer::plotAllYearData()
     this->ui->wYearPlot->clearPlottables();
 
     QList<QVector<double> > allEnergyData;
-    QVector<double> months;
-    QVector<QString> labels;
 
-    //generate ticklabels and tickvector
-    for (int i=1; i<=12; i++) {
-        months << i;
-        labels << QDate::fromString(QString::number(i), "M").toString("MMMM");
-    }
     for (int i=sp.getBeginningDate().year(); i<=sp.getEndingDate().year(); ++i) {
         Year year = sp.getYear(i);
         QVector<double> yearEnergy;
-        foreach (double month, months) {
-            if (year.hasDataOfMonth((int)month)) {
+        for (int month = 1; month <= 12; month++) {
+            if (year.hasDataOfMonth(month)) {
                 yearEnergy << year.getMonth((int)month).getEnergy();
             } else {
                 yearEnergy << 0;
@@ -731,15 +739,14 @@ void QSolanizer::plotAllYearData()
         allEnergyData << yearEnergy;
     }
     QCPBarsGroup *group = new QCPBarsGroup(this->ui->wYearPlot);
-    QCPBarsEnhanced *bars;
-
-    int j=0;
     for (int i=0; i<allEnergyData.size(); i++) {
         QVector<double> yearData = allEnergyData.at(i);
-        bars = new QCPBarsEnhanced(this->ui->wYearPlot->xAxis, this->ui->wYearPlot->yAxis);
+        QVector<double> months{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+        //bars = new QCPBarsEnhanced(this->ui->wYearPlot->xAxis, this->ui->wYearPlot->yAxis);
+        QCPBarsEnhanced* bars = new QCPBarsEnhanced(this->ui->wYearPlot->xAxis, this->ui->wYearPlot->yAxis);
         //this->ui->wYearPlot->addPlottable(bars);
         bars->setData(months, yearData);
-        QColor c = QColor(this->someColors.at(j));
+        QColor c = QColor(this->someColors.at(i % someColors.size()));
         bars->setPen(c);
         c.setAlpha(50);
         bars->setBrush(c);
@@ -748,20 +755,10 @@ void QSolanizer::plotAllYearData()
         bars->setBarsGroup(group);
         bars->setName(QString::number(sp.getBeginningDate().year()+i));
         bars->setDataValue(sp.getBeginningDate().year()+i);
-        j++;
-        if(j == someColors.size()) {
-            j=0;
-        }
     }
 
-    //this->ui->wYearPlot->xAxis->setTickVector(months);
-    //this->ui->wYearPlot->xAxis->setTickVectorLabels(labels);
-    //this->ui->wYearPlot->xAxis->setAutoTickStep(false);
-    //this->ui->wYearPlot->xAxis->setTickStep(1);
 
     this->ui->wTotalPlot->setInteractions(QCP::iRangeZoom);
-
-
     this->ui->wYearPlot->replot();
 }
 
@@ -823,7 +820,7 @@ void QSolanizer::plotTotalData()
     this->ui->wTotalPlot->xAxis->setRange(years.at(0)-1, years.at(years.size()-1)+2); //+2 to have space for the legend
 
     this->ui->wTotalPlot->yAxis->setRange(0, sp.getHighestYearEnergy()*1.1);
-    this->ui->wTotalPlot->yAxis->setLabel("Energie [kWh]");
+    this->ui->wTotalPlot->yAxis->setLabel("Energie / kWh");
 
     QPen gridPen;
     gridPen.setStyle(Qt::SolidLine);
