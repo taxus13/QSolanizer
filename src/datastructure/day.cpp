@@ -42,7 +42,7 @@ QPair<QDataRow, QDataRow> Day::getPowerCurveForPlotting()
     QVector<double> timeline;
 
     for (int i=0; i<this->powerCurve.first.size(); i++) {
-        timeline << this->powerCurve.first[i].time().msecsSinceStartOfDay();
+        timeline << this->powerCurve.first[i].time().msecsSinceStartOfDay() / 1000;
     }
     return QPair<QVector<double>, QVector<double> >(timeline, this->powerCurve.second);
 }
