@@ -1,6 +1,7 @@
 #include "qsolanizer.h"
 #include "ui_qsolanizer.h"
 
+#include <cmath>
 #include <QSharedPointer>
 
 QSolanizer::QSolanizer(QWidget *parent) :
@@ -74,8 +75,8 @@ void QSolanizer::initializeVariables()
     this->yearColors.append(QColor(133, 70, 7)); // november
     this->yearColors.append(QColor(45, 45, 45)); // december
 
-    this->minEnergyColor = Qt::green;
-    this->maxEnergyColor = Qt::red;
+    this->minEnergyColor = Qt::white;
+    this->maxEnergyColor = Qt::yellow;
 
     for (int i=0; i<=24; i++) {
         dayTicksMSecs << i * 1000 * 3600;
@@ -106,11 +107,9 @@ void QSolanizer::readSettings()
         tabNo = 0;
     }
     bool showEnergy = settings.value("showEnergy", true).toBool();
-//    this->ui->rEnergy->setChecked(showEnergy);
     if (showEnergy) {
         this->ui->rEnergy->setChecked(true);
     } else {
-//        this->ui->rEnergy->setChecked(false);
         this->ui->rDistribution->setChecked(true);
     }
     this->ui->cRealCurve->setChecked(settings.value("showRealCurve", true).toBool());
@@ -123,8 +122,8 @@ void QSolanizer::readSettings()
     this->path = settings.value("path", "--").toString();
     settings.endGroup();
     settings.beginGroup("Colors");
-    QString minEC = settings.value("minEnergyColor", QColor(Qt::green).name()).toString();
-    QString maxEC = settings.value("maxEnergyColor", QColor(Qt::red).name()).toString();
+    QString minEC = settings.value("minEnergyColor", QColor(Qt::white).name()).toString();
+    QString maxEC = settings.value("maxEnergyColor", QColor(Qt::yellow).name()).toString();
     this->minEnergyColor = QColor(minEC);
     this->maxEnergyColor = QColor(maxEC);
     settings.endGroup();
@@ -166,11 +165,9 @@ void QSolanizer::initializePlots()
 
 
     // month plot
-    // this->ui->wMonthPlot->xAxis->setSubTickCount(0);
-    // this->ui->wMonthPlot->xAxis->setAutoTickLabels(false);
-    // this->ui->wMonthPlot->xAxis->setAutoTicks(false);
-    // this->ui->wMonthPlot->xAxis->setAutoSubTicks(false);
-
+    QSharedPointer<QCPAxisTickerDateTime> datetime_ticker(new QCPAxisTickerDateTime);
+    datetime_ticker->setDateTimeFormat("dd.MM.yyyy");
+    this->ui->wMonthPlot->xAxis->setTicker(datetime_ticker);
     this->ui->wMonthPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
     this->ui->wMonthPlot->axisRect()->setRangeZoom(Qt::Horizontal);
     this->ui->wMonthPlot->axisRect()->setRangeDrag(Qt::Horizontal);
@@ -242,16 +239,18 @@ void QSolanizer::fillDataWidgets() {
     this->ui->listWidget->clear();
 
     // fill tree widget for month selection
-    foreach (int yearNumber, sp.getYearList()) {
+    QList<int> yearList = sp.getYearList();
+    for (int yearNumber : yearList) {
         QTreeWidgetItem *treeItem = new QTreeWidgetItem(this->ui->tMonthSelection);
         treeItem->setText(0, QString::number(yearNumber));
         Year year = sp.getYear(yearNumber);
-        foreach (QDate month, year.getMonthList()) {
+        QList<QDate> monthListByYear = year.getMonthList();
+        for (const QDate& month : monthListByYear) {
             QTreeWidgetItem *monthItem = new QTreeWidgetItem();
             monthItem->setText(0, month.toString("MMMM"));
             treeItem->addChild(monthItem);
             if ((yearNumber == sp.getEndingDate().year()) && (month.month() == sp.getEndingDate().month())) {
-                monthItem->setSelected(true); // implicitly call "showCustomRange"
+                showMonthData(month);
             }
         }
         this->ui->tMonthSelection->addTopLevelItem(treeItem);
@@ -528,8 +527,16 @@ void QSolanizer::resetDayPlot()
 void QSolanizer::showMonthData(QDate date) {
     this->startMonthPlot = date;
     Month month = sp.getMonth(date);
-    QPair<QVector<QDate>, QVector<float> > data = month.getEnergyValues();
-    //this->plotDailyEnergyValues(data);
+
+
+    if (this->ui->rEnergy->isChecked()) {
+        QPair<QVector<QDate>, QVector<float> > data = month.getEnergyValues();
+        this->plotDailyEnergyValues(data);
+    } else {
+        QDate monthEnd = date.addDays(date.daysInMonth());
+        QVector<QList<QDateTime> > data = sp.getSignificantTimes(date, monthEnd);
+        this->plotDailyDistribution(data);
+    }
 
     // fill group box data
     this->ui->lMonthEnergy->setText(QString("%1 kWh").arg(month.getEnergy(),0,'f',2));
@@ -550,8 +557,8 @@ void QSolanizer::showCustomRange(QDate start, QDate end)
     }
 
     if (this->ui->rEnergy->isChecked()) {
-        QPair<QVector<QDate>, QVector<float> > data = sp.getEnergyValuesOfDays(start, end);
-        // this->plotDailyEnergyValues(data);
+        QPair<QVector<QDate>, QVector<float>> data = sp.getEnergyValuesOfDays(start, end);
+        this->plotDailyEnergyValues(data);
     } else {
         QVector<QList<QDateTime> > data = sp.getSignificantTimes(start, end);
         this->plotDailyDistribution(data);
@@ -560,50 +567,42 @@ void QSolanizer::showCustomRange(QDate start, QDate end)
 
 void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &data)
 {
-
+    this->ui->wMonthPlot->clearPlottables();
     QCPBarsEnhanced *bars = new QCPBarsEnhanced(this->ui->wMonthPlot->xAxis, this->ui->wMonthPlot->yAxis);
 
-    this->ui->wMonthPlot->clearPlottables();
     this->ui->wColorScaleParent->setVisible(false);
-    //this->ui->wMonthPlot->addPlottable(bars);
 
     bars->setSelectable(QCP::SelectionType::stDataRange);
     QPen pen;
     pen.setWidthF(1.2);
-    //bars->setName(date.toString("MMMM yyyy"));
     pen.setColor(QColor(255, 110, 0));
     bars->setPen(pen);
     bars->setBrush(QColor(255, 110, 0, 50));
-    QVector<double> ticks;
-    QVector<double> dataPos;
-    QVector<QString> labels;
+    QVector<double> dates;
     QVector<double> values;
-    int step = qCeil((float)data.first.size()/31);
 
     for (int i=0; i<data.first.size(); ++i) {
         values << data.second.at(i);
-        dataPos << i;
-        if ((i%step) == 0) {
-            labels << data.first.at(i).toString("dd.MM.");
-            ticks << i;
-        }
+        dates << data.first.at(i).startOfDay().toSecsSinceEpoch();
     }
 
+    this->ui->wMonthPlot->yAxis->ticker().clear();
+    QSharedPointer<QCPAxisTickerFixed> ticker(new QCPAxisTickerFixed);
+    ticker->setTickCount(15);
+    ticker->setTickStep(std::ceil(sp.getHighestDayEnergy()/10));
+    this->ui->wMonthPlot->yAxis->setTicker(ticker);
 
-    // this->ui->wMonthPlot->xAxis->setTickVector(ticks);
-    // this->ui->wMonthPlot->xAxis->setTickVectorLabels(labels);
+    bars->setWidthType(QCPBars::WidthType::wtPlotCoords);
+    bars->setWidth(0.9 * 24 * 3600);
     this->ui->wMonthPlot->xAxis->setTickLabelRotation(60);
     this->ui->wMonthPlot->xAxis->setTickLength(0,4);
     this->ui->wMonthPlot->xAxis->grid()->setVisible(false);
-    this->ui->wMonthPlot->xAxis->setRange(-1, values.size());
+    double halfDay = 23 * 3600;
+    this->ui->wMonthPlot->xAxis->setRange(dates.first() - halfDay, dates.last() + halfDay);
 
     this->ui->wMonthPlot->yAxis->setRange(0, sp.getHighestDayEnergy()*1.1);
     this->ui->wMonthPlot->yAxis->setPadding(5);
-    // this->ui->wMonthPlot->yAxis->setAutoTicks(true);
-    // this->ui->wMonthPlot->yAxis->setAutoTickLabels(true);
-    // this->ui->wMonthPlot->yAxis->setAutoSubTicks(false);
-    // this->ui->wMonthPlot->yAxis->setSubTickCount(4);
-    // this->ui->wMonthPlot->yAxis->setAutoTickLabels(true);
+
     this->ui->wMonthPlot->yAxis->grid()->setSubGridVisible(true);
 
     this->ui->wMonthPlot->yAxis->setLabel("Energie / kWh");
@@ -614,7 +613,7 @@ void QSolanizer::plotDailyEnergyValues(QPair<QVector<QDate>, QVector<float> > &d
     this->ui->wMonthPlot->yAxis->grid()->setPen(gridPen);
     gridPen.setStyle(Qt::DotLine);
     this->ui->wMonthPlot->yAxis->grid()->setSubGridPen(gridPen);
-    bars->setData(dataPos, values);
+    bars->setData(dates, values);
     this->ui->wMonthPlot->replot();
 }
 
@@ -622,16 +621,10 @@ void QSolanizer::plotDailyDistribution(QVector<QList<QDateTime> > &data)
 {
     this->ui->wMonthPlot->clearPlottables();
     this->ui->wColorScaleParent->setVisible(true);
-    QVector<QString> xLabel;
-    QVector<double> xTicks;
-    int step = qCeil((float)data.size()/31);
+
     for (int i=0; i<data.size(); i++) {
-        if ((i % step) == 0) {
-            xTicks << i;
-            xLabel << data.at(i).at(0).toString("dd.MM.yyyy");
-        }
+
         QCPStatisticalBox *box = new QCPStatisticalBox(this->ui->wMonthPlot->xAxis, this->ui->wMonthPlot->yAxis);
-        // this->ui->wMonthPlot->addPlottable(box);
 
         QDate date = data.at(i).at(1).date();
 
@@ -641,27 +634,27 @@ void QSolanizer::plotDailyDistribution(QVector<QList<QDateTime> > &data)
         int green = this->minEnergyColor.green() + (this->maxEnergyColor.green() - this->minEnergyColor.green()) * percent;
         int blue = this->minEnergyColor.blue() + (this->maxEnergyColor.blue() - this->minEnergyColor.blue()) * percent;
 
-//        QBrush boxBrush(QColor(255 * percent, 255 * (1-percent), 0, 150));
         QBrush boxBrush(QColor(red, green, blue));
         box->setBrush(boxBrush);
-        box->addData(i, data.at(i).at(0).time().msecsSinceStartOfDay(), data.at(i).at(1).time().msecsSinceStartOfDay(), data.at(i).at(2).time().msecsSinceStartOfDay(), data.at(i).at(3).time().msecsSinceStartOfDay(), data.at(i).at(4).time().msecsSinceStartOfDay());
-        box->setWidth(.9);
+        double unix_time = date.startOfDay().toSecsSinceEpoch();
+        box->addData(unix_time, data.at(i).at(0).time().msecsSinceStartOfDay()/1000, data.at(i).at(1).time().msecsSinceStartOfDay()/1000, data.at(i).at(2).time().msecsSinceStartOfDay()/1000, data.at(i).at(3).time().msecsSinceStartOfDay()/1000, data.at(i).at(4).time().msecsSinceStartOfDay()/1000);
+        box->setWidth(0.9 * 24 * 3600);
     }
 
-    this->ui->wMonthPlot->rescaleAxes();
 
-    //this->ui->wMonthPlot->xAxis->setTickVector(xTicks);
-    //this->ui->wMonthPlot->xAxis->setTickVectorLabels(xLabel);
-    this->ui->wMonthPlot->xAxis->setRange(-1, data.size());
+    this->ui->wMonthPlot->yAxis->ticker().clear();
+    QSharedPointer<QCPAxisTickerTime> ticker(new QCPAxisTickerTime);
+    ticker->setTimeFormat("%h:%m");
+    this->ui->wMonthPlot->yAxis->setTicker(ticker);
     this->ui->wMonthPlot->xAxis->setTickLabelRotation(60);
 
     this->ui->wMonthPlot->yAxis->setLabel("");
-    //this->ui->wMonthPlot->yAxis->setAutoTickLabels(false);
-    //this->ui->wMonthPlot->yAxis->setAutoTicks(false);
-    //this->ui->wMonthPlot->yAxis->setTickVector(this->dayTicksMSecs);
-    //this->ui->wMonthPlot->yAxis->setTickVectorLabels(this->dayLabelMSecs);
-    //this->ui->wMonthPlot->yAxis->setSubTickCount(4);
-    this->ui->wMonthPlot->yAxis->setRange(0, 24* 1000 * 3600);
+    this->ui->wMonthPlot->yAxis->setRange(0, 24 * 3600);
+
+    double halfDay = 23 * 3600;
+    double rangeStart = data.first().at(1).date().startOfDay().toSecsSinceEpoch() - halfDay;
+    double rangeEnd = data.last().at(1).date().startOfDay().toSecsSinceEpoch() + halfDay;
+    this->ui->wMonthPlot->xAxis->setRange(rangeStart, rangeEnd);
     this->ui->wMonthPlot->replot();
 }
 
@@ -737,9 +730,7 @@ void QSolanizer::plotAllYearData()
     for (int i=0; i<allEnergyData.size(); i++) {
         QVector<double> yearData = allEnergyData.at(i);
         QVector<double> months{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-        //bars = new QCPBarsEnhanced(this->ui->wYearPlot->xAxis, this->ui->wYearPlot->yAxis);
         QCPBarsEnhanced* bars = new QCPBarsEnhanced(this->ui->wYearPlot->xAxis, this->ui->wYearPlot->yAxis);
-        //this->ui->wYearPlot->addPlottable(bars);
         bars->setData(months, yearData);
         QColor c = QColor(this->someColors.at(i % someColors.size()));
         bars->setPen(c);
@@ -766,7 +757,7 @@ void QSolanizer::plotTotalData()
     this->ui->wTotalPlot = temp;
     this->startTotalPlot = sp.getBeginningDate().year();
     // get data
-    QList<QVector<double> > allEnergyData;
+    QList<QVector<double>> allEnergyData;
     QVector<double> years;
     QVector<QString> labels;
 
@@ -807,20 +798,13 @@ void QSolanizer::plotTotalData()
         bars.append(bar);
     }
 
-    //this->ui->wTotalPlot->xAxis->setAutoTicks(false);
-    //this->ui->wTotalPlot->xAxis->setAutoTickLabels(false);
-    //this->ui->wTotalPlot->xAxis->setTickVector(years);
-    //this->ui->wTotalPlot->xAxis->setTickVectorLabels(labels);
-    //this->ui->wTotalPlot->xAxis->setSubTickCount(0);
     this->ui->wTotalPlot->xAxis->setRange(years.at(0)-1, years.at(years.size()-1)+2); //+2 to have space for the legend
-
     this->ui->wTotalPlot->yAxis->setRange(0, sp.getHighestYearEnergy()*1.1);
     this->ui->wTotalPlot->yAxis->setLabel("Energie / kWh");
 
     QPen gridPen;
     gridPen.setStyle(Qt::SolidLine);
     gridPen.setColor(QColor(0,0,0,25));
-//    this->ui->wTotalPlot->yAxis->grid()->setPen(gridPen);
     gridPen.setStyle(Qt::DotLine);
     this->ui->wTotalPlot->yAxis->grid()->setSubGridPen(gridPen);
 
@@ -913,11 +897,8 @@ void QSolanizer::on_tMonthSelection_itemSelectionChanged()
             QDate nextMonth = month.addMonths(1);
             QDate lastDayOfMonth = nextMonth.addDays(-1);
 
-            QDate max;
-            QDate min;
-
-            month >= sp.getBeginningDate() ? min = month : min = sp.getBeginningDate();
-            lastDayOfMonth <= sp.getEndingDate() ? max = lastDayOfMonth : max = sp.getEndingDate();
+            QDate min = month >= sp.getBeginningDate() ? month : sp.getBeginningDate();
+            QDate max =lastDayOfMonth <= sp.getEndingDate() ? lastDayOfMonth : sp.getEndingDate();
 
             this->ui->dateEditStart->setMaximumDate(max);
             this->ui->dateEditEnd->setMinimumDate(min);
@@ -939,11 +920,8 @@ void QSolanizer::on_listWidget_itemSelectionChanged()
 
 void QSolanizer::on_dateEdit_dateChanged(const QDate &date)
 {
-//    QDate date = this->ui->calendarWidget->selectedDate();
     this->plotDayData(date, this->ui->cMultpleChoice->checkState() == Qt::Checked, this->getCurrentPlottingMode());
     this->shownDates.append(date);
-//    this->currentlyShownDates.insert(date);
-//    this->currentlyShownAverageMonths.insert(date.month());
 }
 
 void QSolanizer::on_dateEditStart_userDateChanged(const QDate &date)
@@ -1041,15 +1019,14 @@ void QSolanizer::on_cCompareYears_stateChanged(int checkState)
 void QSolanizer::monthItemClicked(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        QCPStatisticalBox *box = dynamic_cast<QCPStatisticalBox*>(plottable);
-        QCPBarsEnhanced *bars = dynamic_cast<QCPBarsEnhanced*>(plottable);
-        int offset = 0;
-        if (box) {
-            //offset = qRound(box->data()->);
-        } else if (bars) {
-            offset = qRound(bars->getKeyValueOfPixelPosition(event->x(), event->y()));
+        QDate plotDate;
+        if (ui->rEnergy->isChecked()) {
+            plotDate = startMonthPlot.addDays(dataIndex);
+        } else if (ui->rDistribution->isChecked()) {
+            QCPStatisticalBox *box = dynamic_cast<QCPStatisticalBox*>(plottable);
+            plotDate = QDateTime::fromSecsSinceEpoch(box->data()->begin()->mainKey()).date();
         }
-        this->plotDayData(startMonthPlot.addDays(offset), false, this->getCurrentPlottingMode());
+        this->plotDayData(plotDate, false, this->getCurrentPlottingMode());
         this->ui->tabWidget->setCurrentIndex(0);
         event->accept();
     } else {
@@ -1114,15 +1091,7 @@ void QSolanizer::legendItemClicked(QCPLegend *legend, QCPAbstractLegendItem *leg
             this->fillDayGroupbox(d);
             //plottableItem->plottable()->setSelected(true);
         }
-//        this->lastClickedItem = plottableItem;
         event->accept();
-//    } else if (event->button() == Qt::RightButton) {
-//        this->dayContextMenu = new QMenu("QSolanizer");
-//        QAction *action = this->dayContextMenu->addAction("Plot entfernen");
-//        action->setData((int)plottableItem->plottable());
-//        connect(this->dayContextMenu, &QMenu::triggered, this, &QSolanizer::contextMenuTriggered);
-//        this->dayContextMenu->exec(QCursor::pos());
-//        event->accept();
     } else {
         event->ignore();
     }
@@ -1133,9 +1102,6 @@ void QSolanizer::contextMenuTriggered(QAction *action)
     QCPAbstractPlottable* plottable = (QCPAbstractPlottable*) action->data().toInt();
     this->shownDates.removeOne(plottable->property("date").toDate());
     this->replotDayData(this->getCurrentPlottingMode());
-//    this->ui->wPowerCurve->removePlottable(plottable);
-//    this->ui->wPowerCurve->replot();
-
 }
 
 void QSolanizer::on_actionSolarPlantProperties_triggered()

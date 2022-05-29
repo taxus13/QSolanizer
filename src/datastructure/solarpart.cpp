@@ -157,15 +157,17 @@ void SolarPart::setSolarPlantProperties(SolarPlantProperties spp)
 QList<Day> SolarPart::getDaysInRange(QDate &startDate, QDate &endDate)
 {
     QList<Day> days;
-    if (startDate <= endDate) { // check if the parameters make sense
-        QDate date = startDate;
-        while (date <= endDate) {
-            Day day = this->getDay(date);
-            days.append(day);
-            QDate date2 = date.addDays(1);
-            date = date2;
+
+    QDate date = startDate;
+    while (date <= endDate) {
+        if (date > end) {
+            break;
         }
+        Day day = this->getDay(date);
+        days.append(day);
+        date = date.addDays(1);
     }
+
     return days;
 }
 
